@@ -24,7 +24,16 @@ export async function GET(request: Request) {
   }
   const statement = session.role === 'admin'
     ? env.DB.prepare('SELECT id, player_id AS playerId, player_name AS playerName, power, kills, defeat, troops, screenshot_key AS screenshotKey, note, status, submitted_at AS submittedAt, reviewed_at AS reviewedAt FROM submissions ORDER BY submitted_at DESC, id DESC')
-    : env.DB.prepare('SELECT id, player_id AS playerId, player_name AS playerName, power, kills, defeat, troops, screenshot_key AS screenshotKey, note, status, submitted_at AS submittedAt, reviewed_at AS reviewedAt FROM submissions WHERE player_id = ? ORDER BY submitted_at DESC, id DESC').bind(session.playerId);
+    : env.DB.prepare(`WITH player_scans AS (
+        SELECT id, player_id AS playerId, player_name AS playerName, power, kills, defeat, troops, screenshot_key AS screenshotKey, note, status, submitted_at AS submittedAt, reviewed_at AS reviewedAt,
+          LAG(player_name) OVER (ORDER BY submitted_at, id) AS beforeName,
+          LAG(power) OVER (ORDER BY submitted_at, id) AS beforePower,
+          LAG(kills) OVER (ORDER BY submitted_at, id) AS beforeKills,
+          LAG(defeat) OVER (ORDER BY submitted_at, id) AS beforeDefeat,
+          LAG(troops) OVER (ORDER BY submitted_at, id) AS beforeTroops,
+          ROW_NUMBER() OVER (ORDER BY submitted_at DESC, id DESC) AS row_number
+        FROM submissions WHERE player_id = ?
+      ) SELECT * FROM player_scans WHERE row_number = 1`).bind(session.playerId);
   const data = await statement.all();
   return Response.json(data.results);
 }
@@ -44,6 +53,8 @@ export async function POST(request: Request) {
     if (!beforeName || !afterName || beforeValues.some((value) => value === null) || afterValues.some((value) => value === null)) return Response.json({ error: 'Enter complete before and after statistics.' }, { status: 400 });
     const player = await env.DB.prepare('SELECT player_id FROM players WHERE player_id = ?').bind(session.playerId).first();
     if (!player) return unauthorized();
+    const existing = await env.DB.prepare('SELECT id FROM submissions WHERE player_id = ? LIMIT 1').bind(session.playerId).first();
+    if (existing) return Response.json({ error: 'A comparison already exists. Edit your current comparison instead.' }, { status: 409 });
     const period = await env.DB.prepare("SELECT id FROM scan_periods WHERE status = 'open' ORDER BY id DESC LIMIT 1").first<{ id: number }>();
     const now = new Date().toISOString();
     const note = body.note?.trim().slice(0, 500) || null;
@@ -73,6 +84,29 @@ export async function PATCH(request: Request) {
   const values = [asNumber(body.power), asNumber(body.kills), asNumber(body.defeat), asNumber(body.troops)];
   const wantsStats = values.some((value) => value !== null) || body.name !== undefined;
   if (session.role === 'player') {
+    if (body.comparison) {
+      const before = body.comparison.before;
+      const after = body.comparison.after;
+      const beforeName = validName(before?.name);
+      const afterName = validName(after?.name);
+      const beforeValues = [asNumber(before?.power), asNumber(before?.kills), asNumber(before?.defeat), asNumber(before?.troops)];
+      const afterValues = [asNumber(after?.power), asNumber(after?.kills), asNumber(after?.defeat), asNumber(after?.troops)];
+      if (!beforeName || !afterName || beforeValues.some((value) => value === null) || afterValues.some((value) => value === null)) return Response.json({ error: 'Enter complete before and after statistics.' }, { status: 400 });
+      const current = await env.DB.prepare('SELECT id, player_id, submitted_at FROM submissions WHERE id = ?').bind(body.id).first<{ id: number; player_id: string; submitted_at: string }>();
+      if (!current || current.player_id !== session.playerId) return unauthorized();
+      const previous = await env.DB.prepare('SELECT id FROM submissions WHERE player_id = ? AND (submitted_at < ? OR (submitted_at = ? AND id < ?)) ORDER BY submitted_at DESC, id DESC LIMIT 1').bind(session.playerId, current.submitted_at, current.submitted_at, current.id).first<{ id: number }>();
+      const now = new Date().toISOString();
+      const note = body.note?.trim().slice(0, 500) || null;
+      const edits = [
+        env.DB.prepare('UPDATE players SET display_name = ? WHERE player_id = ?').bind(afterName, session.playerId),
+        env.DB.prepare('UPDATE submissions SET player_name = ?, power = ?, kills = ?, defeat = ?, troops = ?, note = ? WHERE id = ?').bind(afterName, afterValues[0], afterValues[1], afterValues[2], afterValues[3], note, current.id),
+        env.DB.prepare('INSERT INTO audit_events (actor, action, submission_id, detail, created_at) VALUES (?, ?, ?, ?, ?)').bind(`player:${session.playerId}`, 'comparison_edited', current.id, 'Player edited current before/after comparison', now),
+      ];
+      if (previous) edits.splice(1, 0, env.DB.prepare('UPDATE submissions SET player_name = ?, power = ?, kills = ?, defeat = ?, troops = ?, note = ? WHERE id = ?').bind(beforeName, beforeValues[0], beforeValues[1], beforeValues[2], beforeValues[3], note, previous.id));
+      else edits.splice(1, 0, env.DB.prepare('INSERT INTO submissions (player_id, player_name, period_id, power, kills, defeat, troops, note, status, submitted_at) VALUES (?, ?, NULL, ?, ?, ?, ?, ?, ?, ?)').bind(session.playerId, beforeName, beforeValues[0], beforeValues[1], beforeValues[2], beforeValues[3], note, 'pending', new Date(new Date(current.submitted_at).getTime() - 1).toISOString()));
+      await env.DB.batch(edits);
+      return Response.json({ ok: true });
+    }
     if (!wantsStats || values.some((value) => value === null)) return Response.json({ error: 'Every statistic must be a valid whole number.' }, { status: 400 });
     const current = await env.DB.prepare('SELECT player_id, player_name FROM submissions WHERE id = ?').bind(body.id).first<{ player_id: string; player_name: string }>();
     if (!current || current.player_id !== session.playerId) return unauthorized();
