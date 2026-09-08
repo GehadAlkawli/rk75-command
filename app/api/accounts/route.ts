@@ -8,7 +8,7 @@ const imageLimit = 9;
 type ListingRow = {
   id: number; playerId: string; title: string; mainSpec: string; kingdom: string; totalPower: string; killPoints: string;
   vipLevel: string; totalTroops: string; price: string; paymentMethods: string; ownerDiscord: string;
-  intermediaryDiscord: string | null; createdAt: string; updatedAt: string;
+  intermediaryDiscord: string | null; status: 'published' | 'sold'; createdAt: string; updatedAt: string;
 };
 
 const textValue = (value: FormDataEntryValue | null, max: number) => {
@@ -20,8 +20,8 @@ export async function GET() {
   const listings = await env.DB.prepare(`SELECT id, player_id AS playerId, title, main_spec AS mainSpec, kingdom,
     total_power AS totalPower, kill_points AS killPoints, vip_level AS vipLevel, total_troops AS totalTroops,
     price, payment_methods AS paymentMethods, owner_discord AS ownerDiscord,
-    intermediary_discord AS intermediaryDiscord, created_at AS createdAt, updated_at AS updatedAt
-    FROM account_listings WHERE status = 'published' ORDER BY created_at DESC, id DESC`).all<ListingRow>();
+    intermediary_discord AS intermediaryDiscord, status, created_at AS createdAt, updated_at AS updatedAt
+    FROM account_listings WHERE status IN ('published', 'sold') ORDER BY created_at DESC, id DESC`).all<ListingRow>();
   const rows = listings.results ?? [];
   if (!rows.length) return Response.json([]);
   const ids = rows.map((listing) => listing.id);
@@ -90,4 +90,15 @@ export async function DELETE(request: Request) {
   await env.DB.prepare('DELETE FROM account_listings WHERE id = ?').bind(id).run();
   await Promise.all((images.results ?? []).map((image) => env.FILES.delete(image.objectKey)));
   return Response.json({ ok: true });
+}
+
+export async function PATCH(request: Request) {
+  const session = await readSession(request);
+  if (!session) return unauthorized();
+  const { id, status } = await request.json() as { id?: number; status?: 'published' | 'sold' };
+  if (!Number.isInteger(id) || (status !== 'published' && status !== 'sold')) return invalid('Invalid listing status.');
+  const listing = await env.DB.prepare('SELECT player_id AS playerId FROM account_listings WHERE id = ?').bind(id).first<{ playerId: string }>();
+  if (!listing || (session.role !== 'admin' && listing.playerId !== session.playerId)) return unauthorized();
+  await env.DB.prepare('UPDATE account_listings SET status = ?, updated_at = ? WHERE id = ?').bind(status, new Date().toISOString(), id).run();
+  return Response.json({ ok: true, status });
 }

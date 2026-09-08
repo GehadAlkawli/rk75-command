@@ -81,7 +81,7 @@ export const accountListings = sqliteTable('account_listings', {
   paymentMethods: text('payment_methods').notNull(),
   ownerDiscord: text('owner_discord').notNull(),
   intermediaryDiscord: text('intermediary_discord'),
-  status: text('status', { enum: ['published', 'hidden'] }).notNull().default('published'),
+  status: text('status', { enum: ['published', 'hidden', 'sold'] }).notNull().default('published'),
   createdAt: text('created_at').notNull(),
   updatedAt: text('updated_at').notNull(),
 }, (table) => [
