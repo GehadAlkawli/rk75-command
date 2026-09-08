@@ -7,7 +7,18 @@ const asNumber = (value: unknown) => typeof value === 'number' && Number.isSafeI
 
 export async function GET(request: Request) {
   const session = await readSession(request);
-  if (!session) return unauthorized();
+  if (!session) {
+    const data = await env.DB.prepare(`WITH ranked AS (
+      SELECT id, player_id AS playerId, player_name AS playerName, power, kills, defeat, troops, submitted_at AS submittedAt,
+        LAG(power) OVER (PARTITION BY player_id ORDER BY submitted_at) AS previousPower,
+        LAG(kills) OVER (PARTITION BY player_id ORDER BY submitted_at) AS previousKills,
+        LAG(defeat) OVER (PARTITION BY player_id ORDER BY submitted_at) AS previousDefeat,
+        LAG(troops) OVER (PARTITION BY player_id ORDER BY submitted_at) AS previousTroops,
+        ROW_NUMBER() OVER (PARTITION BY player_id ORDER BY submitted_at DESC) AS position
+      FROM submissions WHERE status = 'approved'
+    ) SELECT * FROM ranked WHERE position = 1 ORDER BY kills DESC`).all();
+    return Response.json(data.results);
+  }
   const statement = session.role === 'admin'
     ? env.DB.prepare('SELECT id, player_id as playerId, player_name as playerName, power, kills, defeat, troops, status, submitted_at as submittedAt, reviewed_at as reviewedAt FROM submissions ORDER BY submitted_at DESC')
     : env.DB.prepare('SELECT id, player_id as playerId, player_name as playerName, power, kills, defeat, troops, status, submitted_at as submittedAt, reviewed_at as reviewedAt FROM submissions WHERE player_id = ? ORDER BY submitted_at DESC').bind(session.playerId);
