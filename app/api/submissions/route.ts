@@ -1,7 +1,8 @@
 import { env } from 'cloudflare:workers';
 import { readSession } from '@/lib/auth';
 
-type SubmissionInput = { id?: number; name?: string; power?: number; kills?: number; defeat?: number; troops?: number; note?: string; status?: 'approved' | 'rejected' };
+type SnapshotInput = { name?: string; power?: number; kills?: number; defeat?: number; troops?: number };
+type SubmissionInput = { id?: number; name?: string; power?: number; kills?: number; defeat?: number; troops?: number; note?: string; status?: 'approved' | 'rejected'; comparison?: { before?: SnapshotInput; after?: SnapshotInput } };
 const unauthorized = () => Response.json({ error: 'Unauthorized' }, { status: 401 });
 const asNumber = (value: unknown) => typeof value === 'number' && Number.isSafeInteger(value) && value >= 0 ? value : null;
 const validName = (value: unknown) => typeof value === 'string' && value.trim().length >= 2 && value.trim().length <= 60 ? value.trim() : null;
@@ -32,6 +33,27 @@ export async function POST(request: Request) {
   const session = await readSession(request);
   if (!session || session.role !== 'player' || !session.playerId) return unauthorized();
   const body = await request.json() as SubmissionInput;
+  const comparison = body.comparison;
+  if (comparison) {
+    const before = comparison.before;
+    const after = comparison.after;
+    const beforeName = validName(before?.name);
+    const afterName = validName(after?.name);
+    const beforeValues = [asNumber(before?.power), asNumber(before?.kills), asNumber(before?.defeat), asNumber(before?.troops)];
+    const afterValues = [asNumber(after?.power), asNumber(after?.kills), asNumber(after?.defeat), asNumber(after?.troops)];
+    if (!beforeName || !afterName || beforeValues.some((value) => value === null) || afterValues.some((value) => value === null)) return Response.json({ error: 'Enter complete before and after statistics.' }, { status: 400 });
+    const player = await env.DB.prepare('SELECT player_id FROM players WHERE player_id = ?').bind(session.playerId).first();
+    if (!player) return unauthorized();
+    const period = await env.DB.prepare("SELECT id FROM scan_periods WHERE status = 'open' ORDER BY id DESC LIMIT 1").first<{ id: number }>();
+    const now = new Date().toISOString();
+    const note = body.note?.trim().slice(0, 500) || null;
+    const inserted = await env.DB.batch([
+      env.DB.prepare('UPDATE players SET display_name = ? WHERE player_id = ?').bind(afterName, session.playerId),
+      env.DB.prepare('INSERT INTO submissions (player_id, player_name, period_id, power, kills, defeat, troops, note, status, submitted_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)').bind(session.playerId, beforeName, period?.id ?? null, beforeValues[0], beforeValues[1], beforeValues[2], beforeValues[3], note, 'pending', now),
+      env.DB.prepare('INSERT INTO submissions (player_id, player_name, period_id, power, kills, defeat, troops, note, status, submitted_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)').bind(session.playerId, afterName, period?.id ?? null, afterValues[0], afterValues[1], afterValues[2], afterValues[3], note, 'pending', now),
+    ]);
+    return Response.json({ beforeId: inserted[1].meta.last_row_id, afterId: inserted[2].meta.last_row_id, status: 'pending', submittedAt: now });
+  }
   const values = [asNumber(body.power), asNumber(body.kills), asNumber(body.defeat), asNumber(body.troops)];
   if (values.some((value) => value === null)) return Response.json({ error: 'Stats must be valid non-negative whole numbers.' }, { status: 400 });
   const player = await env.DB.prepare('SELECT display_name FROM players WHERE player_id = ?').bind(session.playerId).first<{ display_name: string }>();
