@@ -8,7 +8,7 @@ const validName = (value: unknown) => typeof value === 'string' && value.trim().
 
 export async function GET(request: Request) {
   const session = await readSession(request);
-  if (!session) {
+  if (!session || new URL(request.url).searchParams.get('public') === '1') {
     const data = await env.DB.prepare(`WITH scans AS (
       SELECT id, player_id AS playerId, player_name AS playerName, power, kills, defeat, troops, submitted_at AS submittedAt,
         LAG(player_name) OVER (PARTITION BY player_id ORDER BY submitted_at, id) AS beforeName,
