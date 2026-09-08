@@ -51,3 +51,18 @@ export const presence = sqliteTable('presence', {
   visitorKey: text('visitor_key').primaryKey(),
   lastSeenAt: text('last_seen_at').notNull(),
 }, (table) => [index('idx_presence_last_seen').on(table.lastSeenAt)]);
+
+// The server stores only ciphertext. The vault passphrase never leaves the admin's browser.
+export const adminVaultSettings = sqliteTable('admin_vault_settings', {
+  id: integer('id').primaryKey(),
+  salt: text('salt').notNull(),
+  verifier: text('verifier').notNull(),
+  createdAt: text('created_at').notNull(),
+});
+
+export const adminVaultEntries = sqliteTable('admin_vault_entries', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  encryptedPayload: text('encrypted_payload').notNull(),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+});
