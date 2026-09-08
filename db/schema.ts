@@ -66,3 +66,33 @@ export const adminVaultEntries = sqliteTable('admin_vault_entries', {
   createdAt: text('created_at').notNull(),
   updatedAt: text('updated_at').notNull(),
 });
+
+export const accountListings = sqliteTable('account_listings', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  playerId: text('player_id').notNull(),
+  title: text('title').notNull(),
+  mainSpec: text('main_spec').notNull(),
+  kingdom: text('kingdom').notNull(),
+  totalPower: text('total_power').notNull(),
+  killPoints: text('kill_points').notNull(),
+  vipLevel: text('vip_level').notNull(),
+  totalTroops: text('total_troops').notNull(),
+  price: text('price').notNull(),
+  paymentMethods: text('payment_methods').notNull(),
+  ownerDiscord: text('owner_discord').notNull(),
+  intermediaryDiscord: text('intermediary_discord'),
+  status: text('status', { enum: ['published', 'hidden'] }).notNull().default('published'),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+}, (table) => [
+  index('idx_account_listings_player').on(table.playerId),
+  index('idx_account_listings_status').on(table.status, table.createdAt),
+]);
+
+export const accountListingImages = sqliteTable('account_listing_images', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  listingId: integer('listing_id').notNull().references(() => accountListings.id, { onDelete: 'cascade' }),
+  objectKey: text('object_key').notNull(),
+  contentType: text('content_type').notNull(),
+  position: integer('position').notNull(),
+}, (table) => [index('idx_account_listing_images_listing').on(table.listingId, table.position)]);
