@@ -46,3 +46,8 @@ export const auditEvents = sqliteTable('audit_events', {
   detail: text('detail'),
   createdAt: text('created_at').notNull(),
 }, (table) => [index('idx_audit_events_created').on(table.createdAt)]);
+
+export const presence = sqliteTable('presence', {
+  visitorKey: text('visitor_key').primaryKey(),
+  lastSeenAt: text('last_seen_at').notNull(),
+}, (table) => [index('idx_presence_last_seen').on(table.lastSeenAt)]);

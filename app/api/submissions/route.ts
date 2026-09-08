@@ -43,12 +43,35 @@ export async function POST(request: Request) {
 export async function PATCH(request: Request) {
   const session = await readSession(request);
   if (!session || session.role !== 'admin') return unauthorized();
-  const body = await request.json() as { id?: number; status?: 'approved' | 'rejected' };
-  if (!Number.isInteger(body.id) || (body.status !== 'approved' && body.status !== 'rejected')) return Response.json({ error: 'Invalid review request.' }, { status: 400 });
+  const body = await request.json() as { id?: number; status?: 'approved' | 'rejected'; power?: number; kills?: number; defeat?: number; troops?: number };
+  if (!Number.isInteger(body.id)) return Response.json({ error: 'Invalid member request.' }, { status: 400 });
   const now = new Date().toISOString();
+  const values = [asNumber(body.power), asNumber(body.kills), asNumber(body.defeat), asNumber(body.troops)];
+  if (values.some((value) => value !== null)) {
+    if (values.some((value) => value === null)) return Response.json({ error: 'Every statistic must be a valid whole number.' }, { status: 400 });
+    await env.DB.batch([
+      env.DB.prepare('UPDATE submissions SET power = ?, kills = ?, defeat = ?, troops = ?, reviewed_at = ?, reviewed_by = ? WHERE id = ?').bind(values[0], values[1], values[2], values[3], now, 'admin', body.id),
+      env.DB.prepare('INSERT INTO audit_events (actor, action, submission_id, detail, created_at) VALUES (?, ?, ?, ?, ?)').bind('admin', 'submission_edited', body.id, 'Admin edited player statistics', now),
+    ]);
+    return Response.json({ ok: true });
+  }
+  if (body.status !== 'approved' && body.status !== 'rejected') return Response.json({ error: 'Invalid review request.' }, { status: 400 });
   await env.DB.batch([
     env.DB.prepare('UPDATE submissions SET status = ?, reviewed_at = ?, reviewed_by = ? WHERE id = ?').bind(body.status, now, 'admin', body.id),
     env.DB.prepare('INSERT INTO audit_events (actor, action, submission_id, detail, created_at) VALUES (?, ?, ?, ?, ?)').bind('admin', `submission_${body.status}`, body.id, body.status, now),
+  ]);
+  return Response.json({ ok: true });
+}
+
+export async function DELETE(request: Request) {
+  const session = await readSession(request);
+  if (!session || session.role !== 'admin') return unauthorized();
+  const body = await request.json() as { playerId?: string };
+  if (!body.playerId || !/^\d{3,24}$/.test(body.playerId)) return Response.json({ error: 'Invalid player.' }, { status: 400 });
+  await env.DB.batch([
+    env.DB.prepare('DELETE FROM audit_events WHERE submission_id IN (SELECT id FROM submissions WHERE player_id = ?)').bind(body.playerId),
+    env.DB.prepare('DELETE FROM submissions WHERE player_id = ?').bind(body.playerId),
+    env.DB.prepare('DELETE FROM players WHERE player_id = ?').bind(body.playerId),
   ]);
   return Response.json({ ok: true });
 }
