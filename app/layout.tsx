@@ -2,8 +2,8 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Fate War Command',
-  description: 'مركز قيادة التحالف وإحصاءات Fate War',
+  title: 'RK75 Command',
+  description: 'RK75 alliance command and Fate War statistics',
 };
 
 export default function RootLayout({
