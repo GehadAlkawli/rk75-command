@@ -1,0 +1,14 @@
+/* Route tabs: the selected destination lights up, then a skewed panel carries the user there. */
+.neo-top nav,.market-nav nav,.comparison-nav>div{position:relative;isolation:isolate;padding:4px;border:1px solid rgba(126,151,205,.15);border-radius:7px;background:#080a10}
+.neo-top nav>a,.market-nav nav>a,.comparison-nav>div>a{position:relative;z-index:1;min-height:36px;display:inline-flex;align-items:center;justify-content:center;border-color:transparent!important;background:transparent!important;transition:color .26s ease,transform .26s ease,background .26s ease!important}
+.neo-top nav>a::before,.market-nav nav>a::before,.comparison-nav>div>a::before{content:"";position:absolute;z-index:-1;inset:2px;border-radius:4px;background:linear-gradient(112deg,rgba(255,154,174,.16),rgba(121,168,255,.15) 52%,rgba(255,218,100,.14));opacity:0;transform:scale(.76);transition:opacity .28s ease,transform .34s cubic-bezier(.18,.9,.22,1)}
+.neo-top nav>a:hover::before,.market-nav nav>a:hover::before,.comparison-nav>div>a:hover::before,.neo-top nav>a.rk-nav-active::before,.market-nav nav>a.rk-nav-active::before,.comparison-nav>div>a.rk-nav-active::before{opacity:1;transform:scale(1)}
+.neo-top nav>a.rk-nav-active,.market-nav nav>a.rk-nav-active,.comparison-nav>div>a.rk-nav-active{color:#fff3c5!important;text-shadow:0 0 18px rgba(255,210,111,.35)}
+.neo-top nav>a:hover,.market-nav nav>a:hover,.comparison-nav>div>a:hover{transform:translateY(-1px)}
+html.rk-route-leave body{overflow:hidden}
+html.rk-route-leave body::after{content:"";position:fixed;z-index:999;inset:-18% -30%;pointer-events:none;background:linear-gradient(102deg,transparent 0 31%,#090a0f 35% 65%,transparent 69%);transform:translateX(-95%) skewX(-13deg);animation:rkRouteBlade .47s cubic-bezier(.7,0,.2,1) both}
+html.rk-route-leave body::before{content:"";position:fixed;z-index:1000;inset:-18% -30%;pointer-events:none;border-inline:3px solid transparent;border-image:linear-gradient(#ff9aae,#7ca8ff 53%,#ffda64) 1;transform:translateX(-95%) skewX(-13deg);filter:drop-shadow(0 0 12px #7ca8ff);animation:rkRouteSeams .47s cubic-bezier(.7,0,.2,1) both}
+@keyframes rkRouteBlade{0%{transform:translateX(-95%) skewX(-13deg)}52%{transform:translateX(0) skewX(-13deg)}100%{transform:translateX(95%) skewX(-13deg)}}
+@keyframes rkRouteSeams{0%{opacity:0;transform:translateX(-95%) skewX(-13deg)}25%,72%{opacity:1}100%{opacity:0;transform:translateX(95%) skewX(-13deg)}}
+@media(max-width:680px){.neo-top nav,.market-nav nav,.comparison-nav>div{padding:2px;gap:2px}.neo-top nav>a,.market-nav nav>a,.comparison-nav>div>a{min-height:34px;padding-inline:8px!important;font-size:11px!important}}
+@media(prefers-reduced-motion:reduce){html.rk-route-leave body::after,html.rk-route-leave body::before{animation:none;display:none}.neo-top nav>a,.market-nav nav>a,.comparison-nav>div>a{transition:none!important}}

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import NavigationTransition from './navigation-transition';
 
 export const metadata: Metadata = {
   title: 'RK75 Command',
@@ -13,7 +14,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ar" dir="rtl">
-      <body>{children}</body>
+      <body><NavigationTransition/>{children}</body>
     </html>
   );
 }
