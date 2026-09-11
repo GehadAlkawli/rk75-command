@@ -1,0 +1,15 @@
+/* A single skewed blade hides the card while the account panel changes underneath. */
+.blade-auth{isolation:isolate;--blade-rake:-13deg;--blade-duration:1.18s}
+.blade-auth .auth-band{inset:-20% -36%;z-index:8;transform:skewX(var(--blade-rake));overflow:hidden}
+.blade-auth .auth-band-inner{position:absolute;inset:0;background:#07080c;box-shadow:inset 0 1px rgba(255,255,255,.04);animation:authBladeCover var(--blade-duration) cubic-bezier(.73,0,.17,1) both}
+.blade-auth .auth-band-page{height:100%;display:grid;place-content:center;text-align:center;gap:8px;transform:skewX(calc(-1 * var(--blade-rake)));color:#f7f9ff}.blade-auth .auth-band-page small{color:#ffd76a;letter-spacing:.24em;font-size:11px}.blade-auth .auth-band-page h3{margin:0;font:700 clamp(30px,5vw,50px) Inter,Arial,sans-serif;letter-spacing:-.06em}
+.blade-auth .auth-band::before,.blade-auth .auth-band::after{content:"";position:absolute;z-index:2;top:0;bottom:0;width:3px;opacity:0;background:linear-gradient(#ff9aae,#87adff 55%,#ffda64);box-shadow:0 0 20px #8aaeff;animation:authBladeSeam var(--blade-duration) cubic-bezier(.73,0,.17,1) both}
+.blade-auth .auth-band::before{left:4%;animation-delay:.025s}.blade-auth .auth-band::after{right:4%;animation-delay:.085s}
+.blade-auth .auth-band>i{display:none}
+.blade-auth .auth-page{animation:authPanelTrade var(--blade-duration) cubic-bezier(.26,.8,.24,1) both!important}
+.blade-auth.gate-login .auth-page{animation-name:authPanelTradeLogin!important}
+@keyframes authBladeCover{0%,17%{transform:translateX(-118%)}38%,60%{transform:translateX(0)}100%{transform:translateX(118%)}}
+@keyframes authBladeSeam{0%,16%{opacity:0;transform:translateX(-1600%)}26%,58%{opacity:1;transform:translateX(0)}100%{opacity:0;transform:translateX(1600%)}}
+@keyframes authPanelTrade{0%,25%{opacity:0;transform:translateX(-12px) scale(.985)}55%{opacity:.08;transform:translateX(7px) scale(.99)}75%,100%{opacity:1;transform:none}}
+@keyframes authPanelTradeLogin{0%,25%{opacity:0;transform:translateX(12px) scale(.985)}55%{opacity:.08;transform:translateX(-7px) scale(.99)}75%,100%{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.blade-auth .auth-band,.blade-auth .auth-band::before,.blade-auth .auth-band::after,.blade-auth .auth-page{animation:none!important}}
