@@ -1,0 +1,5 @@
+/* Keep the editor-inspired surfaces, but never show source-code text to players. */
+.stage-copy::before,.signal-console::before,.stage-copy::after{display:none!important;content:none!important}
+.stage-copy{padding-top:clamp(52px,7vw,112px)!important}
+.signal-console{padding-top:34px!important}
+@media(max-width:760px){.signal-console{padding-top:34px!important}}
