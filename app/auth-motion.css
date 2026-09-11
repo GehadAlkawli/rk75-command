@@ -1,0 +1,29 @@
+/* Access sequence: code shutters open before the account form is unlocked. */
+.gate-backdrop{isolation:isolate;overflow:hidden}
+.gate-backdrop::before{content:"";position:absolute;inset:0;z-index:-1;opacity:.72;background:linear-gradient(90deg,rgba(105,142,234,.06) 1px,transparent 1px),linear-gradient(rgba(105,142,234,.045) 1px,transparent 1px),radial-gradient(circle at 50% 48%,rgba(88,135,255,.18),transparent 34%);background-size:42px 42px,42px 42px,100% 100%;animation:authGridDrift 9s linear infinite}
+.gate-backdrop::after{content:"01 / validate identity\A02 / unlock RK75 command\A03 / access sequence";white-space:pre;position:absolute;right:clamp(18px,5vw,72px);bottom:clamp(18px,5vw,56px);z-index:-1;color:rgba(146,175,234,.35);font:10px/1.9 ui-monospace,monospace;letter-spacing:.08em;animation:authConsole 1.2s ease both}
+.gate-card{z-index:1;animation:authPanelOpen .82s cubic-bezier(.16,.9,.25,1.18) both!important}
+.gate-card::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(112deg,transparent 0 35%,rgba(140,197,255,.09) 47%,rgba(255,255,255,.25) 50%,rgba(140,197,255,.09) 53%,transparent 65%);transform:translateX(-135%);animation:authScan 2.7s .42s ease-in-out both}
+.auth-motion{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.auth-motion i{position:absolute;left:-18%;width:48%;height:2px;background:linear-gradient(90deg,transparent,#86b2ff,#f3a5c0,transparent);box-shadow:0 0 14px rgba(127,177,255,.72);transform:rotate(-28deg) translateX(-140%);animation:authSlash 1.25s cubic-bezier(.13,.86,.21,1) both}
+.auth-motion i:nth-child(1){top:23%;animation-delay:.12s}.auth-motion i:nth-child(2){top:50%;animation-delay:.28s}.auth-motion i:nth-child(3){top:76%;animation-delay:.44s}
+.gate-card label,.gate-card .ember-button,.gate-card .switch-auth{animation:authFieldReveal .62s ease both}
+.gate-card label:nth-of-type(1){animation-delay:.18s}.gate-card label:nth-of-type(2){animation-delay:.3s}.gate-card label:nth-of-type(3){animation-delay:.42s}.gate-card .ember-button{animation-delay:.53s}.gate-card .switch-auth{animation-delay:.62s}
+.gate-login{border-color:rgba(117,170,255,.54)!important;background:linear-gradient(145deg,#111d36,#060914 74%)!important;box-shadow:0 42px 130px rgba(0,0,0,.82),0 0 48px rgba(81,140,255,.13),inset 0 1px rgba(255,255,255,.07)!important}
+.gate-login::before{content:"LOGIN / RETURNING FIGHTER"!important;color:#9dbdff!important;background:linear-gradient(90deg,#0a1222,#101d35)!important}
+.gate-login .gate-emblem{background:linear-gradient(140deg,#c6dcff,#5589f5)!important;box-shadow:0 0 34px rgba(96,147,255,.45)!important;animation:loginEmblem .8s .25s cubic-bezier(.18,.9,.26,1.28) both}
+.gate-login h2{color:#f2f6ff;text-shadow:0 0 26px rgba(119,166,255,.2)}
+.gate-login .ember-button{background:linear-gradient(105deg,#b9d2ff,#6599ff 52%,#6a70df)!important;box-shadow:0 0 0 1px rgba(187,213,255,.34),0 13px 30px rgba(85,134,255,.24)!important}
+.gate-login .switch-auth{color:#f4afc9!important}
+.gate-register::before{content:"REGISTER / NEW FIGHTER"!important}
+.gate-register .gate-emblem{animation:registerEmblem .8s .25s cubic-bezier(.18,.9,.26,1.28) both}
+@keyframes authPanelOpen{0%{opacity:0;clip-path:inset(47% 0 47% 0 round 18px);transform:scale(.88) translateY(24px)}46%{opacity:1;clip-path:inset(0 0 0 0 round 18px);transform:scale(1.015) translateY(0)}100%{opacity:1;clip-path:inset(0 0 0 0 round 18px);transform:none}}
+@keyframes authScan{0%{transform:translateX(-135%)}52%,100%{transform:translateX(135%)}}
+@keyframes authSlash{0%{opacity:0;transform:rotate(-28deg) translateX(-140%)}38%{opacity:1}100%{opacity:0;transform:rotate(-28deg) translateX(390%)}}
+@keyframes authGridDrift{to{background-position:42px 42px,-42px 42px,0 0}}
+@keyframes authConsole{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes authFieldReveal{from{opacity:0;clip-path:inset(0 100% 0 0);transform:translateX(-14px)}to{opacity:1;clip-path:inset(0 0 0 0);transform:none}}
+@keyframes loginEmblem{0%{opacity:0;transform:rotate(-105deg) scale(.15)}70%{opacity:1;transform:rotate(10deg) scale(1.12)}100%{transform:none}}
+@keyframes registerEmblem{0%{opacity:0;transform:scale(.2) rotate(40deg)}68%{opacity:1;transform:scale(1.12) rotate(-6deg)}100%{transform:none}}
+@media(max-width:600px){.gate-backdrop::after{display:none}.gate-card{max-height:calc(100dvh - 28px);overflow:auto}.gate-card label:nth-of-type(1){animation-delay:.1s}.gate-card label:nth-of-type(2){animation-delay:.18s}.gate-card label:nth-of-type(3){animation-delay:.26s}}
+@media(prefers-reduced-motion:reduce){.gate-backdrop::before,.gate-card,.gate-card::after,.auth-motion i,.gate-card label,.gate-card .ember-button,.gate-card .switch-auth,.gate-login .gate-emblem,.gate-register .gate-emblem{animation:none!important}.gate-card{clip-path:none!important}}
