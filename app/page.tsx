@@ -221,11 +221,6 @@ export default function Home() {
   });
 
   const [
-    utc,
-    setUtc,
-  ] = useState('');
-
-  const [
     editing,
     setEditing,
   ] = useState<Scan | null>(null);
@@ -274,8 +269,6 @@ export default function Home() {
   const t = copy[lang];
   const rtl = lang === 'ar';
   const load=async()=>{const r=await fetch('/api/submissions');if(r.ok)setScans(await r.json())};
-
-  useEffect(()=>{const tick=()=>setUtc(new Intl.DateTimeFormat('en-GB',{timeZone:'UTC',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).format(new Date()));tick();const id=setInterval(tick,1000);return()=>clearInterval(id)},[]);
 
   useEffect(()=>{let key=localStorage.getItem('rk75-presence');if(!key){key=crypto.randomUUID();localStorage.setItem('rk75-presence',key)}const ping=async()=>{const r=await fetch('/api/presence',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({visitorKey:key})});if(r.ok)setPresence(await r.json())};void ping();const id=setInterval(ping,30000);return()=>clearInterval(id)},[]);
 
@@ -741,7 +734,7 @@ if(view==='home')return(
       </nav>
     </header>
 
-    <section className="command-stage">
+    <section className="command-stage command-stage-solo">
 
       <div className="stage-copy">
 
@@ -803,52 +796,6 @@ if(view==='home')return(
         </div>
 
       </div>
-
-      <aside className="signal-console">
-
-        <div className="console-top">
-          <span className="pulse"/>
-          {t.open}
-          <b>LIVE</b>
-        </div>
-
-        <div className="utc-clock">
-          <small>{t.utc}</small>
-          <strong>{utc}</strong>
-        </div>
-
-        <div className="radar">
-          <i/>
-          <i/>
-          <i/>
-          <span>RK75</span>
-        </div>
-
-        <div className="console-metrics">
-
-          <div>
-            <Users/>
-            <span>{t.all}</span>
-            <b>{presence.members}</b>
-          </div>
-
-          <div>
-            <Activity/>
-            <span>{t.online}</span>
-            <b>{presence.online}</b>
-          </div>
-
-        </div>
-
-        <a
-          href="/stats"
-          className="console-roster"
-        >
-          {t.members}
-          <ChevronRight size={16}/>
-        </a>
-
-      </aside>
 
     </section>
 
