@@ -1265,6 +1265,37 @@ return(
                       setEditing(s);
                       setDraft(asDraft(s));
                     }}
+                  >
+                    <Edit3 />
+                  </button>
+
+                  <button
+                    className="danger"
+                    title={t.remove}
+                    onClick={() => remove(s.playerId)}
+                  >
+                    <Trash2 />
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        {!scans.length && (
+          <p className="muted-empty">
+            {rtl
+              ? 'لا يوجد أعضاء مسجلون بعد.'
+              : 'No members registered yet.'}
+          </p>
+        )}
+      </div>
+    </section>
+
+    {Editor}
+    {Entrance}
+  </main>;
+}                    
                
 function StatsInputs({
   draft,
