@@ -28,7 +28,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: jdr-e69fz45by7.justrunmy.app/e69fz45by7:v1
+          tags: jdr-e69fz45by7.justrunmy.app/e69fz45by7:v2
           provenance: false
           sbom: false
           cache-from: type=gha
