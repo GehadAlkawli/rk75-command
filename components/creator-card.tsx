@@ -5,7 +5,42 @@ import Link from 'next/link';
 import { Eye, Play, Radio, Tv, Users } from 'lucide-react';
 import { useState } from 'react';
 
-export type Creator = { id: number; slug: string; platform: 'kick' | 'twitch' | 'youtube'; platformUsername: string; originalUrl: string; normalizedUrl: string; displayName: string | null; avatarUrl: string | null; subscriberCount: number | null; followerCount: number | null; featured: boolean; active: boolean; homepageVisible: boolean; sortOrder: number; isLive: boolean; liveStatus: 'live' | 'offline' | 'unknown'; currentVideoId: string | null; streamTitle: string | null; thumbnailUrl: string | null; viewerCount: number | null; category: string | null };
+export type Creator = {
+  id: number;
+  slug: string;
+
+  platform: 'kick' | 'twitch' | 'youtube';
+  platformUsername: string;
+  originalUrl: string;
+  normalizedUrl: string;
+
+  // Profile
+  displayName: string | null;
+  avatarUrl: string | null;
+  bannerUrl: string | null;
+  description: string | null;
+
+  // Statistics
+  subscriberCount: number | null;
+  followerCount: number | null;
+  videoCount: number | null;
+  totalViewCount: number | null;
+
+  // Visibility & ordering
+  featured: boolean;
+  active: boolean;
+  homepageVisible: boolean;
+  sortOrder: number;
+
+  // Live status
+  isLive: boolean;
+  liveStatus: 'live' | 'offline' | 'unknown';
+  currentVideoId: string | null;
+  streamTitle: string | null;
+  thumbnailUrl: string | null;
+  viewerCount: number | null;
+  category: string | null;
+};
 export type Lang = 'ar' | 'en';
 
 type CreatorCardProps = { creator: Creator; lang: Lang; mode?: 'watch' | 'channel' };
