@@ -51,6 +51,7 @@ export default function Home(){
   const [auth,setAuth]=useState({playerId:'',name:'',password:'',confirm:''});
   const blank:StatsDraft={beforeName:'',name:'',beforePower:'',power:'',beforeKills:'',kills:'',beforeDefeat:'',defeat:'',beforeTroops:'',troops:'',note:''};
   const [draft,setDraft]=useState<StatsDraft>(blank);
+  const [creators, setCreators] = useState<Creator[]>([]);
   const t=copy[lang], rtl=lang==='ar';
 
   const load=async()=>{const r=await fetch('/api/submissions');if(r.ok)setScans(await r.json())};
@@ -60,6 +61,20 @@ export default function Home(){
   useEffect(()=>{let key=localStorage.getItem('rk75-presence');if(!key){key=crypto.randomUUID();localStorage.setItem('rk75-presence',key)}const ping=async()=>{const r=await fetch('/api/presence',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({visitorKey:key})});if(r.ok)setPresence(await r.json())};void ping();const id=setInterval(ping,30000);return()=>clearInterval(id)},[]);
 
   useEffect(()=>{if(view!=='home')void load()},[view]);
+
+  useEffect(() => {
+  const loadCreators = async () => {
+    const response = await fetch('/api/creators');
+    if (response.ok) {
+      setCreators(await response.json());
+    }
+  };
+
+  void loadCreators();
+  const id = setInterval(() => void loadCreators(), 60000);
+
+  return () => clearInterval(id);
+}, []);
 
   const open=(role:Role)=>{setGate(role);setAuthMode('register');setShowPassword(false);setRememberPlayer(true);setAuth({playerId:'',name:'',password:'',confirm:''});setNotice('')};
 
