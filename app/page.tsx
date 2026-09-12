@@ -87,8 +87,7 @@ const remove=async(id:string)=>{if(!window.confirm(t.deleteAsk))return;await fet
 
 const logout=async()=>{await fetch('/api/session',{method:'DELETE'});setView('home');setScans([]);setNotice('')};
 
-const exportCsv=()=>{const rows=[['Player ID','Name','Power','Kills','Defeat','Troops','Status'],...scans.map(s=>[s.playerId,s.playerName,s.power,s.kills,s.defeat,s.troops,s.status])];const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([rows.map(r=>r.join(',')).join('
-')],{type:'text/csv'}));a.download='rk75-members.csv';a.click()};
+const exportCsv=()=>{const rows=[['Player ID','Name','Power','Kills','Defeat','Troops','Status'],...scans.map(s=>[s.playerId,s.playerName,s.power,s.kills,s.defeat,s.troops,s.status])];const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([rows.map(r=>r.join(',')).join('\n')],{type:'text/csv'}));a.download='rk75-members.csv';a.click()};
 
 const totals=useMemo(()=>scans.filter(s=>s.status==='approved').reduce((x,s)=>({power:x.power+s.power,kills:x.kills+s.kills,losses:x.losses+s.defeat}),{power:0,kills:0,losses:0}),[scans]);
 
