@@ -62,34 +62,226 @@ export function CreatorCard({ creator, lang, mode = 'watch' }: CreatorCardProps)
   const live = creator.isLive;
   const name = creator.displayName || creator.platformUsername;
   const rtl = lang === 'ar';
-  const viewerCount = creator.viewerCount && creator.viewerCount > 0 ? creator.viewerCount : null;
-  const actionLabel = creator.platform === 'youtube' ? (rtl ? 'اشترك' : 'SUBSCRIBE') : creator.platform === 'kick' || creator.platform === 'twitch' ? (rtl ? 'تابع' : 'FOLLOW') : (rtl ? 'زيارة القناة' : 'VISIT CHANNEL');
+
+  const viewerCount =
+    creator.viewerCount && creator.viewerCount > 0
+      ? creator.viewerCount
+      : null;
+
+  const audienceCount =
+    creator.platform === 'youtube'
+      ? creator.subscriberCount
+      : creator.followerCount;
+
+  const audienceLabel =
+    creator.platform === 'youtube'
+      ? rtl
+        ? 'مشترك'
+        : 'subscribers'
+      : rtl
+        ? 'متابع'
+        : 'followers';
+
+  const actionLabel =
+    creator.platform === 'youtube'
+      ? rtl
+        ? 'اشترك'
+        : 'SUBSCRIBE'
+      : rtl
+        ? 'تابع'
+        : 'FOLLOW';
+
+  const compact = (value: number) =>
+    new Intl.NumberFormat(rtl ? 'ar' : 'en', {
+      notation: 'compact',
+      maximumFractionDigits: 1,
+    }).format(value);
 
   if (mode === 'channel') {
-    return <article className="home-creator-card">
-      <a className="creator-card-hitarea" href={creator.originalUrl} target="_blank" rel="noopener noreferrer" aria-label={`${name} — ${creator.platform}`} />
-      <div className="home-creator-avatar-wrap">
-        <CreatorAvatar creator={creator} className="home-creator-avatar" />
-        {live && <span className="home-creator-live"><i />LIVE</span>}
-      </div>
-      <div className="home-creator-info">
-        <h3>{name}</h3>
-        <span className="home-platform"><PlatformIcon platform={creator.platform} />{creator.platform}</span>
-      </div>
-      <a href={creator.originalUrl} target="_blank" rel="noopener noreferrer" className="creator-action-button" onClick={(event) => event.stopPropagation()} aria-label={`${actionLabel}: ${name}`}>{actionLabel}</a>
-    </article>;
+    return (
+      <article className="home-creator-card">
+        <a
+          className="creator-card-hitarea"
+          href={creator.originalUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={`${name} — ${creator.platform}`}
+        />
+
+        {creator.bannerUrl && (
+          <div className="home-creator-banner">
+            <img
+              src={creator.bannerUrl}
+              alt=""
+              loading="lazy"
+              onError={(event) => {
+                event.currentTarget.style.display = 'none';
+              }}
+            />
+          </div>
+        )}
+
+        <div className="home-creator-avatar-wrap">
+          <CreatorAvatar
+            creator={creator}
+            className="home-creator-avatar"
+          />
+
+          {live && (
+            <span className="home-creator-live">
+              <i />
+              LIVE
+            </span>
+          )}
+        </div>
+
+        <div className="home-creator-info">
+          <h3>{name}</h3>
+
+          <span className="home-platform">
+            <PlatformIcon platform={creator.platform} />
+            {creator.platform}
+          </span>
+
+          {creator.description && (
+            <p className="home-creator-description">
+              {creator.description}
+            </p>
+          )}
+
+          <div className="home-creator-stats">
+            {audienceCount !== null && (
+              <span>
+                <Users size={13} />
+                {compact(audienceCount)} {audienceLabel}
+              </span>
+            )}
+
+            {creator.videoCount !== null && (
+              <span>
+                {compact(creator.videoCount)}{' '}
+                {rtl ? 'فيديو' : 'videos'}
+              </span>
+            )}
+
+            {creator.totalViewCount !== null && (
+              <span>
+                <Eye size={13} />
+                {compact(creator.totalViewCount)}{' '}
+                {rtl ? 'مشاهدة' : 'views'}
+              </span>
+            )}
+          </div>
+        </div>
+
+        <a
+          href={creator.originalUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="creator-action-button"
+          onClick={(event) => event.stopPropagation()}
+          aria-label={`${actionLabel}: ${name}`}
+        >
+          {actionLabel}
+        </a>
+      </article>
+    );
   }
 
-  return <Link className={`creator-card ${live ? 'creator-card-live' : ''}`} href={`/live/${encodeURIComponent(creator.slug)}`} aria-label={`${rtl ? 'مشاهدة' : 'Watch'} ${name}`}>
-    <div className="creator-cover">
-      {creator.thumbnailUrl ? <img src={creator.thumbnailUrl} alt="" loading="lazy" onError={(event) => { event.currentTarget.style.display = 'none'; }} /> : <div className="creator-cover-empty"><Radio /></div>}
-      <span className={`live-pill ${live ? 'is-live' : `is-${creator.liveStatus}`}`}>{live ? <><i />LIVE</> : creator.liveStatus === 'unknown' ? (rtl ? 'غير متاح' : 'UNKNOWN') : (rtl ? 'غير متصل' : 'OFFLINE')}</span>
-      <b className="platform-pill"><PlatformIcon platform={creator.platform} />{creator.platform}</b>
-    </div>
-    <div className="creator-card-body">
-      <div className="creator-name"><CreatorAvatar creator={creator} className="creator-name-avatar" /><div><h3>{name}</h3><small>@{creator.platformUsername}</small></div></div>
-      <p>{creator.streamTitle || (rtl ? 'القناة محفوظة وجاهزة للبث' : 'Channel saved and ready to go live')}</p>
-      <div className="creator-meta">{creator.category && <span><Users size={14} />{creator.category}</span>}{live && viewerCount && <span><Eye size={14} />{viewerCount.toLocaleString()}</span>}</div>
-    </div>
-  </Link>;
+  return (
+    <Link
+      className={`creator-card ${live ? 'creator-card-live' : ''}`}
+      href={`/live/${encodeURIComponent(creator.slug)}`}
+      aria-label={`${rtl ? 'مشاهدة' : 'Watch'} ${name}`}
+    >
+      <div className="creator-cover">
+        {creator.thumbnailUrl ? (
+          <img
+            src={creator.thumbnailUrl}
+            alt=""
+            loading="lazy"
+            onError={(event) => {
+              event.currentTarget.style.display = 'none';
+            }}
+          />
+        ) : (
+          <div className="creator-cover-empty">
+            <Radio />
+          </div>
+        )}
+
+        <span
+          className={`live-pill ${
+            live ? 'is-live' : `is-${creator.liveStatus}`
+          }`}
+        >
+          {live ? (
+            <>
+              <i />
+              LIVE
+            </>
+          ) : creator.liveStatus === 'unknown' ? (
+            rtl ? (
+              'غير متاح'
+            ) : (
+              'UNKNOWN'
+            )
+          ) : rtl ? (
+            'غير متصل'
+          ) : (
+            'OFFLINE'
+          )}
+        </span>
+
+        <b className="platform-pill">
+          <PlatformIcon platform={creator.platform} />
+          {creator.platform}
+        </b>
+      </div>
+
+      <div className="creator-card-body">
+        <div className="creator-name">
+          <CreatorAvatar
+            creator={creator}
+            className="creator-name-avatar"
+          />
+
+          <div>
+            <h3>{name}</h3>
+            <small>@{creator.platformUsername}</small>
+          </div>
+        </div>
+
+        <p>
+          {creator.streamTitle ||
+            (rtl
+              ? 'القناة محفوظة وجاهزة للبث'
+              : 'Channel saved and ready to go live')}
+        </p>
+
+        <div className="creator-meta">
+          {creator.category && (
+            <span>
+              <Users size={14} />
+              {creator.category}
+            </span>
+          )}
+
+          {live && viewerCount && (
+            <span>
+              <Eye size={14} />
+              {viewerCount.toLocaleString()}
+            </span>
+          )}
+
+          {audienceCount !== null && (
+            <span>
+              <Users size={14} />
+              {compact(audienceCount)}
+            </span>
+          )}
+        </div>
+      </div>
+    </Link>
+  );
 }
