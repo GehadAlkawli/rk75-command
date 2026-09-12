@@ -341,10 +341,6 @@ export async function resolveCreatorMetadata(parsed: ParsedCreator): Promise<Cre
   try { if (parsed.platform === 'youtube') return await resolveYouTubeMetadata(parsed); if (parsed.platform === 'kick') return await resolveKickMetadata(parsed); return await resolveTwitchMetadata(parsed); } catch { return fallbackMetadata(parsed); }
 }
 
-async function applyCreatorMetadata(id: number, parsed: ParsedCreator, metadata: CreatorMetadata) {
-  const now = new Date().toISOString();
-  await env.DB.prepare(`UPDATE creators SET platform_channel_id = COALESCE(?, platform_channel_id), display_name = CASE WHEN ? = 1 THEN COALESCE(?, display_name) ELSE display_name END, avatar_url = CASE WHEN ? = 1 THEN COALESCE(?, avatar_url) ELSE avatar_url END, subscriber_count = CASE WHEN ? = 1 THEN ? ELSE subscriber_count END, follower_count = CASE WHEN ? = 1 THEN ? ELSE follower_count END, profile_checked_at = ?, updated_at = ? WHERE id = ?`).bind(metadata.channelId ?? parsed.channelId, Number(metadata.resolved), metadata.displayName || null, Number(metadata.resolved), metadata.avatarUrl, Number(metadata.resolved), metadata.subscriberCount, Number(metadata.resolved), metadata.followerCount, now, now, id).run();
-}
 
 async function applyCreatorMetadata(id: number, parsed: ParsedCreator, metadata: CreatorMetadata) {
   const now = new Date().toISOString();
