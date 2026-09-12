@@ -3,12 +3,43 @@ import { env } from 'cloudflare:workers';
 export type Platform = 'kick' | 'twitch' | 'youtube';
 export type LiveState = 'live' | 'offline' | 'unknown';
 export type CreatorRow = {
-  id: number; platform: Platform; platformUsername: string; platformChannelId: string | null; originalUrl: string; normalizedUrl: string;
-  displayName: string | null; avatarUrl: string | null; subscriberCount: number | null; followerCount: number | null; teamId: string | null;
-  featured: number; active: number; homepageVisible: number; sortOrder: number; isLive: number; liveStatus: LiveState;
-  currentStreamId: string | null; currentVideoId: string | null; streamTitle: string | null; thumbnailUrl: string | null; viewerCount: number | null;
-  category: string | null; streamStartedAt: string | null; lastCheckedAt: string | null; profileCheckedAt: string | null; createdAt: string; updatedAt: string;
+  id: number;
+  platform: Platform;
+  platformUsername: string;
+  platformChannelId: string | null;
+  originalUrl: string;
+  normalizedUrl: string;
+
+  displayName: string | null;
+  avatarUrl: string | null;
+  bannerUrl: string | null;
+  description: string | null;
+  videoCount: number | null;
+  totalViewCount: number | null;
+  subscriberCount: number | null;
+  followerCount: number | null;
+
+  teamId: string | null;
+  featured: number;
+  active: number;
+  homepageVisible: number;
+  sortOrder: number;
+  isLive: number;
+  liveStatus: LiveState;
+
+  currentStreamId: string | null;
+  currentVideoId: string | null;
+  streamTitle: string | null;
+  thumbnailUrl: string | null;
+  viewerCount: number | null;
+  category: string | null;
+  streamStartedAt: string | null;
+  lastCheckedAt: string | null;
+  profileCheckedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
 };
+
 export type Creator = Omit<CreatorRow, 'featured' | 'active' | 'homepageVisible' | 'isLive'> & { featured: boolean; active: boolean; homepageVisible: boolean; isLive: boolean; slug: string };
 export type ParsedCreator = { platform: Platform; username: string; channelId: string | null; originalUrl: string; normalizedUrl: string };
 export type LiveStatus = { isLive: boolean; state: LiveState; title?: string | null; thumbnail?: string | null; viewerCount?: number | null; category?: string | null; startedAt?: string | null; videoId?: string | null; streamId?: string | null };
@@ -47,11 +78,12 @@ const unknown = (): LiveStatus => ({ isLive: false, state: 'unknown' });
 const usernamePattern = /^[a-zA-Z0-9_.-]{2,100}$/;
 const videoPattern = /^[a-zA-Z0-9_-]{6,40}$/;
 const creatorColumns = `id, platform, platform_username AS platformUsername, platform_channel_id AS platformChannelId, original_url AS originalUrl, normalized_url AS normalizedUrl,
-  display_name AS displayName, avatar_url AS avatarUrl, subscriber_count AS subscriberCount, follower_count AS followerCount, team_id AS teamId,
+  display_name AS displayName, avatar_url AS avatarUrl,
+  banner_url AS bannerUrl, description, video_count AS videoCount, total_view_count AS totalViewCount,
+  subscriber_count AS subscriberCount, follower_count AS followerCount, team_id AS teamId,
   featured, active, homepage_visible AS homepageVisible, sort_order AS sortOrder, is_live AS isLive, live_status AS liveStatus,
   current_stream_id AS currentStreamId, current_video_id AS currentVideoId, stream_title AS streamTitle, thumbnail_url AS thumbnailUrl, viewer_count AS viewerCount,
   category, stream_started_at AS streamStartedAt, last_checked_at AS lastCheckedAt, profile_checked_at AS profileCheckedAt, created_at AS createdAt, updated_at AS updatedAt`;
-
 export class CreatorDuplicateError extends Error {}
 
 export function creatorSlug(creator: Pick<CreatorRow, 'platform' | 'platformUsername'>) {
