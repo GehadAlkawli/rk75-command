@@ -1,4 +1,4 @@
-import { index, integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
+import { index, integer, sqliteTable, text, uniqueIndex } from 'drizzle-orm/sqlite-core';
 
 export const players = sqliteTable('players', {
   id: integer('id').primaryKey({ autoIncrement: true }),
@@ -94,5 +94,53 @@ export const accountListingImages = sqliteTable('account_listing_images', {
   listingId: integer('listing_id').notNull().references(() => accountListings.id, { onDelete: 'cascade' }),
   objectKey: text('object_key').notNull(),
   contentType: text('content_type').notNull(),
+  mediaType: text('media_type', { enum: ['image', 'video'] }).notNull().default('image'),
   position: integer('position').notNull(),
 }, (table) => [index('idx_account_listing_images_listing').on(table.listingId, table.position)]);
+
+export const creators = sqliteTable('creators', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  platform: text('platform', { enum: ['kick', 'twitch', 'youtube'] }).notNull(),
+  platformUsername: text('platform_username').notNull(),
+  platformChannelId: text('platform_channel_id'),
+  originalUrl: text('original_url').notNull(),
+  normalizedUrl: text('normalized_url').notNull(),
+  displayName: text('display_name'),
+  avatarUrl: text('avatar_url'),
+  teamId: text('team_id'),
+  featured: integer('featured', { mode: 'boolean' }).notNull().default(false),
+  active: integer('active', { mode: 'boolean' }).notNull().default(true),
+  isLive: integer('is_live', { mode: 'boolean' }).notNull().default(false),
+  liveStatus: text('live_status', { enum: ['live', 'offline', 'unknown'] }).notNull().default('unknown'),
+  currentStreamId: text('current_stream_id'),
+  currentVideoId: text('current_video_id'),
+  streamTitle: text('stream_title'),
+  thumbnailUrl: text('thumbnail_url'),
+  viewerCount: integer('viewer_count'),
+  category: text('category'),
+  streamStartedAt: text('stream_started_at'),
+  lastCheckedAt: text('last_checked_at'),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+}, (table) => [
+  uniqueIndex('idx_creators_platform_username').on(table.platform, table.platformUsername),
+  index('idx_creators_active_live').on(table.active, table.isLive, table.featured),
+]);
+
+export const mediaPosts = sqliteTable('media_posts', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  kind: text('kind', { enum: ['short', 'article', 'idea'] }).notNull().default('short'),
+  title: text('title').notNull(),
+  body: text('body'),
+  createdBy: text('created_by').notNull(),
+  createdAt: text('created_at').notNull(),
+}, (table) => [index('idx_media_posts_created').on(table.createdAt)]);
+
+export const mediaAssets = sqliteTable('media_assets', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  postId: integer('post_id').notNull().references(() => mediaPosts.id, { onDelete: 'cascade' }),
+  objectKey: text('object_key').notNull(),
+  contentType: text('content_type').notNull(),
+  mediaType: text('media_type', { enum: ['image', 'video'] }).notNull(),
+  position: integer('position').notNull(),
+}, (table) => [index('idx_media_assets_post').on(table.postId, table.position)]);
