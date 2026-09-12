@@ -717,12 +717,17 @@ if(view==='home')return(
         </a>
 
         <a href="/accounts">
-          {rtl
-            ?'سوق الحسابات'
-            :'Account market'}
-        </a>
+  {rtl
+    ?'سوق الحسابات'
+    :'Account market'}
+</a>
 
-        {langBtn}
+<a href="/media">
+  <Sparkles size={15}/>
+  {rtl ? 'RK ميديا' : 'RK Media'}
+</a>
+
+{langBtn}
 
         <button
           className="admin-trigger"
