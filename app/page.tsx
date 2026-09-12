@@ -1294,8 +1294,8 @@ return(
 
     {Editor}
     {Entrance}
-  </main>;
-}                    
+    </main>
+);                    
                
 function StatsInputs({
   draft,
