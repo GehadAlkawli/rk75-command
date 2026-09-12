@@ -1,0 +1,33 @@
+name: Build and Deploy to JustRunMy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to JustRunMy Registry
+        uses: docker/login-action@v3
+        with:
+          registry: jdr-e69fz45by7.justrunmy.app
+          username: ${{ secrets.JUST_RUN_MY_USER }}
+          password: ${{ secrets.JUST_RUN_MY_PASS }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: jdr-e69fz45by7.justrunmy.app/e69fz45by7:v1
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
