@@ -1,6 +1,7 @@
 'use client';
 
 import { FormEvent, useEffect, useMemo, useState } from 'react';
+import { Creator, CreatorCard } from '@/components/creator-card';
 import { Activity, Check, ChevronRight, Download, Edit3, Eye, EyeOff, Globe2, LockKeyhole, Plus, Shield, Sparkles, Swords, Target, Trash2, Users, X, Zap, MessageCircle } from 'lucide-react';
 
 type Lang = 'ar' | 'en';
@@ -41,12 +42,6 @@ type StatsDraft = {
 
 const discordUrl = 'https://discord.gg/NNzHNuvtPf';
 
-const contentCreators = [
-  { name: 'RayanPlays', url: 'https://youtube.com/@rayanplaysyt' },
-  { name: 'NightmareSa', url: 'https://youtube.com/@nightly3z' },
-  { name: 'TS GAMING', url: 'https://youtube.com/@tsgaming89' },
-  { name: 'DraGoo YT', url: 'https://youtube.com/@dragooyt75' },
-];
 const copy={ar:{members:'قائمة الأعضاء',player:'دخول اللاعبين',admin:'دخول الإدارة',login:'تسجيل الدخول',register:'إنشاء حساب',id:'معرّف اللاعب',name:'اسم اللاعب',pass:'كلمة المرور',confirm:'تأكيد كلمة المرور',adminPass:'كلمة مرور الإدارة',newAccount:'ليس لديك حساب؟ أنشئ حساباً',hasAccount:'لديك حساب؟ سجل الدخول',home:'الرئيسية',out:'تسجيل الخروج',editMine:'تعديل آخر إحصائياتي',newScan:'إرسال فحص قبل وبعد',save:'حفظ التعديلات',send:'إرسال للمراجعة',power:'القوة',kills:'القتلات',losses:'الخسائر في المعركة',troops:'الجنود الحاليون',before:'قبل',after:'بعد',comparisonHint:'اكتب أرقام قبل وبعد، وسيحسب النظام كل الفروقات والنِّسب.',note:'ملاحظة اختيارية',command:'غرفة قيادة RK75',all:'كل الأعضاء',online:'متصل الآن',utc:'التوقيت العالمي UTC',open:'فترة الفحص مفتوحة',beforeAfter:'قبل / بعد / الفرق',approved:'معتمد',pending:'بانتظار',rejected:'مرفوض',approve:'اعتماد',reject:'رفض',remove:'حذف اللاعب',edit:'تعديل',export:'تصدير CSV',deleteAsk:'هل تريد حذف اللاعب وكل سجلاته نهائياً؟',welcome:'مرحباً أيها المقاتل',adminWelcome:'لوحة تحكم القائد',accountHint:'أدخل إحصائيات قبل وبعد في إرسال واحد، أو عدّل آخر إرسال خاص بك.',adminHint:'عدّل أو احذف أي عضو، وراجع كل الإرسالات من هنا.',createOk:'تم إنشاء حسابك بنجاح.',error:'تحقق من البيانات وحاول مجدداً.',duel:'استعد للقتال',adminDuel:'فتح غرفة القيادة',language:'English'},en:{members:'Member roster',player:'Player sign in',admin:'Admin sign in',login:'Sign in',register:'Create account',id:'Player ID',name:'Player name',pass:'Password',confirm:'Confirm password',adminPass:'Admin password',newAccount:'New here? Create your account',hasAccount:'Already registered? Sign in',home:'Home',out:'Sign out',editMine:'Edit my latest statistics',newScan:'Submit before & after',save:'Save changes',send:'Send for review',power:'Power',kills:'Kills',losses:'Defeat in Battle',troops:'Current Troops',before:'Before',after:'After',comparisonHint:'Enter both snapshots and RK75 calculates every change and percentage.',note:'Optional note',command:'RK75 command room',all:'All members',online:'Online now',utc:'UTC time',open:'Scan period is open',beforeAfter:'Before / after / change',approved:'Approved',pending:'Pending',rejected:'Rejected',approve:'Approve',reject:'Reject',remove:'Delete player',edit:'Edit',export:'Export CSV',deleteAsk:'Delete this player and every record permanently?',welcome:'Welcome, fighter',adminWelcome:'Commander control',accountHint:'Enter before and after statistics in one submission, or edit your latest one.',adminHint:'Edit or remove any member and review every submitted scan here.',createOk:'Your account was created.',error:'Check your details and try again.',duel:'Prepare for battle',adminDuel:'Opening command room',language:'العربية'}} as const;
 const n=(v:number)=>new Intl.NumberFormat('en-US').format(v||0);
 function Brand(){return <a className="neo-brand" href="/"><span>RK</span><b>75</b><i>FATE WAR</i></a>}
