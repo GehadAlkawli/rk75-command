@@ -165,8 +165,7 @@ async function maybeRefresh(creators: CreatorRow[]) {
     await refreshingLive;
   }
   const profileStale = creators.filter((creator) => {
-    const lastSync = creator.lastMetadataSyncAt ?? creator.profileCheckedAt;
-    return !lastSync || now - Date.parse(lastSync) > profileRefreshMs;
+    return !creator.lastMetadataSyncAt || now - Date.parse(creator.lastMetadataSyncAt) > profileRefreshMs;
   });
   if (profileStale.length && !refreshingProfiles) refreshingProfiles = refreshCreatorProfiles(profileStale).finally(() => { refreshingProfiles = null; });
   if (refreshingProfiles) await refreshingProfiles;
