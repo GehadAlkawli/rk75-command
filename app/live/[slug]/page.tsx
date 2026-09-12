@@ -1,0 +1,14 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import { ArrowLeft, Eye, ExternalLink, LoaderCircle, Radio, Users } from 'lucide-react';
+import StreamPlayer from '@/components/stream-player';
+import { Creator, Lang } from '@/components/creator-card';
+
+const text = { ar: { home: 'الرئيسية', live: 'البث المباشر', loading: 'جارٍ تجهيز البث…', missing: 'هذه القناة غير موجودة أو أزيلت.', watch: 'المشاهدة على المنصة', offline: 'القناة ليست في بث مباشر الآن', viewers: 'مشاهد', creator: 'صانع المحتوى' }, en: { home: 'Home', live: 'Live', loading: 'Preparing stream…', missing: 'This creator was not found or has been removed.', watch: 'Watch on platform', offline: 'This channel is not live right now', viewers: 'viewers', creator: 'Content creator' } } as const;
+
+export default function CreatorWatchPage() {
+  const [lang, setLang] = useState<Lang>('ar'), [creator, setCreator] = useState<Creator | null | undefined>(undefined); const t = text[lang]; const rtl = lang === 'ar';
+  useEffect(() => { const slug = decodeURIComponent(window.location.pathname.split('/').filter(Boolean).at(-1) ?? ''); fetch('/api/creators').then(async (response) => { const creators = response.ok ? await response.json() as Creator[] : []; setCreator(creators.find((item) => item.slug === slug) ?? null); }).catch(() => setCreator(null)); }, []);
+  return <main className="creator-page watch-page" dir={rtl ? 'rtl' : 'ltr'}><header className="media-nav"><a className="neo-brand" href="/"><span>RK</span><b>75</b><i>LIVE</i></a><nav><button className="lang-switch" onClick={() => setLang(rtl ? 'en' : 'ar')}>{rtl ? 'English' : 'العربية'}</button><a className="stats-back" href="/live"><ArrowLeft size={16}/>{t.live}</a></nav></header>{creator === undefined ? <div className="creator-loading"><LoaderCircle className="spin"/>{t.loading}</div> : !creator ? <section className="creator-empty"><Radio/><h2>{t.missing}</h2></section> : <section className="watch-shell"><StreamPlayer platform={creator.platform} username={creator.platformUsername} videoId={creator.currentVideoId} originalUrl={creator.normalizedUrl} label={t.watch}/><div className="watch-details"><span className={creator.isLive ? 'live-pill is-live' : `live-pill is-${creator.liveStatus}`}>{creator.isLive ? <><i/>LIVE</> : t.offline}</span><p>{t.creator} · {creator.platform.toUpperCase()}</p><h1>{creator.displayName || creator.platformUsername}</h1><h2>{creator.streamTitle || t.offline}</h2><div>{creator.category && <span><Users size={16}/>{creator.category}</span>}{creator.viewerCount !== null && <span><Eye size={16}/>{creator.viewerCount.toLocaleString()} {t.viewers}</span>}</div><a className="ember-button" href={creator.normalizedUrl} target="_blank" rel="noopener noreferrer"><ExternalLink size={17}/>{t.watch}</a></div></section>}</main>;
+}

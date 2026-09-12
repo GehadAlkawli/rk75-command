@@ -3,7 +3,8 @@ import { readSession } from '@/lib/auth';
 
 const unauthorized = () => Response.json({ error: 'Sign in as a player to publish an account.' }, { status: 401 });
 const invalid = (message: string) => Response.json({ error: message }, { status: 400 });
-const imageLimit = 9;
+const mediaLimit = 9;
+const allowedVideoTypes = new Set(['video/mp4', 'video/webm', 'video/quicktime']);
 
 type ListingRow = {
   id: number; playerId: string; title: string; mainSpec: string; kingdom: string; totalPower: string; killPoints: string;
@@ -26,16 +27,19 @@ export async function GET() {
   if (!rows.length) return Response.json([]);
   const ids = rows.map((listing) => listing.id);
   const placeholders = ids.map(() => '?').join(',');
-  const images = await env.DB.prepare(`SELECT id, listing_id AS listingId, position FROM account_listing_images
+  const mediaRows = await env.DB.prepare(`SELECT id, listing_id AS listingId, content_type AS contentType, media_type AS mediaType, position FROM account_listing_images
     WHERE listing_id IN (${placeholders}) ORDER BY listing_id, position`).bind(...ids).all<{ id: number; listingId: number; position: number }>();
-  const imageMap = new Map<number, { id: number; position: number }[]>();
-  for (const image of images.results ?? []) {
-    imageMap.set(image.listingId, [...(imageMap.get(image.listingId) ?? []), { id: image.id, position: image.position }]);
+  const mediaMap = new Map<number, { id: number; position: number; contentType: string; mediaType: 'image' | 'video' }[]>();
+  for (const media of mediaRows.results ?? []) {
+    const item = media as { id: number; listingId: number; position: number; contentType: string; mediaType: 'image' | 'video' };
+    mediaMap.set(item.listingId, [...(mediaMap.get(item.listingId) ?? []), item]);
   }
   return Response.json(rows.map((listing) => ({
     ...listing,
     paymentMethods: JSON.parse(listing.paymentMethods) as string[],
-    images: (imageMap.get(listing.id) ?? []).map((image) => ({ ...image, url: `/api/accounts/images/${image.id}` })),
+    media: (mediaMap.get(listing.id) ?? []).map((media) => ({ ...media, url: `/api/accounts/images/${media.id}` })),
+    // Retained for clients from the previous version while they upgrade.
+    images: (mediaMap.get(listing.id) ?? []).map((media) => ({ ...media, url: `/api/accounts/images/${media.id}` })),
   })));
 }
 
@@ -55,13 +59,16 @@ export async function POST(request: Request) {
   const intermediaryDiscord = textValue(form.get('intermediaryDiscord'), 80);
   const paymentMethods = form.getAll('paymentMethods').filter((value): value is string => typeof value === 'string')
     .map((value) => value.trim()).filter(Boolean).slice(0, 8);
-  const images = form.getAll('images').filter((value): value is File => value instanceof File && value.size > 0);
+  const uploadedMedia = [...form.getAll('media'), ...form.getAll('images')]
+    .filter((value): value is File => value instanceof File && value.size > 0);
   if (!title || !mainSpec || !kingdom || !totalPower || !killPoints || !vipLevel || !totalTroops || !price || !ownerDiscord || !intermediaryDiscord) {
     return invalid('Complete every account detail and both Discord contact fields.');
   }
   if (!paymentMethods.length) return invalid('Choose at least one payment method.');
-  if (images.length > imageLimit) return invalid('You can upload a maximum of 9 images.');
-  if (images.some((image) => !image.type.startsWith('image/') || image.size > 5 * 1024 * 1024)) return invalid('Each image must be an image file of 5 MB or less.');
+  if (uploadedMedia.length > mediaLimit) return invalid('You can upload a maximum of 9 photos or videos.');
+  if (uploadedMedia.some((file) => !file.type.startsWith('image/') && !allowedVideoTypes.has(file.type))) return invalid('Only image files or MP4, WebM, and MOV videos are allowed.');
+  if (uploadedMedia.some((file) => file.type.startsWith('image/') && file.size > 6 * 1024 * 1024)) return invalid('Each image must be 6 MB or less.');
+  if (uploadedMedia.some((file) => allowedVideoTypes.has(file.type) && file.size > 25 * 1024 * 1024)) return invalid('Each video must be 25 MB or less.');
 
   const now = new Date().toISOString();
   const inserted = await env.DB.prepare(`INSERT INTO account_listings
@@ -69,13 +76,14 @@ export async function POST(request: Request) {
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'published', ?, ?)`)
     .bind(session.playerId, title, mainSpec, kingdom, totalPower, killPoints, vipLevel, totalTroops, price, JSON.stringify(paymentMethods), ownerDiscord, intermediaryDiscord, now, now).run();
   const listingId = Number(inserted.meta.last_row_id);
-  const imageRows: D1PreparedStatement[] = [];
-  for (const [position, image] of images.entries()) {
+  const mediaStatements: D1PreparedStatement[] = [];
+  for (const [position, file] of uploadedMedia.entries()) {
     const objectKey = `account-listings/${session.playerId}/${listingId}/${position}-${crypto.randomUUID()}`;
-    await env.FILES.put(objectKey, image.stream(), { httpMetadata: { contentType: image.type } });
-    imageRows.push(env.DB.prepare('INSERT INTO account_listing_images (listing_id, object_key, content_type, position) VALUES (?, ?, ?, ?)').bind(listingId, objectKey, image.type, position));
+    await env.FILES.put(objectKey, file.stream(), { httpMetadata: { contentType: file.type } });
+    const mediaType = file.type.startsWith('image/') ? 'image' : 'video';
+    mediaStatements.push(env.DB.prepare('INSERT INTO account_listing_images (listing_id, object_key, content_type, media_type, position) VALUES (?, ?, ?, ?, ?)').bind(listingId, objectKey, file.type, mediaType, position));
   }
-  if (imageRows.length) await env.DB.batch(imageRows);
+  if (mediaStatements.length) await env.DB.batch(mediaStatements);
   return Response.json({ id: listingId, status: 'published' });
 }
 

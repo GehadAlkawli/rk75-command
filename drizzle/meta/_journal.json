@@ -29,6 +29,13 @@
       "when": 1788886718466,
       "tag": "0003_cool_vindicator",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1789202732414,
+      "tag": "0004_overjoyed_firelord",
+      "breakpoints": true
     }
   ]
 }
