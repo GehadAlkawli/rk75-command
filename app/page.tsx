@@ -1001,6 +1001,13 @@ return(
       <div className="admin-buttons">
 
         <VaultPanel rtl={rtl}/>
+        <a
+  href="/admin/streams"
+  className="outline-button"
+>
+  <Zap size={16}/>
+  {rtl ? 'إدارة البثوص' : 'Streams'}
+</a>
 
         <a
           href="/stats"
