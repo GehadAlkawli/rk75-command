@@ -120,3 +120,23 @@
 .creator-data small{
   color:var(--muted);
 }
+/* RK75 header layout fixes */
+.neo-top nav,
+.market-nav nav {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: nowrap;
+}
+
+.neo-top nav > a,
+.neo-top nav > button,
+.market-nav nav > a {
+  white-space: nowrap;
+  flex: 0 0 auto;
+}
+
+@media (max-width: 850px) {
+  .neo-top nav > a {
+    display: none;
+  }
