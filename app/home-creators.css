@@ -13,6 +13,15 @@
   background:#0b1322;
 }
 
+.home-creator-banner{
+  position:absolute;
+  inset:0 0 auto;
+  height:82px;
+  overflow:hidden;
+  background:#0b1322;
+  z-index:0;
+}
+
 .home-creator-banner img{
   width:100%;
   height:100%;
@@ -29,8 +38,15 @@
   background:linear-gradient(
     180deg,
     rgba(5,9,16,.15),
-    rgba(5,9,16,.88)
+    rgba(5,9,16,.92)
   );
+}
+
+.home-creator-avatar-wrap,
+.home-creator-info,
+.creator-action-button{
+  position:relative;
+  z-index:1;
 }
 
 .home-creator-description{
