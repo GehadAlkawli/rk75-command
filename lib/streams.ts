@@ -397,14 +397,73 @@ async function applyCreatorMetadata(id: number, parsed: ParsedCreator, metadata:
 }
 
 export async function createCreatorFromUrl(rawUrl: string) {
-  const parsed = parseCreatorUrl(rawUrl); const existing = await env.DB.prepare('SELECT id FROM creators WHERE platform = ? AND platform_username = ?').bind(parsed.platform, parsed.username).first();
-  if (existing) throw new CreatorDuplicateError('This channel has already been added.');
-  const metadata = await resolveCreatorMetadata(parsed); const now = new Date().toISOString();
-  const inserted = await env.DB.prepare(`INSERT INTO creators (platform, platform_username, platform_channel_id, original_url, normalized_url, display_name, avatar_url, subscriber_count, follower_count, featured, active, homepage_visible, sort_order, is_live, live_status, profile_checked_at, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 1, 1, 0, 0, 'unknown', ?, ?, ?)`)
-    .bind(parsed.platform, parsed.username, metadata.channelId, parsed.originalUrl, parsed.normalizedUrl, metadata.displayName, metadata.avatarUrl, metadata.subscriberCount, metadata.followerCount, now, now, now).run();
-  const id = Number(inserted.meta.last_row_id); const creator = await getCreatorById(id); if (creator) await refreshLiveStatuses([creator]); return id;
-}
+  const parsed = parseCreatorUrl(rawUrl);
+  const existing = await env.DB
+    .prepare('SELECT id FROM creators WHERE platform = ? AND platform_username = ?')
+    .bind(parsed.platform, parsed.username)
+    .first();
 
+  if (existing) {
+    throw new CreatorDuplicateError('This channel has already been added.');
+  }
+
+  const metadata = await resolveCreatorMetadata(parsed);
+  const now = new Date().toISOString();
+
+  const inserted = await env.DB.prepare(`
+    INSERT INTO creators (
+      platform,
+      platform_username,
+      platform_channel_id,
+      original_url,
+      normalized_url,
+      display_name,
+      avatar_url,
+      banner_url,
+      description,
+      video_count,
+      total_view_count,
+      subscriber_count,
+      follower_count,
+      featured,
+      active,
+      homepage_visible,
+      sort_order,
+      is_live,
+      live_status,
+      profile_checked_at,
+      created_at,
+      updated_at
+    )
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 1, 1, 0, 0, 'unknown', ?, ?, ?)
+  `).bind(
+    parsed.platform,
+    parsed.username,
+    metadata.channelId,
+    parsed.originalUrl,
+    parsed.normalizedUrl,
+    metadata.displayName,
+    metadata.avatarUrl,
+    metadata.bannerUrl,
+    metadata.description,
+    metadata.videoCount,
+    metadata.totalViewCount,
+    metadata.subscriberCount,
+    metadata.followerCount,
+    now,
+    now,
+    now
+  ).run();
+
+  const id = Number(inserted.meta.last_row_id);
+  const creator = await getCreatorById(id);
+
+  if (creator) {
+    await refreshLiveStatuses([creator]);
+  }
+
+  return id;
+}
 export async function ensureInitialCreators() {
   if (seedInProgress) return seedInProgress;
   seedInProgress = (async () => { const seeded = await env.DB.prepare('SELECT seed_key FROM creator_seed_state WHERE seed_key = ?').bind(initialSeedKey).first(); if (seeded) return; for (const url of initialCreatorUrls) { try { await createCreatorFromUrl(url); } catch (error) { if (!(error instanceof CreatorDuplicateError)) throw error; } } await env.DB.prepare('INSERT OR IGNORE INTO creator_seed_state (seed_key, completed_at) VALUES (?, ?)').bind(initialSeedKey, new Date().toISOString()).run(); })().finally(() => { seedInProgress = null; });
