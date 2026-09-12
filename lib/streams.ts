@@ -346,8 +346,54 @@ async function applyCreatorMetadata(id: number, parsed: ParsedCreator, metadata:
   await env.DB.prepare(`UPDATE creators SET platform_channel_id = COALESCE(?, platform_channel_id), display_name = CASE WHEN ? = 1 THEN COALESCE(?, display_name) ELSE display_name END, avatar_url = CASE WHEN ? = 1 THEN COALESCE(?, avatar_url) ELSE avatar_url END, subscriber_count = CASE WHEN ? = 1 THEN ? ELSE subscriber_count END, follower_count = CASE WHEN ? = 1 THEN ? ELSE follower_count END, profile_checked_at = ?, updated_at = ? WHERE id = ?`).bind(metadata.channelId ?? parsed.channelId, Number(metadata.resolved), metadata.displayName || null, Number(metadata.resolved), metadata.avatarUrl, Number(metadata.resolved), metadata.subscriberCount, Number(metadata.resolved), metadata.followerCount, now, now, id).run();
 }
 
-async function refreshCreatorProfiles(creators: CreatorRow[]) {
-  await Promise.allSettled(creators.map(async (creator) => { const parsed: ParsedCreator = { platform: creator.platform, username: creator.platformUsername, channelId: creator.platformChannelId, originalUrl: creator.originalUrl, normalizedUrl: creator.normalizedUrl }; const metadata = await resolveCreatorMetadata(parsed); await applyCreatorMetadata(creator.id, parsed, metadata); }));
+async function applyCreatorMetadata(id: number, parsed: ParsedCreator, metadata: CreatorMetadata) {
+  const now = new Date().toISOString();
+
+  await env.DB.prepare(`
+    UPDATE creators SET
+      platform_channel_id = COALESCE(?, platform_channel_id),
+      display_name = CASE WHEN ? = 1 THEN COALESCE(?, display_name) ELSE display_name END,
+      avatar_url = CASE WHEN ? = 1 THEN COALESCE(?, avatar_url) ELSE avatar_url END,
+      banner_url = CASE WHEN ? = 1 THEN COALESCE(?, banner_url) ELSE banner_url END,
+      description = CASE WHEN ? = 1 THEN COALESCE(?, description) ELSE description END,
+      video_count = CASE WHEN ? = 1 THEN ? ELSE video_count END,
+      total_view_count = CASE WHEN ? = 1 THEN ? ELSE total_view_count END,
+      subscriber_count = CASE WHEN ? = 1 THEN ? ELSE subscriber_count END,
+      follower_count = CASE WHEN ? = 1 THEN ? ELSE follower_count END,
+      profile_checked_at = ?,
+      updated_at = ?
+    WHERE id = ?
+  `).bind(
+    metadata.channelId ?? parsed.channelId,
+
+    Number(metadata.resolved),
+    metadata.displayName || null,
+
+    Number(metadata.resolved),
+    metadata.avatarUrl,
+
+    Number(metadata.resolved),
+    metadata.bannerUrl,
+
+    Number(metadata.resolved),
+    metadata.description,
+
+    Number(metadata.resolved),
+    metadata.videoCount,
+
+    Number(metadata.resolved),
+    metadata.totalViewCount,
+
+    Number(metadata.resolved),
+    metadata.subscriberCount,
+
+    Number(metadata.resolved),
+    metadata.followerCount,
+
+    now,
+    now,
+    id
+  ).run();
 }
 
 export async function createCreatorFromUrl(rawUrl: string) {
