@@ -1,0 +1,1 @@
+ALTER TABLE `creators` ADD `description` text;

@@ -3,17 +3,59 @@ import { env } from 'cloudflare:workers';
 export type Platform = 'kick' | 'twitch' | 'youtube';
 export type LiveState = 'live' | 'offline' | 'unknown';
 export type CreatorRow = {
-  id: number; platform: Platform; platformUsername: string; platformChannelId: string | null; originalUrl: string; normalizedUrl: string;
-  displayName: string | null; avatarUrl: string | null; bannerUrl: string | null; subscriberCount: number | null; followerCount: number | null; videoCount: number | null; totalViewCount: number | null; teamId: string | null;
-  featured: number; active: number; homepageVisible: number; sortOrder: number; isLive: number; liveStatus: LiveState;
-  currentStreamId: string | null; currentVideoId: string | null; streamTitle: string | null; thumbnailUrl: string | null; viewerCount: number | null;
-  category: string | null; streamStartedAt: string | null; lastCheckedAt: string | null; profileCheckedAt: string | null; lastMetadataSyncAt: string | null; createdAt: string; updatedAt: string;
+  id: number;
+  platform: Platform;
+  platformUsername: string;
+  platformChannelId: string | null;
+  originalUrl: string;
+  normalizedUrl: string;
+
+  displayName: string | null;
+  avatarUrl: string | null;
+  bannerUrl: string | null;
+  description: string | null;
+  videoCount: number | null;
+  totalViewCount: number | null;
+  subscriberCount: number | null;
+  followerCount: number | null;
+
+  teamId: string | null;
+  featured: number;
+  active: number;
+  homepageVisible: number;
+  sortOrder: number;
+  isLive: number;
+  liveStatus: LiveState;
+
+  currentStreamId: string | null;
+  currentVideoId: string | null;
+  streamTitle: string | null;
+  thumbnailUrl: string | null;
+  viewerCount: number | null;
+  category: string | null;
+  streamStartedAt: string | null;
+  lastCheckedAt: string | null;
+  profileCheckedAt: string | null;
+  lastMetadataSyncAt: string | null;
+  createdAt: string;
+  updatedAt: string;
 };
+
 export type Creator = Omit<CreatorRow, 'featured' | 'active' | 'homepageVisible' | 'isLive'> & { featured: boolean; active: boolean; homepageVisible: boolean; isLive: boolean; slug: string };
 export type ParsedCreator = { platform: Platform; username: string; channelId: string | null; originalUrl: string; normalizedUrl: string };
 export type LiveStatus = { isLive: boolean; state: LiveState; title?: string | null; thumbnail?: string | null; viewerCount?: number | null; category?: string | null; startedAt?: string | null; videoId?: string | null; streamId?: string | null };
-type CreatorMetadata = { channelId: string | null; displayName: string; avatarUrl: string | null; bannerUrl: string | null; subscriberCount: number | null; followerCount: number | null; videoCount: number | null; totalViewCount: number | null; resolved: boolean };
-
+type CreatorMetadata = {
+  channelId: string | null;
+  displayName: string;
+  avatarUrl: string | null;
+  bannerUrl: string | null;
+  description: string | null;
+  subscriberCount: number | null;
+  followerCount: number | null;
+  videoCount: number | null;
+  totalViewCount: number | null;
+  resolved: boolean;
+};
 const liveRefreshMs = 60_000;
 const profileRefreshMs = 6 * 60 * 60_000;
 const initialSeedKey = 'initial-creators-v1';
@@ -37,11 +79,12 @@ const unknown = (): LiveStatus => ({ isLive: false, state: 'unknown' });
 const usernamePattern = /^[a-zA-Z0-9_.-]{2,100}$/;
 const videoPattern = /^[a-zA-Z0-9_-]{6,40}$/;
 const creatorColumns = `id, platform, platform_username AS platformUsername, platform_channel_id AS platformChannelId, original_url AS originalUrl, normalized_url AS normalizedUrl,
-  display_name AS displayName, avatar_url AS avatarUrl, banner_url AS bannerUrl, subscriber_count AS subscriberCount, follower_count AS followerCount, video_count AS videoCount, total_view_count AS totalViewCount, team_id AS teamId,
+  display_name AS displayName, avatar_url AS avatarUrl,
+  banner_url AS bannerUrl, description, video_count AS videoCount, total_view_count AS totalViewCount,
+  subscriber_count AS subscriberCount, follower_count AS followerCount, team_id AS teamId,
   featured, active, homepage_visible AS homepageVisible, sort_order AS sortOrder, is_live AS isLive, live_status AS liveStatus,
   current_stream_id AS currentStreamId, current_video_id AS currentVideoId, stream_title AS streamTitle, thumbnail_url AS thumbnailUrl, viewer_count AS viewerCount,
   category, stream_started_at AS streamStartedAt, last_checked_at AS lastCheckedAt, profile_checked_at AS profileCheckedAt, last_metadata_sync_at AS lastMetadataSyncAt, created_at AS createdAt, updated_at AS updatedAt`;
-
 export class CreatorDuplicateError extends Error {}
 
 export function creatorSlug(creator: Pick<CreatorRow, 'platform' | 'platformUsername'>) {
@@ -211,54 +254,227 @@ export async function refreshLiveStatuses(creators?: CreatorRow[]) {
   await Promise.allSettled([groups.twitch.length ? refreshTwitch(groups.twitch) : Promise.resolve(), groups.kick.length ? refreshKick(groups.kick) : Promise.resolve(), groups.youtube.length ? refreshYoutube(groups.youtube) : Promise.resolve()]);
 }
 
-const fallbackMetadata = (parsed: ParsedCreator): CreatorMetadata => ({ channelId: parsed.channelId, displayName: parsed.username, avatarUrl: null, bannerUrl: null, subscriberCount: null, followerCount: null, videoCount: null, totalViewCount: null, resolved: false });
+const fallbackMetadata = (parsed: ParsedCreator): CreatorMetadata => ({
+  channelId: parsed.channelId,
+  displayName: parsed.username,
+  avatarUrl: null,
+  bannerUrl: null,
+  description: null,
+  subscriberCount: null,
+  followerCount: null,
+  videoCount: null,
+  totalViewCount: null,
+  resolved: false
+});
 const numberOrNull = (value: unknown) => { const number = typeof value === 'number' ? value : Number(value); return Number.isFinite(number) && number > 0 ? Math.floor(number) : null; };
 
 async function resolveYouTubeMetadata(parsed: ParsedCreator): Promise<CreatorMetadata> {
   if (!env.YOUTUBE_API_KEY || parsed.username.startsWith('video-')) return fallbackMetadata(parsed);
-  const lookup = parsed.channelId ? `id=${encodeURIComponent(parsed.channelId)}` : `forHandle=${encodeURIComponent(`@${parsed.username}`)}`;
-  const response = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=snippet,statistics,brandingSettings&${lookup}&key=${encodeURIComponent(env.YOUTUBE_API_KEY)}`, { cache: 'no-store' }); if (!response.ok) return fallbackMetadata(parsed);
-  const data = await response.json() as { items?: { id?: string; snippet?: { title?: string; customUrl?: string; thumbnails?: { high?: { url?: string }; medium?: { url?: string }; default?: { url?: string } } }; statistics?: { subscriberCount?: string; hiddenSubscriberCount?: boolean; videoCount?: string; viewCount?: string }; brandingSettings?: { image?: { bannerExternalUrl?: string } } }[] }; const channel = data.items?.[0];
-  if (!channel) return { ...fallbackMetadata(parsed), resolved: true };
-  return { channelId: channel.id ?? parsed.channelId, displayName: channel.snippet?.title || parsed.username, avatarUrl: channel.snippet?.thumbnails?.high?.url ?? channel.snippet?.thumbnails?.medium?.url ?? channel.snippet?.thumbnails?.default?.url ?? null, bannerUrl: channel.brandingSettings?.image?.bannerExternalUrl ?? null, subscriberCount: channel.statistics?.hiddenSubscriberCount ? null : numberOrNull(channel.statistics?.subscriberCount), followerCount: null, videoCount: numberOrNull(channel.statistics?.videoCount), totalViewCount: numberOrNull(channel.statistics?.viewCount), resolved: true };
+
+  const lookup = parsed.channelId
+    ? `id=${encodeURIComponent(parsed.channelId)}`
+    : `forHandle=${encodeURIComponent(`@${parsed.username}`)}`;
+
+  const response = await fetch(
+    `https://www.googleapis.com/youtube/v3/channels?part=snippet,statistics,brandingSettings&${lookup}&key=${encodeURIComponent(env.YOUTUBE_API_KEY)}`,
+    { cache: 'no-store' },
+  );
+
+  if (!response.ok) return fallbackMetadata(parsed);
+
+  const data = await response.json() as {
+    items?: {
+      id?: string;
+      snippet?: {
+        title?: string;
+        description?: string;
+        thumbnails?: {
+          high?: { url?: string };
+          medium?: { url?: string };
+          default?: { url?: string };
+        };
+      };
+      statistics?: {
+        subscriberCount?: string;
+        hiddenSubscriberCount?: boolean;
+        videoCount?: string;
+        viewCount?: string;
+      };
+      brandingSettings?: {
+        image?: {
+          bannerExternalUrl?: string;
+        };
+      };
+    }[];
+  };
+
+  const channel = data.items?.[0];
+
+  if (!channel) {
+    return { ...fallbackMetadata(parsed), resolved: true };
+  }
+
+  return {
+    channelId: channel.id ?? parsed.channelId,
+    displayName: channel.snippet?.title || parsed.username,
+    avatarUrl:
+      channel.snippet?.thumbnails?.high?.url ??
+      channel.snippet?.thumbnails?.medium?.url ??
+      channel.snippet?.thumbnails?.default?.url ??
+      null,
+    bannerUrl: channel.brandingSettings?.image?.bannerExternalUrl ?? null,
+    description: channel.snippet?.description ?? null,
+    subscriberCount: channel.statistics?.hiddenSubscriberCount
+      ? null
+      : numberOrNull(channel.statistics?.subscriberCount),
+    followerCount: null,
+    videoCount: numberOrNull(channel.statistics?.videoCount),
+    totalViewCount: numberOrNull(channel.statistics?.viewCount),
+    resolved: true,
+  };
 }
 
 async function resolveKickMetadata(parsed: ParsedCreator): Promise<CreatorMetadata> {
   const token = await getKickToken(); if (!token) return fallbackMetadata(parsed);
   const channel = (await getKickChannels([{ platformUsername: parsed.username } as CreatorRow], token)).get(parsed.username);
   if (!channel) return { ...fallbackMetadata(parsed), resolved: true };
-  return { channelId: null, displayName: channel.user?.username || channel.slug || parsed.username, avatarUrl: channel.user?.profile_pic ?? null, bannerUrl: null, subscriberCount: null, followerCount: numberOrNull(channel.follower_count ?? channel.followers_count), videoCount: null, totalViewCount: null, resolved: true };
+  return { channelId: null, displayName: channel.user?.username || channel.slug || parsed.username, avatarUrl: channel.user?.profile_pic ?? null, bannerUrl: null, description: null, subscriberCount: null, followerCount: numberOrNull(channel.follower_count ?? channel.followers_count), videoCount: null, totalViewCount: null, resolved: true };
 }
 
 async function resolveTwitchMetadata(parsed: ParsedCreator): Promise<CreatorMetadata> {
   const token = await getTwitchToken(); if (!token || !env.TWITCH_CLIENT_ID) return fallbackMetadata(parsed);
   const response = await fetch(`https://api.twitch.tv/helix/users?login=${encodeURIComponent(parsed.username)}`, { headers: { 'Client-Id': env.TWITCH_CLIENT_ID, Authorization: `Bearer ${token}` } }); if (!response.ok) return fallbackMetadata(parsed);
   const data = await response.json() as { data?: { display_name?: string; profile_image_url?: string }[] }; const user = data.data?.[0];
-  return user ? { channelId: null, displayName: user.display_name || parsed.username, avatarUrl: user.profile_image_url ?? null, bannerUrl: null, subscriberCount: null, followerCount: null, videoCount: null, totalViewCount: null, resolved: true } : { ...fallbackMetadata(parsed), resolved: true };
+  return user ? { channelId: null, displayName: user.display_name || parsed.username, avatarUrl: user.profile_image_url ?? null, bannerUrl: null, description: null, subscriberCount: null, followerCount: null, videoCount: null, totalViewCount: null, resolved: true } : { ...fallbackMetadata(parsed), resolved: true };
 }
 
 export async function resolveCreatorMetadata(parsed: ParsedCreator): Promise<CreatorMetadata> {
   try { if (parsed.platform === 'youtube') return await resolveYouTubeMetadata(parsed); if (parsed.platform === 'kick') return await resolveKickMetadata(parsed); return await resolveTwitchMetadata(parsed); } catch { return fallbackMetadata(parsed); }
 }
 
+
 async function applyCreatorMetadata(id: number, parsed: ParsedCreator, metadata: CreatorMetadata) {
   const now = new Date().toISOString();
-  await env.DB.prepare(`UPDATE creators SET platform_channel_id = COALESCE(?, platform_channel_id), display_name = CASE WHEN ? = 1 THEN COALESCE(?, display_name) ELSE display_name END, avatar_url = CASE WHEN ? = 1 THEN ? ELSE avatar_url END, banner_url = CASE WHEN ? = 1 THEN ? ELSE banner_url END, subscriber_count = CASE WHEN ? = 1 THEN ? ELSE subscriber_count END, follower_count = CASE WHEN ? = 1 THEN ? ELSE follower_count END, video_count = CASE WHEN ? = 1 THEN ? ELSE video_count END, total_view_count = CASE WHEN ? = 1 THEN ? ELSE total_view_count END, profile_checked_at = ?, last_metadata_sync_at = ?, updated_at = ? WHERE id = ?`).bind(metadata.channelId ?? parsed.channelId, Number(metadata.resolved), metadata.displayName || null, Number(metadata.resolved), metadata.avatarUrl, Number(metadata.resolved), metadata.bannerUrl, Number(metadata.resolved), metadata.subscriberCount, Number(metadata.resolved), metadata.followerCount, Number(metadata.resolved), metadata.videoCount, Number(metadata.resolved), metadata.totalViewCount, now, now, now, id).run();
-}
 
-async function refreshCreatorProfiles(creators: CreatorRow[]) {
-  await Promise.allSettled(creators.map(async (creator) => { const parsed: ParsedCreator = { platform: creator.platform, username: creator.platformUsername, channelId: creator.platformChannelId, originalUrl: creator.originalUrl, normalizedUrl: creator.normalizedUrl }; const metadata = await resolveCreatorMetadata(parsed); await applyCreatorMetadata(creator.id, parsed, metadata); }));
+  await env.DB.prepare(`
+    UPDATE creators SET
+      platform_channel_id = COALESCE(?, platform_channel_id),
+      display_name = CASE WHEN ? = 1 THEN COALESCE(?, display_name) ELSE display_name END,
+      avatar_url = CASE WHEN ? = 1 THEN COALESCE(?, avatar_url) ELSE avatar_url END,
+      banner_url = CASE WHEN ? = 1 THEN COALESCE(?, banner_url) ELSE banner_url END,
+      description = CASE WHEN ? = 1 THEN COALESCE(?, description) ELSE description END,
+      video_count = CASE WHEN ? = 1 THEN ? ELSE video_count END,
+      total_view_count = CASE WHEN ? = 1 THEN ? ELSE total_view_count END,
+      subscriber_count = CASE WHEN ? = 1 THEN ? ELSE subscriber_count END,
+      follower_count = CASE WHEN ? = 1 THEN ? ELSE follower_count END,
+      profile_checked_at = ?,
+      last_metadata_sync_at = ?,
+      updated_at = ?
+    WHERE id = ?
+  `).bind(
+    metadata.channelId ?? parsed.channelId,
+
+    Number(metadata.resolved),
+    metadata.displayName || null,
+
+    Number(metadata.resolved),
+    metadata.avatarUrl,
+
+    Number(metadata.resolved),
+    metadata.bannerUrl,
+
+    Number(metadata.resolved),
+    metadata.description,
+
+    Number(metadata.resolved),
+    metadata.videoCount,
+
+    Number(metadata.resolved),
+    metadata.totalViewCount,
+
+    Number(metadata.resolved),
+    metadata.subscriberCount,
+
+    Number(metadata.resolved),
+    metadata.followerCount,
+
+    now,
+    now,
+    now,
+    id
+  ).run();
 }
 
 export async function createCreatorFromUrl(rawUrl: string) {
-  const parsed = parseCreatorUrl(rawUrl); const existing = await env.DB.prepare('SELECT id FROM creators WHERE platform = ? AND platform_username = ?').bind(parsed.platform, parsed.username).first();
-  if (existing) throw new CreatorDuplicateError('This channel has already been added.');
-  const metadata = await resolveCreatorMetadata(parsed); const now = new Date().toISOString();
-  const inserted = await env.DB.prepare(`INSERT INTO creators (platform, platform_username, platform_channel_id, original_url, normalized_url, display_name, avatar_url, banner_url, subscriber_count, follower_count, video_count, total_view_count, featured, active, homepage_visible, sort_order, is_live, live_status, profile_checked_at, last_metadata_sync_at, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 1, 1, 0, 0, 'unknown', ?, ?, ?, ?)`)
-    .bind(parsed.platform, parsed.username, metadata.channelId, parsed.originalUrl, parsed.normalizedUrl, metadata.displayName, metadata.avatarUrl, metadata.bannerUrl, metadata.subscriberCount, metadata.followerCount, metadata.videoCount, metadata.totalViewCount, now, now, now, now).run();
-  const id = Number(inserted.meta.last_row_id); const creator = await getCreatorById(id); if (creator) await refreshLiveStatuses([creator]); return id;
-}
+  const parsed = parseCreatorUrl(rawUrl);
+  const existing = await env.DB
+    .prepare('SELECT id FROM creators WHERE platform = ? AND platform_username = ?')
+    .bind(parsed.platform, parsed.username)
+    .first();
 
+  if (existing) {
+    throw new CreatorDuplicateError('This channel has already been added.');
+  }
+
+  const metadata = await resolveCreatorMetadata(parsed);
+  const now = new Date().toISOString();
+
+  const inserted = await env.DB.prepare(`
+    INSERT INTO creators (
+      platform,
+      platform_username,
+      platform_channel_id,
+      original_url,
+      normalized_url,
+      display_name,
+      avatar_url,
+      banner_url,
+      description,
+      video_count,
+      total_view_count,
+      subscriber_count,
+      follower_count,
+      featured,
+      active,
+      homepage_visible,
+      sort_order,
+      is_live,
+      live_status,
+      profile_checked_at,
+      last_metadata_sync_at,
+      created_at,
+      updated_at
+    )
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 1, 1, 0, 0, 'unknown', ?, ?, ?, ?)
+  `).bind(
+    parsed.platform,
+    parsed.username,
+    metadata.channelId,
+    parsed.originalUrl,
+    parsed.normalizedUrl,
+    metadata.displayName,
+    metadata.avatarUrl,
+    metadata.bannerUrl,
+    metadata.description,
+    metadata.videoCount,
+    metadata.totalViewCount,
+    metadata.subscriberCount,
+    metadata.followerCount,
+    now,
+    now,
+    now,
+    now
+  ).run();
+
+  const id = Number(inserted.meta.last_row_id);
+  const creator = await getCreatorById(id);
+
+  if (creator) {
+    await refreshLiveStatuses([creator]);
+  }
+
+  return id;
+}
 export async function ensureInitialCreators() {
   if (seedInProgress) return seedInProgress;
   seedInProgress = (async () => { const seeded = await env.DB.prepare('SELECT seed_key FROM creator_seed_state WHERE seed_key = ?').bind(initialSeedKey).first(); if (seeded) return; for (const url of initialCreatorUrls) { try { await createCreatorFromUrl(url); } catch (error) { if (!(error instanceof CreatorDuplicateError)) throw error; } } await env.DB.prepare('INSERT OR IGNORE INTO creator_seed_state (seed_key, completed_at) VALUES (?, ?)').bind(initialSeedKey, new Date().toISOString()).run(); })().finally(() => { seedInProgress = null; });

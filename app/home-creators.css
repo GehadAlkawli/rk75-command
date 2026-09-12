@@ -8,3 +8,93 @@
 
 /* Homepage creator showcase — real channel metadata, rather than the former list rows. */
 .homepage-creators-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}.homepage-creator-card{display:block;min-width:0;overflow:hidden;border:1px solid rgba(133,164,223,.2);border-radius:18px;background:linear-gradient(150deg,rgba(16,25,42,.98),rgba(5,8,14,.98));box-shadow:0 18px 54px rgba(0,0,0,.3),inset 0 1px rgba(255,255,255,.035);color:#f5f8ff;text-decoration:none;transition:transform .25s ease,border-color .25s ease,box-shadow .25s ease}.homepage-creator-card:hover{transform:translateY(-5px);border-color:rgba(255,208,98,.68);box-shadow:0 28px 70px rgba(0,0,0,.45),0 0 32px rgba(255,191,70,.08)}.homepage-creator-card:focus-visible{outline:3px solid #92b8ff;outline-offset:3px}.homepage-creator-media{position:relative;aspect-ratio:16/7.7;overflow:hidden;background:radial-gradient(circle at 22% 30%,rgba(62,128,222,.32),transparent 35%),linear-gradient(145deg,#121b2d,#05070d)}.homepage-creator-banner{display:block;width:100%;height:100%;object-fit:cover;transition:transform .45s ease,filter .45s ease}.homepage-creator-card:hover .homepage-creator-banner{transform:scale(1.05);filter:saturate(1.15)}.homepage-creator-banner-fallback{position:absolute;inset:0;overflow:hidden;background:#101725}.homepage-creator-banner-fallback img{width:100%;height:100%;object-fit:cover;filter:blur(26px) saturate(1.25);opacity:.52;transform:scale(1.22)}.homepage-creator-banner-empty{width:100%;height:100%;background:radial-gradient(circle at 78% 22%,rgba(255,196,74,.2),transparent 22%),radial-gradient(circle at 28% 65%,rgba(69,141,248,.27),transparent 38%),linear-gradient(145deg,#111b2e,#060912)}.homepage-creator-live{position:absolute;inset:auto auto 12px 12px;display:inline-flex;align-items:center;gap:7px;padding:7px 10px;border:1px solid rgba(255,134,151,.54);border-radius:7px;background:rgba(14,5,10,.86);box-shadow:0 7px 18px rgba(0,0,0,.32);color:#ffc2ce;font-size:10px;font-weight:900;letter-spacing:.09em}.homepage-creator-live i{width:7px;height:7px;border-radius:50%;background:#ff4d70;box-shadow:0 0 12px #ff4d70;animation:livePulse 1.3s infinite}.homepage-creator-content{padding:17px}.homepage-creator-profile{display:flex;align-items:center;gap:11px;min-width:0}.homepage-creator-avatar{flex:0 0 48px;width:48px;height:48px;border:1px solid rgba(192,212,255,.32);border-radius:50%;object-fit:cover;background:#0c1423}.homepage-creator-avatar-fallback{display:grid;place-content:center;background:radial-gradient(circle at 35% 28%,#4c6b9c,#14243f 68%);color:#ffda7a;font-size:18px;font-weight:900}.homepage-creator-profile>div{min-width:0}.homepage-creator-profile h3{margin:0;overflow:hidden;font-size:17px;letter-spacing:-.04em;text-overflow:ellipsis;white-space:nowrap}.homepage-creator-profile p{margin:4px 0 0;overflow:hidden;color:#91a4c8;font-size:11px;text-align:start;text-overflow:ellipsis;white-space:nowrap}.homepage-creator-stats{display:flex;flex-wrap:wrap;gap:16px;margin-top:18px;color:#b8c8e3;font-size:12px}.homepage-creator-stats span,.homepage-creator-viewers,.homepage-creator-platform>span{display:inline-flex;align-items:center;gap:6px}.homepage-creator-stats svg,.homepage-creator-viewers svg,.homepage-creator-platform svg{width:15px;height:15px;color:#ffd268}.homepage-creator-stats b,.homepage-creator-viewers b{color:#f5f8ff}.homepage-creator-stats small{color:#8fa2c6;font-size:10px}.homepage-creator-viewers{margin-top:15px;color:#b8c8e3;font-size:12px}.homepage-creator-viewers span{color:#9faed0}.homepage-creator-platform{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:18px;padding-top:15px;border-top:1px solid rgba(150,178,229,.14);color:#bfcceb;font-size:12px;font-weight:800}.homepage-creator-platform>svg{width:17px;height:17px;color:#ffcf68;transition:transform .2s ease}.homepage-creator-card:hover .homepage-creator-platform>svg{transform:translate(2px,-2px)}.creator-showcase-view-all{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;margin-top:17px;padding:12px;border:1px solid rgba(255,210,105,.3);border-radius:9px;background:linear-gradient(90deg,rgba(255,205,91,.07),rgba(78,140,255,.07));color:#ffdb89;font-size:11px;font-weight:900;letter-spacing:.04em;text-decoration:none;transition:border-color .2s,background .2s}.creator-showcase-view-all:hover{border-color:#ffcf69;background:rgba(255,205,91,.12);color:#fff}.creator-showcase-view-all:focus-visible{outline:3px solid #92b8ff;outline-offset:3px}@media(max-width:950px){.homepage-creators-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:600px){.homepage-creators-grid{grid-template-columns:1fr;gap:13px}.homepage-creator-content{padding:15px}.homepage-creator-media{aspect-ratio:16/7}.homepage-creator-profile h3{font-size:16px}}
+.home-creator-banner{
+  position:absolute;
+  inset:0 0 auto;
+  height:82px;
+  overflow:hidden;
+  background:#0b1322;
+}
+
+.home-creator-banner{
+  position:absolute;
+  inset:0 0 auto;
+  height:82px;
+  overflow:hidden;
+  background:#0b1322;
+  z-index:0;
+}
+
+.home-creator-banner img{
+  width:100%;
+  height:100%;
+  display:block;
+  object-fit:cover;
+  opacity:.72;
+  filter:saturate(.85);
+}
+
+.home-creator-banner::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(
+    180deg,
+    rgba(5,9,16,.15),
+    rgba(5,9,16,.92)
+  );
+}
+
+.home-creator-avatar-wrap,
+.home-creator-info,
+.creator-action-button{
+  position:relative;
+  z-index:1;
+}
+
+.home-creator-description{
+  display:-webkit-box;
+  margin:7px 0 0;
+  overflow:hidden;
+  color:#91a4c8;
+  font-size:10px;
+  line-height:1.5;
+  -webkit-box-orient:vertical;
+  -webkit-line-clamp:2;
+}
+
+.home-creator-stats{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-top:8px;
+}
+
+.home-creator-stats span{
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+  color:#91a4c8;
+  font-size:9px;
+  white-space:nowrap;
+}
+
+.home-creator-stats svg{
+  width:12px;
+  height:12px;
+  color:#ffcf62;
+}
+
+@media(max-width:699px){
+  .home-creator-banner{
+    height:70px;
+  }
+
+  .home-creator-description{
+    font-size:9px;
+  }
+
+  .home-creator-stats{
+    gap:6px;
+  }
+}

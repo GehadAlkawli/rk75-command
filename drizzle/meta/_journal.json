@@ -50,6 +50,13 @@
       "when": 1789222842179,
       "tag": "0006_chubby_susan_delgado",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1789240942368,
+      "tag": "0007_milky_steve_rogers",
+      "breakpoints": true
     }
   ]
 }

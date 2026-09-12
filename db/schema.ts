@@ -108,6 +108,7 @@ export const creators = sqliteTable('creators', {
   displayName: text('display_name'),
   avatarUrl: text('avatar_url'),
   bannerUrl: text('banner_url'),
+  description: text('description'),
   subscriberCount: integer('subscriber_count'),
   followerCount: integer('follower_count'),
   videoCount: integer('video_count'),
