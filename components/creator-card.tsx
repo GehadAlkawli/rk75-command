@@ -43,7 +43,11 @@ export type Creator = {
 };
 export type Lang = 'ar' | 'en';
 
-type CreatorCardProps = { creator: Creator; lang: Lang; mode?: 'watch' | 'channel' };
+type CreatorCardProps = {
+  creator: Creator;
+  lang: Lang;
+  mode?: 'watch' | 'hub';
+};
 
 function PlatformIcon({ platform }: Pick<Creator, 'platform'>) {
   if (platform === 'youtube') return <Play aria-hidden="true" />;
@@ -97,7 +101,7 @@ export function CreatorCard({ creator, lang, mode = 'watch' }: CreatorCardProps)
       maximumFractionDigits: 1,
     }).format(value);
 
-  if (mode === 'channel') {
+  if (mode === 'hub') {
     return (
       <article className="home-creator-card">
         <a
