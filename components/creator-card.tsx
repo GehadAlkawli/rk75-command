@@ -115,15 +115,6 @@ export function CreatorCard({
         ? 'متابع'
         : 'followers';
 
-  const actionLabel =
-    creator.platform === 'youtube'
-      ? rtl
-        ? 'اشترك'
-        : 'SUBSCRIBE'
-      : rtl
-        ? 'تابع'
-        : 'FOLLOW';
-
   const compact = (value: number) =>
     new Intl.NumberFormat(rtl ? 'ar' : 'en', {
       notation: 'compact',

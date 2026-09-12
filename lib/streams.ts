@@ -405,6 +405,19 @@ async function applyCreatorMetadata(id: number, parsed: ParsedCreator, metadata:
   ).run();
 }
 
+async function refreshCreatorProfiles(creators: CreatorRow[]) {
+  await Promise.allSettled(creators.map(async (creator) => {
+    const parsed: ParsedCreator = {
+      platform: creator.platform,
+      username: creator.platformUsername,
+      channelId: creator.platformChannelId,
+      originalUrl: creator.originalUrl,
+      normalizedUrl: creator.normalizedUrl,
+    };
+    await applyCreatorMetadata(creator.id, parsed, await resolveCreatorMetadata(parsed));
+  }));
+}
+
 export async function createCreatorFromUrl(rawUrl: string) {
   const parsed = parseCreatorUrl(rawUrl);
   const existing = await env.DB
