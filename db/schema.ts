@@ -107,9 +107,13 @@ export const creators = sqliteTable('creators', {
   normalizedUrl: text('normalized_url').notNull(),
   displayName: text('display_name'),
   avatarUrl: text('avatar_url'),
+  subscriberCount: integer('subscriber_count'),
+  followerCount: integer('follower_count'),
   teamId: text('team_id'),
   featured: integer('featured', { mode: 'boolean' }).notNull().default(false),
   active: integer('active', { mode: 'boolean' }).notNull().default(true),
+  homepageVisible: integer('homepage_visible', { mode: 'boolean' }).notNull().default(true),
+  sortOrder: integer('sort_order').notNull().default(0),
   isLive: integer('is_live', { mode: 'boolean' }).notNull().default(false),
   liveStatus: text('live_status', { enum: ['live', 'offline', 'unknown'] }).notNull().default('unknown'),
   currentStreamId: text('current_stream_id'),
@@ -120,12 +124,21 @@ export const creators = sqliteTable('creators', {
   category: text('category'),
   streamStartedAt: text('stream_started_at'),
   lastCheckedAt: text('last_checked_at'),
+  profileCheckedAt: text('profile_checked_at'),
   createdAt: text('created_at').notNull(),
   updatedAt: text('updated_at').notNull(),
 }, (table) => [
   uniqueIndex('idx_creators_platform_username').on(table.platform, table.platformUsername),
   index('idx_creators_active_live').on(table.active, table.isLive, table.featured),
+  index('idx_creators_homepage_order').on(table.active, table.homepageVisible, table.isLive, table.featured, table.sortOrder, table.createdAt),
 ]);
+
+// Records the one-time runtime import of the initial community channels.
+// Keeping this state in the database means deletions made by the administrator stay deleted.
+export const creatorSeedState = sqliteTable('creator_seed_state', {
+  seedKey: text('seed_key').primaryKey(),
+  completedAt: text('completed_at').notNull(),
+});
 
 export const mediaPosts = sqliteTable('media_posts', {
   id: integer('id').primaryKey({ autoIncrement: true }),

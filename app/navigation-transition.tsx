@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 
-const routePaths = new Set(['/', '/stats', '/accounts', '/media', '/live', '/creators', '/admin/streams']);
+const routePaths = new Set(['/', '/stats', '/accounts', '/media', '/live', '/creators', '/admin/streams', '/admin/creators']);
 
 export default function NavigationTransition() {
   useEffect(() => {
