@@ -12,8 +12,18 @@ export type CreatorRow = {
 export type Creator = Omit<CreatorRow, 'featured' | 'active' | 'homepageVisible' | 'isLive'> & { featured: boolean; active: boolean; homepageVisible: boolean; isLive: boolean; slug: string };
 export type ParsedCreator = { platform: Platform; username: string; channelId: string | null; originalUrl: string; normalizedUrl: string };
 export type LiveStatus = { isLive: boolean; state: LiveState; title?: string | null; thumbnail?: string | null; viewerCount?: number | null; category?: string | null; startedAt?: string | null; videoId?: string | null; streamId?: string | null };
-type CreatorMetadata = { channelId: string | null; displayName: string; avatarUrl: string | null; subscriberCount: number | null; followerCount: number | null; resolved: boolean };
-
+type CreatorMetadata = {
+  channelId: string | null;
+  displayName: string;
+  avatarUrl: string | null;
+  bannerUrl: string | null;
+  description: string | null;
+  subscriberCount: number | null;
+  followerCount: number | null;
+  videoCount: number | null;
+  totalViewCount: number | null;
+  resolved: boolean;
+};
 const liveRefreshMs = 60_000;
 const profileRefreshMs = 6 * 60 * 60_000;
 const initialSeedKey = 'initial-creators-v1';
@@ -202,16 +212,83 @@ export async function refreshLiveStatuses(creators?: CreatorRow[]) {
   await Promise.allSettled([groups.twitch.length ? refreshTwitch(groups.twitch) : Promise.resolve(), groups.kick.length ? refreshKick(groups.kick) : Promise.resolve(), groups.youtube.length ? refreshYoutube(groups.youtube) : Promise.resolve()]);
 }
 
-const fallbackMetadata = (parsed: ParsedCreator): CreatorMetadata => ({ channelId: parsed.channelId, displayName: parsed.username, avatarUrl: null, subscriberCount: null, followerCount: null, resolved: false });
+const fallbackMetadata = (parsed: ParsedCreator): CreatorMetadata => ({
+  channelId: parsed.channelId,
+  displayName: parsed.username,
+  avatarUrl: null,
+  bannerUrl: null,
+  description: null,
+  subscriberCount: null,
+  followerCount: null,
+  videoCount: null,
+  totalViewCount: null,
+  resolved: false
+});
 const numberOrNull = (value: unknown) => { const number = typeof value === 'number' ? value : Number(value); return Number.isFinite(number) && number > 0 ? Math.floor(number) : null; };
 
 async function resolveYouTubeMetadata(parsed: ParsedCreator): Promise<CreatorMetadata> {
   if (!env.YOUTUBE_API_KEY || parsed.username.startsWith('video-')) return fallbackMetadata(parsed);
-  const lookup = parsed.channelId ? `id=${encodeURIComponent(parsed.channelId)}` : `forHandle=${encodeURIComponent(`@${parsed.username}`)}`;
-  const response = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=snippet,statistics&${lookup}&key=${encodeURIComponent(env.YOUTUBE_API_KEY)}`); if (!response.ok) return fallbackMetadata(parsed);
-  const data = await response.json() as { items?: { id?: string; snippet?: { title?: string; thumbnails?: { high?: { url?: string }; medium?: { url?: string }; default?: { url?: string } } }; statistics?: { subscriberCount?: string; hiddenSubscriberCount?: boolean } }[] }; const channel = data.items?.[0];
-  if (!channel) return { ...fallbackMetadata(parsed), resolved: true };
-  return { channelId: channel.id ?? parsed.channelId, displayName: channel.snippet?.title || parsed.username, avatarUrl: channel.snippet?.thumbnails?.high?.url ?? channel.snippet?.thumbnails?.medium?.url ?? channel.snippet?.thumbnails?.default?.url ?? null, subscriberCount: channel.statistics?.hiddenSubscriberCount ? null : numberOrNull(channel.statistics?.subscriberCount), followerCount: null, resolved: true };
+
+  const lookup = parsed.channelId
+    ? `id=${encodeURIComponent(parsed.channelId)}`
+    : `forHandle=${encodeURIComponent(`@${parsed.username}`)}`;
+
+  const response = await fetch(
+    `https://www.googleapis.com/youtube/v3/channels?part=snippet,statistics,brandingSettings&${lookup}&key=${encodeURIComponent(env.YOUTUBE_API_KEY)}`
+  );
+
+  if (!response.ok) return fallbackMetadata(parsed);
+
+  const data = await response.json() as {
+    items?: {
+      id?: string;
+      snippet?: {
+        title?: string;
+        description?: string;
+        thumbnails?: {
+          high?: { url?: string };
+          medium?: { url?: string };
+          default?: { url?: string };
+        };
+      };
+      statistics?: {
+        subscriberCount?: string;
+        hiddenSubscriberCount?: boolean;
+        videoCount?: string;
+        viewCount?: string;
+      };
+      brandingSettings?: {
+        image?: {
+          bannerExternalUrl?: string;
+        };
+      };
+    }[];
+  };
+
+  const channel = data.items?.[0];
+
+  if (!channel) {
+    return { ...fallbackMetadata(parsed), resolved: true };
+  }
+
+  return {
+    channelId: channel.id ?? parsed.channelId,
+    displayName: channel.snippet?.title || parsed.username,
+    avatarUrl:
+      channel.snippet?.thumbnails?.high?.url ??
+      channel.snippet?.thumbnails?.medium?.url ??
+      channel.snippet?.thumbnails?.default?.url ??
+      null,
+    bannerUrl: channel.brandingSettings?.image?.bannerExternalUrl ?? null,
+    description: channel.snippet?.description ?? null,
+    subscriberCount: channel.statistics?.hiddenSubscriberCount
+      ? null
+      : numberOrNull(channel.statistics?.subscriberCount),
+    followerCount: null,
+    videoCount: numberOrNull(channel.statistics?.videoCount),
+    totalViewCount: numberOrNull(channel.statistics?.viewCount),
+    resolved: true,
+  };
 }
 
 async function resolveKickMetadata(parsed: ParsedCreator): Promise<CreatorMetadata> {
