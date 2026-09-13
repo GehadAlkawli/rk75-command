@@ -17,26 +17,21 @@ type Scan = {
   kills: number;
   defeat: number;
   troops: number;
-  beforeName?: string;
-  beforePower?: number;
-  beforeKills?: number;
-  beforeDefeat?: number;
-  beforeTroops?: number;
+  beforeName?: string | null;
+  beforePower?: number | null;
+  beforeKills?: number | null;
+  beforeDefeat?: number | null;
+  beforeTroops?: number | null;
   note?: string;
   status: 'pending' | 'approved' | 'rejected';
   submittedAt: string;
 };
 
 type StatsDraft = {
-  beforeName: string;
   name: string;
-  beforePower: string;
   power: string;
-  beforeKills: string;
   kills: string;
-  beforeDefeat: string;
   defeat: string;
-  beforeTroops: string;
   troops: string;
   note: string;
 };
@@ -59,8 +54,8 @@ const copy = {
     hasAccount: 'لديك حساب؟ سجل الدخول',
     home: 'الرئيسية',
     out: 'تسجيل الخروج',
-    editMine: 'تعديل آخر إحصائياتي',
-    newScan: 'إرسال فحص قبل وبعد',
+    editMine: 'تعديل آخر فحص',
+    newScan: 'حفظ فحص جديد',
     save: 'حفظ التعديلات',
     send: 'إرسال للمراجعة',
     power: 'القوة',
@@ -70,7 +65,7 @@ const copy = {
     before: 'قبل',
     after: 'بعد',
     comparisonHint:
-      'اكتب أرقام قبل وبعد، وسيحسب النظام كل الفروقات والنِّسب.',
+      'أدخل أرقامك الحالية مرة واحدة. يحفظ RK75 الفحص ويقارنه تلقائيًا بآخر فحص.',
     note: 'ملاحظة اختيارية',
     command: 'غرفة قيادة RK75',
     all: 'كل الأعضاء',
@@ -91,7 +86,7 @@ const copy = {
     welcome: 'مرحباً أيها المقاتل',
     adminWelcome: 'لوحة تحكم القائد',
     accountHint:
-      'أدخل إحصائيات قبل وبعد في إرسال واحد، أو عدّل آخر إرسال خاص بك.',
+      'احفظ فحصك الآن، وعند عودتك سيقارن النظام أرقامك الجديدة بكل سجل سابق.',
     adminHint:
       'عدّل أو احذف أي عضو، وراجع كل الإرسالات من هنا.',
     createOk: 'تم إنشاء حسابك بنجاح.',
@@ -116,8 +111,8 @@ const copy = {
     hasAccount: 'Already registered? Sign in',
     home: 'Home',
     out: 'Sign out',
-    editMine: 'Edit my latest statistics',
-    newScan: 'Submit before & after',
+    editMine: 'Edit latest scan',
+    newScan: 'Save new scan',
     save: 'Save changes',
     send: 'Send for review',
     power: 'Power',
@@ -127,7 +122,7 @@ const copy = {
     before: 'Before',
     after: 'After',
     comparisonHint:
-      'Enter both snapshots and RK75 calculates every change and percentage.',
+      'Enter one current snapshot. RK75 saves it and compares it automatically with your last scan.',
     note: 'Optional note',
     command: 'RK75 command room',
     all: 'All members',
@@ -148,7 +143,7 @@ const copy = {
     welcome: 'Welcome, fighter',
     adminWelcome: 'Commander control',
     accountHint:
-      'Enter before and after statistics in one submission, or edit your latest one.',
+      'Save a scan now. When you return, RK75 compares your new numbers with your full history.',
     adminHint:
       'Edit or remove any member and review every submitted scan here.',
     createOk: 'Your account was created.',
@@ -249,15 +244,10 @@ export default function Home() {
   });
 
   const blank: StatsDraft = {
-    beforeName: '',
     name: '',
-    beforePower: '',
     power: '',
-    beforeKills: '',
     kills: '',
-    beforeDefeat: '',
     defeat: '',
-    beforeTroops: '',
     troops: '',
     note: '',
   };
@@ -269,7 +259,11 @@ export default function Home() {
 
   const t = copy[lang];
   const rtl = lang === 'ar';
-  const load=async()=>{const r=await fetch('/api/submissions');if(r.ok)setScans(await r.json())};
+  const load=async()=>{
+    const endpoint=view==='player'?'/api/submissions?history=1':'/api/submissions';
+    const r=await fetch(endpoint);
+    if(r.ok)setScans(await r.json());
+  };
 
   useEffect(()=>{let key=localStorage.getItem('rk75-presence');if(!key){key=crypto.randomUUID();localStorage.setItem('rk75-presence',key)}const ping=async()=>{const r=await fetch('/api/presence',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({visitorKey:key})});if(r.ok)setPresence(await r.json())};void ping();const id=setInterval(ping,30000);return()=>clearInterval(id)},[]);
 
@@ -279,8 +273,8 @@ export default function Home() {
 
   const authSubmit=async(e:FormEvent)=>{e.preventDefault();if(!gate)return;if(gate==='player'&&authMode==='register'&&auth.password!==auth.confirm){setNotice(rtl?'كلمتا المرور غير متطابقتان.':'Passwords do not match.');return}setBusy(true);const body=gate==='admin'?{role:'admin',password:auth.password}:{role:'player',action:authMode,playerId:auth.playerId,name:auth.name,password:auth.password};const r=await fetch('/api/session',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)});const data=(await r.json()) as {error?: string};setBusy(false);if(!r.ok){setNotice(data.error||t.error);return}if(gate==='player'){if(rememberPlayer)localStorage.setItem('rk75-last-player-id',auth.playerId);else localStorage.removeItem('rk75-last-player-id')}const next=gate;setGate(null);setEntrance(next);setTimeout(()=>setEntrance(null),5500);setView(next);setNotice(next==='player'&&authMode==='register'?t.createOk:'')};
 
-  const asDraft=(s:Scan):StatsDraft=>({beforeName:s.beforeName||s.playerName,name:s.playerName,beforePower:String(s.beforePower??s.power),power:String(s.power),beforeKills:String(s.beforeKills??s.kills),kills:String(s.kills),beforeDefeat:String(s.beforeDefeat??s.defeat),defeat:String(s.defeat),beforeTroops:String(s.beforeTroops??s.troops),troops:String(s.troops),note:s.note||''});
- const savePlayer=async(e:FormEvent)=>{e.preventDefault();setBusy(true);const after={name:draft.name,power:Number(draft.power),kills:Number(draft.kills),defeat:Number(draft.defeat),troops:Number(draft.troops)};const before={name:draft.beforeName,power:Number(draft.beforePower),kills:Number(draft.beforeKills),defeat:Number(draft.beforeDefeat),troops:Number(draft.beforeTroops)};const body=playerEdit?{id:playerEdit.id,comparison:{before,after},note:draft.note}:{comparison:{before,after},note:draft.note};const r=await fetch('/api/submissions',{method:playerEdit?'PATCH':'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)});setBusy(false);if(!r.ok){setNotice(t.error);return}setPlayerEdit(null);setDraft(blank);setNotice(playerEdit? t.save:t.send);void load()};
+  const asDraft=(s:Scan):StatsDraft=>({name:s.playerName,power:String(s.power),kills:String(s.kills),defeat:String(s.defeat),troops:String(s.troops),note:s.note||''});
+ const savePlayer=async(e:FormEvent)=>{e.preventDefault();setBusy(true);const body={...(playerEdit?{id:playerEdit.id}:{}),name:draft.name,power:Number(draft.power),kills:Number(draft.kills),defeat:Number(draft.defeat),troops:Number(draft.troops),note:draft.note};const r=await fetch('/api/submissions',{method:playerEdit?'PATCH':'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)});setBusy(false);if(!r.ok){const data=await r.json().catch(()=>null) as {error?:string}|null;setNotice(data?.error||t.error);return}setPlayerEdit(null);setDraft(blank);setNotice(playerEdit? t.save:(rtl?'تم حفظ الفحص ومقارنته بالسجل السابق.':'Scan saved and compared with your previous record.'));void load()};
 
 const review=async(id:number,status:'approved'|'rejected')=>{
   await fetch('/api/submissions',{
@@ -844,7 +838,7 @@ if(view==='player')return(
         <button
           className="outline-button"
           onClick={()=>{
-            setPlayerEdit(scans[0]||null);
+            setPlayerEdit(null);
             setDraft(
               scans[0]
                 ?asDraft(scans[0])
@@ -852,11 +846,22 @@ if(view==='player')return(
             );
           }}
         >
-          <Edit3 size={16}/>
-          {scans[0]
-            ?t.editMine
-            :t.newScan}
+          <Plus size={16}/>
+          {t.newScan}
         </button>
+
+        {scans[0]&&(
+          <button
+            className="plain-link"
+            onClick={()=>{
+              setPlayerEdit(scans[0]);
+              setDraft(asDraft(scans[0]));
+            }}
+          >
+            <Edit3 size={16}/>
+            {t.editMine}
+          </button>
+        )}
 
         <a
           href="/stats"
@@ -879,7 +884,7 @@ if(view==='player')return(
         <div className="form-head">
           <span>
             {playerEdit
-              ?'01 / EDIT'
+              ?'01 / EDIT LATEST'
               :'01 / NEW SCAN'}
           </span>
 
@@ -917,38 +922,50 @@ if(view==='player')return(
 
       <div className="my-scans">
 
-        <p>MY SUBMISSIONS</p>
+        <p>SCAN HISTORY / {scans.length}</p>
 
-        <h2>{t.beforeAfter}</h2>
+        <h2>{rtl?'سجل فحوصاتي ومقارناتي':'My scan history & comparisons'}</h2>
 
-        {scans.map(s=>(
-          <button
+        {scans.map((s,index)=>(
+          <article
             key={s.id}
-            onClick={()=>{
-              setPlayerEdit(s);
-              setDraft(asDraft(s));
-            }}
-            className="scan-row"
+            className="scan-row scan-history-row"
           >
-            <span>
-              <b>{s.playerName}</b>
+            <div className="scan-history-main">
+              <span>
+                <b>{rtl?`الفحص ${scans.length-index}`:`Scan ${scans.length-index}`}</b>
+                <i className={s.status}>{t[s.status]}</i>
+              </span>
               <small>
                 {new Date(
                   s.submittedAt
                 ).toLocaleString()}
               </small>
-            </span>
 
-            <strong>
-              {n(s.power)}
-            </strong>
+              <div className="scan-values">
+                <span><small>{t.power}</small><b>{n(s.power)}</b></span>
+                <span><small>{t.kills}</small><b>{n(s.kills)}</b></span>
+                <span><small>{t.losses}</small><b>{n(s.defeat)}</b></span>
+                <span><small>{t.troops}</small><b>{n(s.troops)}</b></span>
+              </div>
 
-            <i className={s.status}>
-              {t[s.status]}
-            </i>
+              <ScanComparison scan={s} rtl={rtl}/>
+            </div>
 
-            <Edit3 size={15}/>
-          </button>
+            {index===0&&(
+              <button
+                type="button"
+                className="scan-edit-button"
+                onClick={()=>{
+                  setPlayerEdit(s);
+                  setDraft(asDraft(s));
+                }}
+                aria-label={t.editMine}
+              >
+                <Edit3 size={15}/>
+              </button>
+            )}
+          </article>
         ))}
 
         {!scans.length&&(
@@ -1226,36 +1243,18 @@ function StatsInputs({
         {t.comparisonHint}
       </p>
 
-      <div className="comparison-inputs">
+      <div className="single-scan-inputs">
+        <div className="snapshot-label after-snapshot">
+          01 / {t.after}
+        </div>
 
-        <section>
-          <div className="snapshot-label before-snapshot">
-            01 / {t.before}
-          </div>
-
-          <div className="stat-inputs">
-            {field('beforeName', t.name, 'text')}
-            {field('beforePower', t.power)}
-            {field('beforeKills', t.kills)}
-            {field('beforeDefeat', t.losses)}
-            {field('beforeTroops', t.troops)}
-          </div>
-        </section>
-
-        <section>
-          <div className="snapshot-label after-snapshot">
-            02 / {t.after}
-          </div>
-
-          <div className="stat-inputs">
-            {field('name', t.name, 'text')}
-            {field('power', t.power)}
-            {field('kills', t.kills)}
-            {field('defeat', t.losses)}
-            {field('troops', t.troops)}
-          </div>
-        </section>
-
+        <div className="stat-inputs">
+          {field('name', t.name, 'text')}
+          {field('power', t.power)}
+          {field('kills', t.kills)}
+          {field('defeat', t.losses)}
+          {field('troops', t.troops)}
+        </div>
       </div>
 
       <label className="note-field">
@@ -1272,6 +1271,58 @@ function StatsInputs({
         />
       </label>
     </>
+  );
+}
+
+function ScanComparison({
+  scan,
+  rtl,
+}: {
+  scan: Scan;
+  rtl: boolean;
+}) {
+  if (
+    scan.beforePower == null ||
+    scan.beforeKills == null ||
+    scan.beforeDefeat == null ||
+    scan.beforeTroops == null
+  ) {
+    return (
+      <p className="scan-baseline">
+        {rtl
+          ?'هذا أول فحص محفوظ — سيكون خط الأساس للمقارنة القادمة.'
+          :'This is your first saved scan — it becomes the baseline for your next comparison.'}
+      </p>
+    );
+  }
+
+  const delta = (value: number, previous: number) => value - previous;
+  const percentage = (value: number, previous: number) =>
+    previous > 0
+      ?`${value >= 0?'+':''}${((value / previous) * 100).toFixed(2)}%`
+      :'—';
+  const signed = (value: number) => `${value >= 0?'+':''}${n(value)}`;
+  const power = delta(scan.power, scan.beforePower);
+  const kills = delta(scan.kills, scan.beforeKills);
+  const losses = delta(scan.defeat, scan.beforeDefeat);
+  const troopNet = delta(scan.troops, scan.beforeTroops);
+  const troopsAdded = troopNet + losses;
+
+  return (
+    <div className="scan-deltas">
+      <span className={power >= 0?'positive':'negative'}>
+        {rtl?'القوة':'Power'} {signed(power)}
+      </span>
+      <span className="change-kills">
+        {rtl?'القتل':'Kills'} {signed(kills)}
+      </span>
+      <span className="change-losses">
+        {rtl?'الخسائر':'Losses'} {signed(losses)} ({percentage(losses, scan.beforeDefeat)})
+      </span>
+      <span className={troopsAdded >= 0?'positive':'negative'}>
+        {rtl?'جنود مضافون':'Troops added'} {signed(troopsAdded)} ({percentage(troopNet, scan.beforeTroops)})
+      </span>
+    </div>
   );
 }
 

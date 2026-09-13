@@ -31,7 +31,9 @@ manual release.
 - `CLOUDFLARE_ACCOUNT_ID` — the Cloudflare account identifier (not a secret,
   but kept as an Actions secret to keep workflow configuration simple).
 
-No OpenAI hosting or runtime configuration is used by this release flow.
+Cloudflare remains the production runtime. The optional OpenAI Sites deployment
+is a separate preview and recovery runtime, updated from the same Git source;
+it does not share the production Cloudflare D1 or R2 data.
 
 ## Secrets
 

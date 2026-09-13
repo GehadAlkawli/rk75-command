@@ -142,3 +142,26 @@
     display: none;
   }
 }
+
+/* Saved scan timeline: every new snapshot is compared with the previous one. */
+.single-scan-inputs{border:1px solid rgba(113,192,232,.23);border-radius:12px;padding:12px;background:rgba(3,9,22,.42)}
+.single-scan-inputs .snapshot-label{margin:-12px -12px 14px}
+.single-scan-inputs .stat-inputs{margin-top:0}
+.scan-history-row{display:flex;align-items:flex-start;gap:12px;padding:18px 0!important}
+.scan-history-main{flex:1;min-width:0}
+.scan-history-main>span{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.scan-history-main>span b{font-size:13px}
+.scan-history-main>span i{font-style:normal}
+.scan-history-main>small{display:block;margin-top:5px;color:var(--muted);font-size:11px}
+.scan-values{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin-top:13px}
+.scan-values>span{display:grid;gap:3px;padding:8px 7px;border:1px solid rgba(130,160,220,.13);border-radius:7px;background:#090f19}
+.scan-values small{color:#8e9bbb;font-size:10px}
+.scan-values b{overflow:hidden;text-overflow:ellipsis;color:#eaf0ff;font-size:12px;white-space:nowrap}
+.scan-deltas{display:flex;flex-wrap:wrap;gap:6px;margin-top:11px}
+.scan-deltas>span{border:1px solid rgba(132,162,221,.14);border-radius:999px;padding:5px 8px;background:rgba(12,19,33,.86);font-size:10px;line-height:1.35}
+.scan-deltas .change-kills{color:#9ce9ff;background:rgba(46,164,222,.1)}
+.scan-deltas .change-losses{color:#ff9fb3;background:rgba(255,113,139,.08)}
+.scan-baseline{margin:12px 0 0;color:#9eb5dc;font-size:11px;line-height:1.6}
+.scan-edit-button{flex:0 0 auto;display:grid;place-items:center;width:32px;height:32px;border:1px solid rgba(124,170,255,.28);border-radius:7px;background:#0a111e;color:#a9cbff}
+.scan-edit-button:hover{border-color:#ffd15b;color:#ffd15b}
+@media(max-width:620px){.scan-values{grid-template-columns:1fr 1fr}.scan-deltas{display:grid;grid-template-columns:1fr}.scan-deltas>span{border-radius:7px}.single-scan-inputs .stat-inputs{grid-template-columns:1fr}.single-scan-inputs .stat-inputs label:first-child{grid-column:auto}}

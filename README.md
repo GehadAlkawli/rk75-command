@@ -1,8 +1,9 @@
 # RK75 Command
 
 RK75 Command is a bilingual Fate War tracker. GitHub is the source of truth;
-Cloudflare Workers runs the application, D1 stores structured data, and R2
-stores screenshots, account media, and RK Media uploads.
+Cloudflare Workers is the primary production runtime, D1 stores structured
+data, and R2 stores screenshots, account media, and RK Media uploads. OpenAI
+Sites is maintained as a secondary preview and recovery deployment.
 
 ## Run it locally
 
@@ -33,3 +34,4 @@ publish manually.
 - Use Cloudflare Worker secrets for production values.
 - Apply database changes through `npm run cloudflare:migrate` before a release.
 - The production configuration is `deploy/cloudflare/wrangler.jsonc`.
+- Keep the OpenAI preview deployment separate from the primary Cloudflare data.

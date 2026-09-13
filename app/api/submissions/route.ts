@@ -9,7 +9,8 @@ const validName = (value: unknown) => typeof value === 'string' && value.trim().
 
 export async function GET(request: Request) {
   const session = await readSession(request);
-  if (!session || new URL(request.url).searchParams.get('public') === '1') {
+  const url = new URL(request.url);
+  if (!session || url.searchParams.get('public') === '1') {
     const data = await env.DB.prepare(`WITH scans AS (
       SELECT id, player_id AS playerId, player_name AS playerName, power, kills, defeat, troops, submitted_at AS submittedAt,
         LAG(player_name) OVER (PARTITION BY player_id ORDER BY submitted_at, id) AS beforeName,
@@ -24,7 +25,18 @@ export async function GET(request: Request) {
   }
   const statement = session.role === 'admin'
     ? env.DB.prepare('SELECT id, player_id AS playerId, player_name AS playerName, power, kills, defeat, troops, screenshot_key AS screenshotKey, note, status, submitted_at AS submittedAt, reviewed_at AS reviewedAt FROM submissions ORDER BY submitted_at DESC, id DESC')
-    : env.DB.prepare(`WITH player_scans AS (
+    : url.searchParams.get('history') === '1'
+      ? env.DB.prepare(`WITH player_scans AS (
+        SELECT id, player_id AS playerId, player_name AS playerName, power, kills, defeat, troops, screenshot_key AS screenshotKey, note, status, submitted_at AS submittedAt, reviewed_at AS reviewedAt,
+          LAG(player_name) OVER (ORDER BY submitted_at, id) AS beforeName,
+          LAG(power) OVER (ORDER BY submitted_at, id) AS beforePower,
+          LAG(kills) OVER (ORDER BY submitted_at, id) AS beforeKills,
+          LAG(defeat) OVER (ORDER BY submitted_at, id) AS beforeDefeat,
+          LAG(troops) OVER (ORDER BY submitted_at, id) AS beforeTroops,
+          ROW_NUMBER() OVER (ORDER BY submitted_at DESC, id DESC) AS row_number
+        FROM submissions WHERE player_id = ?
+      ) SELECT * FROM player_scans ORDER BY submittedAt DESC, id DESC`).bind(session.playerId)
+      : env.DB.prepare(`WITH player_scans AS (
         SELECT id, player_id AS playerId, player_name AS playerName, power, kills, defeat, troops, screenshot_key AS screenshotKey, note, status, submitted_at AS submittedAt, reviewed_at AS reviewedAt,
           LAG(player_name) OVER (ORDER BY submitted_at, id) AS beforeName,
           LAG(power) OVER (ORDER BY submitted_at, id) AS beforePower,
@@ -71,8 +83,13 @@ export async function POST(request: Request) {
   if (!player) return unauthorized();
   const period = await env.DB.prepare("SELECT id FROM scan_periods WHERE status = 'open' ORDER BY id DESC LIMIT 1").first<{ id: number }>();
   const now = new Date().toISOString();
-  const result = await env.DB.prepare('INSERT INTO submissions (player_id, player_name, period_id, power, kills, defeat, troops, note, status, submitted_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)').bind(session.playerId, player.display_name, period?.id ?? null, values[0], values[1], values[2], values[3], body.note?.trim().slice(0, 500) || null, 'pending', now).run();
-  return Response.json({ id: result.meta.last_row_id, status: 'pending', submittedAt: now });
+  const name = validName(body.name) ?? player.display_name;
+  const result = await env.DB.batch([
+    env.DB.prepare('UPDATE players SET display_name = ? WHERE player_id = ?').bind(name, session.playerId),
+    env.DB.prepare('INSERT INTO submissions (player_id, player_name, period_id, power, kills, defeat, troops, note, status, submitted_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)').bind(session.playerId, name, period?.id ?? null, values[0], values[1], values[2], values[3], body.note?.trim().slice(0, 500) || null, 'pending', now),
+    env.DB.prepare('INSERT INTO audit_events (actor, action, detail, created_at) VALUES (?, ?, ?, ?)').bind(`player:${session.playerId}`, 'scan_saved', 'Player saved a historical scan', now),
+  ]);
+  return Response.json({ id: result[1].meta.last_row_id, status: 'pending', submittedAt: now });
 }
 
 export async function PATCH(request: Request) {
@@ -108,8 +125,10 @@ export async function PATCH(request: Request) {
       return Response.json({ ok: true });
     }
     if (!wantsStats || values.some((value) => value === null)) return Response.json({ error: 'Every statistic must be a valid whole number.' }, { status: 400 });
-    const current = await env.DB.prepare('SELECT player_id, player_name FROM submissions WHERE id = ?').bind(body.id).first<{ player_id: string; player_name: string }>();
+    const current = await env.DB.prepare('SELECT player_id, player_name, submitted_at AS submittedAt FROM submissions WHERE id = ?').bind(body.id).first<{ player_id: string; player_name: string; submittedAt: string }>();
     if (!current || current.player_id !== session.playerId) return unauthorized();
+    const latest = await env.DB.prepare('SELECT id FROM submissions WHERE player_id = ? ORDER BY submitted_at DESC, id DESC LIMIT 1').bind(session.playerId).first<{ id: number }>();
+    if (!latest || latest.id !== body.id) return Response.json({ error: 'Only your latest saved scan can be edited.' }, { status: 409 });
     const name = validName(body.name) ?? current.player_name;
     await env.DB.batch([
       env.DB.prepare('UPDATE players SET display_name = ? WHERE player_id = ?').bind(name, session.playerId),
