@@ -190,7 +190,9 @@ async function getTwitchToken() {
 async function getKickToken() {
   if (kickToken && kickToken.expiresAt > Date.now()) return kickToken.token;
   if (!env.KICK_CLIENT_ID || !env.KICK_CLIENT_SECRET) return null;
-  const response = await fetch('https://id.kick.com/oauth/token', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams({ client_id: env.KICK_CLIENT_ID, client_secret: env.KICK_CLIENT_SECRET, grant_type: 'client_credentials', scope: 'channel:read' }) });
+  // App tokens use client credentials only. Scopes belong to the user-authorization
+  // flow and can cause a public-channel token request to be rejected.
+  const response = await fetch('https://id.kick.com/oauth/token', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams({ client_id: env.KICK_CLIENT_ID, client_secret: env.KICK_CLIENT_SECRET, grant_type: 'client_credentials' }) });
   if (!response.ok) throw new Error(`Kick token request failed (${response.status}).`);
   const data = await response.json() as { access_token: string; expires_in: number };
   kickToken = { token: data.access_token, expiresAt: Date.now() + Math.max(60, data.expires_in - 60) * 1000 };
