@@ -54,8 +54,13 @@ const copy = {
     hasAccount: 'لديك حساب؟ سجل الدخول',
     home: 'الرئيسية',
     out: 'تسجيل الخروج',
-    editMine: 'تعديل آخر فحص',
-    newScan: 'حفظ فحص جديد',
+    editMine: 'تعديل آخر سجل',
+    newScan: 'إضافة سجل جديد',
+    newRecord: 'سجل جديد',
+    recordNow: 'تسجيل الفحص',
+    recordSaved: 'تم تسجيل فحصك بنجاح. سيقارن RK75 أرقامك تلقائياً بآخر سجل محفوظ.',
+    scanHistory: 'سجل تطور إحصائياتي',
+    scan: 'سجل',
     save: 'حفظ التعديلات',
     send: 'إرسال للمراجعة',
     power: 'القوة',
@@ -63,9 +68,8 @@ const copy = {
     losses: 'الخسائر في المعركة',
     troops: 'الجنود الحاليون',
     before: 'قبل',
-    after: 'بعد',
     comparisonHint:
-      'أدخل أرقامك الحالية مرة واحدة. يحفظ RK75 الفحص ويقارنه تلقائيًا بآخر فحص.',
+      'اكتب أرقامك الحالية فقط. عند الحفظ يضيف RK75 سجلاً بتاريخ اليوم ويقارنه تلقائياً بآخر سجل.',
     note: 'ملاحظة اختيارية',
     command: 'غرفة قيادة RK75',
     all: 'كل الأعضاء',
@@ -86,7 +90,7 @@ const copy = {
     welcome: 'مرحباً أيها المقاتل',
     adminWelcome: 'لوحة تحكم القائد',
     accountHint:
-      'احفظ فحصك الآن، وعند عودتك سيقارن النظام أرقامك الجديدة بكل سجل سابق.',
+      'سجّل أرقامك اليوم، ثم عد في أي وقت وأضف سجلاً جديداً. ستبقى كل سجلاتك ومقارناتك محفوظة.',
     adminHint:
       'عدّل أو احذف أي عضو، وراجع كل الإرسالات من هنا.',
     createOk: 'تم إنشاء حسابك بنجاح.',
@@ -111,8 +115,13 @@ const copy = {
     hasAccount: 'Already registered? Sign in',
     home: 'Home',
     out: 'Sign out',
-    editMine: 'Edit latest scan',
-    newScan: 'Save new scan',
+    editMine: 'Edit latest record',
+    newScan: 'Add new record',
+    newRecord: 'New record',
+    recordNow: 'Record scan',
+    recordSaved: 'Your scan was recorded. RK75 automatically compares it with your previous record.',
+    scanHistory: 'My progress history',
+    scan: 'Record',
     save: 'Save changes',
     send: 'Send for review',
     power: 'Power',
@@ -120,9 +129,8 @@ const copy = {
     losses: 'Defeat in Battle',
     troops: 'Current Troops',
     before: 'Before',
-    after: 'After',
     comparisonHint:
-      'Enter one current snapshot. RK75 saves it and compares it automatically with your last scan.',
+      'Enter only your current numbers. RK75 records them with today’s date and compares them automatically with your last record.',
     note: 'Optional note',
     command: 'RK75 command room',
     all: 'All members',
@@ -143,7 +151,7 @@ const copy = {
     welcome: 'Welcome, fighter',
     adminWelcome: 'Commander control',
     accountHint:
-      'Save a scan now. When you return, RK75 compares your new numbers with your full history.',
+      'Record today’s numbers, then return anytime to add a new record. Your complete history and comparisons stay saved.',
     adminHint:
       'Edit or remove any member and review every submitted scan here.',
     createOk: 'Your account was created.',
@@ -274,7 +282,7 @@ export default function Home() {
   const authSubmit=async(e:FormEvent)=>{e.preventDefault();if(!gate)return;if(gate==='player'&&authMode==='register'&&auth.password!==auth.confirm){setNotice(rtl?'كلمتا المرور غير متطابقتان.':'Passwords do not match.');return}setBusy(true);const body=gate==='admin'?{role:'admin',password:auth.password}:{role:'player',action:authMode,playerId:auth.playerId,name:auth.name,password:auth.password};const r=await fetch('/api/session',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)});const data=(await r.json()) as {error?: string};setBusy(false);if(!r.ok){setNotice(data.error||t.error);return}if(gate==='player'){if(rememberPlayer)localStorage.setItem('rk75-last-player-id',auth.playerId);else localStorage.removeItem('rk75-last-player-id')}const next=gate;setGate(null);setEntrance(next);setTimeout(()=>setEntrance(null),5500);setView(next);setNotice(next==='player'&&authMode==='register'?t.createOk:'')};
 
   const asDraft=(s:Scan):StatsDraft=>({name:s.playerName,power:String(s.power),kills:String(s.kills),defeat:String(s.defeat),troops:String(s.troops),note:s.note||''});
- const savePlayer=async(e:FormEvent)=>{e.preventDefault();setBusy(true);const body={...(playerEdit?{id:playerEdit.id}:{}),name:draft.name,power:Number(draft.power),kills:Number(draft.kills),defeat:Number(draft.defeat),troops:Number(draft.troops),note:draft.note};const r=await fetch('/api/submissions',{method:playerEdit?'PATCH':'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)});setBusy(false);if(!r.ok){const data=await r.json().catch(()=>null) as {error?:string}|null;setNotice(data?.error||t.error);return}setPlayerEdit(null);setDraft(blank);setNotice(playerEdit? t.save:(rtl?'تم حفظ الفحص ومقارنته بالسجل السابق.':'Scan saved and compared with your previous record.'));void load()};
+ const savePlayer=async(e:FormEvent)=>{e.preventDefault();setBusy(true);const body={...(playerEdit?{id:playerEdit.id}:{}),name:draft.name,power:Number(draft.power),kills:Number(draft.kills),defeat:Number(draft.defeat),troops:Number(draft.troops),note:draft.note};const r=await fetch('/api/submissions',{method:playerEdit?'PATCH':'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)});setBusy(false);if(!r.ok){const data=await r.json().catch(()=>null) as {error?:string}|null;setNotice(data?.error||t.error);return}setPlayerEdit(null);setDraft(blank);setNotice(playerEdit? t.save:t.recordSaved);void load()};
 
 const review=async(id:number,status:'approved'|'rejected')=>{
   await fetch('/api/submissions',{
@@ -885,7 +893,7 @@ if(view==='player')return(
           <span>
             {playerEdit
               ?'01 / EDIT LATEST'
-              :'01 / NEW SCAN'}
+              :'01 / NEW RECORD'}
           </span>
 
           <h2>
@@ -907,7 +915,7 @@ if(view==='player')return(
         >
           {playerEdit
             ?t.save
-            :t.send}
+            :t.recordNow}
 
           <ChevronRight size={18}/>
         </button>
@@ -922,9 +930,9 @@ if(view==='player')return(
 
       <div className="my-scans">
 
-        <p>SCAN HISTORY / {scans.length}</p>
+        <p>RECORD HISTORY / {scans.length}</p>
 
-        <h2>{rtl?'سجل فحوصاتي ومقارناتي':'My scan history & comparisons'}</h2>
+        <h2>{t.scanHistory}</h2>
 
         {scans.map((s,index)=>(
           <article
@@ -933,7 +941,7 @@ if(view==='player')return(
           >
             <div className="scan-history-main">
               <span>
-                <b>{rtl?`الفحص ${scans.length-index}`:`Scan ${scans.length-index}`}</b>
+                <b>{`${t.scan} ${scans.length-index}`}</b>
                 <i className={s.status}>{t[s.status]}</i>
               </span>
               <small>
@@ -971,8 +979,8 @@ if(view==='player')return(
         {!scans.length&&(
           <p className="muted-empty">
             {rtl
-              ?'لا توجد إرسالات بعد.'
-              :'No submissions yet.'}
+              ?'لا توجد سجلات بعد. أضف أول سجل ليصبح خط الأساس للمقارنة القادمة.'
+              :'No records yet. Add your first record to create a baseline for the next comparison.'}
           </p>
         )}
 
@@ -1245,7 +1253,7 @@ function StatsInputs({
 
       <div className="single-scan-inputs">
         <div className="snapshot-label after-snapshot">
-          01 / {t.after}
+          01 / {t.newRecord}
         </div>
 
         <div className="stat-inputs">
