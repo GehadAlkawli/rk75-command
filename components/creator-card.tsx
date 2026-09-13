@@ -65,7 +65,11 @@ function CreatorAvatar({
   const [failed, setFailed] = useState(false);
   const name = creator.displayName || creator.platformUsername;
 
-  if (!creator.avatarUrl || failed) {
+  // Kick supplies a channel banner to app tokens when no independent avatar is
+  // available. It is still preferable to an empty initial-only profile image.
+  const imageUrl = creator.avatarUrl ?? creator.bannerUrl;
+
+  if (!imageUrl || failed) {
     return (
       <span
         className={`${className} creator-avatar-fallback`}
@@ -79,7 +83,7 @@ function CreatorAvatar({
   return (
     <img
       className={className}
-      src={creator.avatarUrl}
+      src={imageUrl}
       alt={name}
       loading="lazy"
       onError={() => setFailed(true)}
@@ -104,10 +108,13 @@ export function CreatorCard({
   const audienceCount =
     creator.platform === 'youtube'
       ? creator.subscriberCount
-      : creator.followerCount;
+      : creator.platform === 'kick'
+        ? (creator.subscriberCount ?? creator.followerCount)
+        : creator.followerCount;
 
   const audienceLabel =
-    creator.platform === 'youtube'
+    creator.platform === 'youtube' ||
+    (creator.platform === 'kick' && creator.subscriberCount !== null)
       ? rtl
         ? 'مشترك'
         : 'subscribers'

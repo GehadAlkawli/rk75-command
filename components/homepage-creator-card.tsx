@@ -20,26 +20,28 @@ export default function HomepageCreatorCard({ creator, lang }: { creator: Creato
   const rtl = lang === 'ar';
   const name = creator.displayName || creator.platformUsername;
   const handle = creator.platformUsername ? `@${creator.platformUsername}` : null;
-  const audience = creator.platform === 'youtube' ? creator.subscriberCount : creator.followerCount ?? creator.subscriberCount;
+  const audience = creator.platform === 'youtube' ? creator.subscriberCount : creator.platform === 'kick' ? creator.subscriberCount ?? creator.followerCount : creator.followerCount ?? creator.subscriberCount;
   const audienceCount = formatCompactNumber(audience);
+  const audienceIsSubscribers = creator.platform === 'youtube' || (creator.platform === 'kick' && creator.subscriberCount !== null);
   const videoCount = formatCompactNumber(creator.videoCount);
   const viewerCount = creator.isLive && creator.viewerCount && creator.viewerCount > 0 ? formatCompactNumber(creator.viewerCount) : null;
   const initial = name.slice(0, 1).toUpperCase();
+  const profileImage = creator.avatarUrl ?? creator.bannerUrl;
 
   return <a className={`homepage-creator-card${creator.isLive ? ' is-live' : ''}`} href={creator.originalUrl} target="_blank" rel="noopener noreferrer" aria-label={`${rtl ? 'فتح قناة' : 'Open channel'} ${name}`}>
     <div className="homepage-creator-media">
       {creator.bannerUrl && !bannerFailed ? <img className="homepage-creator-banner" src={creator.bannerUrl} alt="" loading="lazy" onError={() => setBannerFailed(true)} />
-        : creator.avatarUrl && !avatarFailed ? <div className="homepage-creator-banner-fallback"><img src={creator.avatarUrl} alt="" loading="lazy" onError={() => setAvatarFailed(true)} /></div>
+        : profileImage && !avatarFailed ? <div className="homepage-creator-banner-fallback"><img src={profileImage} alt="" loading="lazy" onError={() => setAvatarFailed(true)} /></div>
           : <div className="homepage-creator-banner-empty" aria-hidden="true" />}
       {creator.isLive && <span className="homepage-creator-live"><i />LIVE</span>}
     </div>
     <div className="homepage-creator-content">
       <div className="homepage-creator-profile">
-        {creator.avatarUrl && !avatarFailed ? <img className="homepage-creator-avatar" src={creator.avatarUrl} alt={name} loading="lazy" onError={() => setAvatarFailed(true)} /> : <span className="homepage-creator-avatar homepage-creator-avatar-fallback" aria-label={name}>{initial}</span>}
+        {profileImage && !avatarFailed ? <img className="homepage-creator-avatar" src={profileImage} alt={name} loading="lazy" onError={() => setAvatarFailed(true)} /> : <span className="homepage-creator-avatar homepage-creator-avatar-fallback" aria-label={name}>{initial}</span>}
         <div><h3>{name}</h3>{handle && <p dir="ltr">{handle}</p>}</div>
       </div>
       {(audienceCount || videoCount) && <div className="homepage-creator-stats">
-        {audienceCount && <span title={creator.platform === 'youtube' ? (rtl ? 'المشتركون' : 'Subscribers') : (rtl ? 'المتابعون' : 'Followers')}><Users aria-hidden="true" /> <b>{audienceCount}</b></span>}
+        {audienceCount && <span title={audienceIsSubscribers ? (rtl ? 'المشتركون النشطون' : 'Active subscribers') : (rtl ? 'المتابعون' : 'Followers')}><Users aria-hidden="true" /> <b>{audienceCount}</b></span>}
         {videoCount && <span title={rtl ? 'الفيديوهات' : 'Videos'}><Clapperboard aria-hidden="true" /> <b>{videoCount}</b><small>{rtl ? 'فيديو' : 'videos'}</small></span>}
       </div>}
       {viewerCount && <div className="homepage-creator-viewers"><Eye aria-hidden="true" /><b>{viewerCount}</b><span>{rtl ? 'يشاهدون الآن' : 'watching now'}</span></div>}

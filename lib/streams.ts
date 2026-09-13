@@ -209,7 +209,21 @@ async function refreshTwitch(creators: CreatorRow[]) {
   await Promise.all(creators.map((creator) => { const stream = byUsername.get(creator.platformUsername); return updateCreatorStatus(creator.id, stream ? { isLive: true, state: 'live', streamId: stream.id, title: stream.title, category: stream.game_name, viewerCount: stream.viewer_count, startedAt: stream.started_at, thumbnail: stream.thumbnail_url.replace('{width}', '640').replace('{height}', '360') } : noLive()); }));
 }
 
-type KickChannel = { slug?: string; category?: { name?: string }; user?: { username?: string; profile_pic?: string }; follower_count?: number | string; followers_count?: number | string; stream?: { is_live?: boolean; id?: string; title?: string; viewer_count?: number; thumbnail?: string; start_time?: string; category?: { name?: string } } };
+type KickChannel = {
+  slug?: string;
+  channel_description?: string;
+  banner_picture?: string;
+  stream_title?: string;
+  category?: { name?: string };
+  // Kick's documented public channel response returns active subscriptions,
+  // while older responses may still include follower fields.
+  active_subscribers_count?: number | string;
+  active_gifted_subscribers_count?: number | string;
+  user?: { username?: string; profile_pic?: string };
+  follower_count?: number | string;
+  followers_count?: number | string;
+  stream?: { is_live?: boolean; id?: string; title?: string; viewer_count?: number; thumbnail?: string; start_time?: string; category?: { name?: string } };
+};
 async function getKickChannels(creators: CreatorRow[], token: string) {
   const all: KickChannel[] = [];
   for (let start = 0; start < creators.length; start += 50) { const params = new URLSearchParams(); creators.slice(start, start + 50).forEach((creator) => params.append('slug', creator.platformUsername)); const response = await fetch(`https://api.kick.com/public/v1/channels?${params}`, { headers: { Authorization: `Bearer ${token}` } }); if (!response.ok) throw new Error(`Kick channel request failed (${response.status}).`); const data = await response.json() as { data?: KickChannel[] }; all.push(...(data.data ?? [])); }
@@ -219,7 +233,7 @@ async function getKickChannels(creators: CreatorRow[], token: string) {
 async function refreshKick(creators: CreatorRow[]) {
   const token = await getKickToken(); if (!token) return markUnknown(creators);
   const channels = await getKickChannels(creators, token);
-  await Promise.all(creators.map((creator) => { const channel = channels.get(creator.platformUsername); const stream = channel?.stream; return updateCreatorStatus(creator.id, stream?.is_live ? { isLive: true, state: 'live', streamId: stream.id, title: stream.title, viewerCount: stream.viewer_count, thumbnail: stream.thumbnail, startedAt: stream.start_time, category: stream.category?.name ?? channel?.category?.name } : noLive()); }));
+  await Promise.all(creators.map((creator) => { const channel = channels.get(creator.platformUsername); const stream = channel?.stream; return updateCreatorStatus(creator.id, stream?.is_live ? { isLive: true, state: 'live', streamId: stream.id, title: stream.title ?? channel?.stream_title, viewerCount: stream.viewer_count, thumbnail: stream.thumbnail, startedAt: stream.start_time, category: stream.category?.name ?? channel?.category?.name } : noLive()); }));
 }
 
 async function getYouTubeVideoStatus(videoId: string, key: string, fallback?: { title?: string; thumbnail?: string; category?: string; startedAt?: string }): Promise<LiveStatus> {
@@ -339,7 +353,18 @@ async function resolveKickMetadata(parsed: ParsedCreator): Promise<CreatorMetada
   const token = await getKickToken(); if (!token) return fallbackMetadata(parsed);
   const channel = (await getKickChannels([{ platformUsername: parsed.username } as CreatorRow], token)).get(parsed.username);
   if (!channel) return { ...fallbackMetadata(parsed), resolved: true };
-  return { channelId: null, displayName: channel.user?.username || channel.slug || parsed.username, avatarUrl: channel.user?.profile_pic ?? null, bannerUrl: null, description: null, subscriberCount: null, followerCount: numberOrNull(channel.follower_count ?? channel.followers_count), videoCount: null, totalViewCount: null, resolved: true };
+  return {
+    channelId: null,
+    displayName: channel.user?.username || channel.slug || parsed.username,
+    avatarUrl: channel.user?.profile_pic ?? null,
+    bannerUrl: channel.banner_picture ?? null,
+    description: channel.channel_description ?? null,
+    subscriberCount: numberOrNull(channel.active_subscribers_count ?? channel.active_gifted_subscribers_count),
+    followerCount: numberOrNull(channel.follower_count ?? channel.followers_count),
+    videoCount: null,
+    totalViewCount: null,
+    resolved: true,
+  };
 }
 
 async function resolveTwitchMetadata(parsed: ParsedCreator): Promise<CreatorMetadata> {
