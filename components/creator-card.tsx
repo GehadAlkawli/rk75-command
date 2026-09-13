@@ -109,12 +109,12 @@ export function CreatorCard({
     creator.platform === 'youtube'
       ? creator.subscriberCount
       : creator.platform === 'kick'
-        ? (creator.subscriberCount ?? creator.followerCount)
+        ? (creator.followerCount ?? creator.subscriberCount)
         : creator.followerCount;
 
   const audienceLabel =
     creator.platform === 'youtube' ||
-    (creator.platform === 'kick' && creator.subscriberCount !== null)
+    (creator.platform === 'kick' && creator.followerCount === null && creator.subscriberCount !== null)
       ? rtl
         ? 'مشترك'
         : 'subscribers'

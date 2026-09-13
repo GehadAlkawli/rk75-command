@@ -224,6 +224,30 @@ type KickChannel = {
   followers_count?: number | string;
   stream?: { is_live?: boolean; id?: string; title?: string; viewer_count?: number; thumbnail?: string; start_time?: string; category?: { name?: string } };
 };
+
+// The app API is authoritative for live state but it can omit profile assets
+// and follower totals for channels that are offline. This public channel
+// response fills only those presentation fields when they are missing.
+type KickPublicChannel = {
+  slug?: string;
+  followers_count?: number | string;
+  banner_image?: { url?: string | null } | null;
+  offline_banner_image?: { src?: string | null } | null;
+  user?: { username?: string; profile_pic?: string | null; bio?: string | null } | null;
+};
+
+async function getKickPublicChannel(username: string): Promise<KickPublicChannel | null> {
+  try {
+    const response = await fetch(`https://kick.com/api/v2/channels/${encodeURIComponent(username)}`, {
+      headers: { Accept: 'application/json' },
+      cache: 'no-store',
+    });
+    if (!response.ok) return null;
+    return await response.json() as KickPublicChannel;
+  } catch {
+    return null;
+  }
+}
 async function getKickChannels(creators: CreatorRow[], token: string) {
   const all: KickChannel[] = [];
   for (let start = 0; start < creators.length; start += 50) { const params = new URLSearchParams(); creators.slice(start, start + 50).forEach((creator) => params.append('slug', creator.platformUsername)); const response = await fetch(`https://api.kick.com/public/v1/channels?${params}`, { headers: { Authorization: `Bearer ${token}` } }); if (!response.ok) throw new Error(`Kick channel request failed (${response.status}).`); const data = await response.json() as { data?: KickChannel[] }; all.push(...(data.data ?? [])); }
@@ -350,17 +374,26 @@ async function resolveYouTubeMetadata(parsed: ParsedCreator): Promise<CreatorMet
 }
 
 async function resolveKickMetadata(parsed: ParsedCreator): Promise<CreatorMetadata> {
-  const token = await getKickToken(); if (!token) return fallbackMetadata(parsed);
-  const channel = (await getKickChannels([{ platformUsername: parsed.username } as CreatorRow], token)).get(parsed.username);
-  if (!channel) return { ...fallbackMetadata(parsed), resolved: true };
+  const token = await getKickToken();
+  const publicChannel = await getKickPublicChannel(parsed.username);
+  let channel: KickChannel | undefined;
+  if (token) {
+    try {
+      channel = (await getKickChannels([{ platformUsername: parsed.username } as CreatorRow], token)).get(parsed.username);
+    } catch {
+      // A profile is still useful even if the authenticated metadata call is
+      // temporarily unavailable. Live state is refreshed independently.
+    }
+  }
+  if (!channel && !publicChannel) return fallbackMetadata(parsed);
   return {
     channelId: null,
-    displayName: channel.user?.username || channel.slug || parsed.username,
-    avatarUrl: channel.user?.profile_pic ?? null,
-    bannerUrl: channel.banner_picture ?? null,
-    description: channel.channel_description ?? null,
-    subscriberCount: numberOrNull(channel.active_subscribers_count ?? channel.active_gifted_subscribers_count),
-    followerCount: numberOrNull(channel.follower_count ?? channel.followers_count),
+    displayName: channel?.user?.username || publicChannel?.user?.username || channel?.slug || publicChannel?.slug || parsed.username,
+    avatarUrl: channel?.user?.profile_pic ?? publicChannel?.user?.profile_pic ?? null,
+    bannerUrl: channel?.banner_picture || publicChannel?.banner_image?.url || publicChannel?.offline_banner_image?.src || null,
+    description: channel?.channel_description || publicChannel?.user?.bio || null,
+    subscriberCount: numberOrNull(channel?.active_subscribers_count ?? channel?.active_gifted_subscribers_count),
+    followerCount: numberOrNull(channel?.follower_count ?? channel?.followers_count ?? publicChannel?.followers_count),
     videoCount: null,
     totalViewCount: null,
     resolved: true,

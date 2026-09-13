@@ -20,9 +20,10 @@ export default function HomepageCreatorCard({ creator, lang }: { creator: Creato
   const rtl = lang === 'ar';
   const name = creator.displayName || creator.platformUsername;
   const handle = creator.platformUsername ? `@${creator.platformUsername}` : null;
-  const audience = creator.platform === 'youtube' ? creator.subscriberCount : creator.platform === 'kick' ? creator.subscriberCount ?? creator.followerCount : creator.followerCount ?? creator.subscriberCount;
+  const audience = creator.platform === 'youtube' ? creator.subscriberCount : creator.platform === 'kick' ? creator.followerCount ?? creator.subscriberCount : creator.followerCount ?? creator.subscriberCount;
   const audienceCount = formatCompactNumber(audience);
-  const audienceIsSubscribers = creator.platform === 'youtube' || (creator.platform === 'kick' && creator.subscriberCount !== null);
+  const audienceIsSubscribers = creator.platform === 'youtube' || (creator.platform === 'kick' && creator.followerCount === null && creator.subscriberCount !== null);
+  const activeSubscribers = creator.platform === 'kick' ? formatCompactNumber(creator.subscriberCount) : null;
   const videoCount = formatCompactNumber(creator.videoCount);
   const viewerCount = creator.isLive && creator.viewerCount && creator.viewerCount > 0 ? formatCompactNumber(creator.viewerCount) : null;
   const initial = name.slice(0, 1).toUpperCase();
@@ -42,6 +43,7 @@ export default function HomepageCreatorCard({ creator, lang }: { creator: Creato
       </div>
       {(audienceCount || videoCount) && <div className="homepage-creator-stats">
         {audienceCount && <span title={audienceIsSubscribers ? (rtl ? 'المشتركون النشطون' : 'Active subscribers') : (rtl ? 'المتابعون' : 'Followers')}><Users aria-hidden="true" /> <b>{audienceCount}</b></span>}
+        {activeSubscribers && creator.followerCount !== creator.subscriberCount && <span title={rtl ? 'المشتركون النشطون' : 'Active subscribers'}><Users aria-hidden="true" /> <b>{activeSubscribers}</b><small>{rtl ? 'مشترك نشط' : 'active subs'}</small></span>}
         {videoCount && <span title={rtl ? 'الفيديوهات' : 'Videos'}><Clapperboard aria-hidden="true" /> <b>{videoCount}</b><small>{rtl ? 'فيديو' : 'videos'}</small></span>}
       </div>}
       {viewerCount && <div className="homepage-creator-viewers"><Eye aria-hidden="true" /><b>{viewerCount}</b><span>{rtl ? 'يشاهدون الآن' : 'watching now'}</span></div>}
