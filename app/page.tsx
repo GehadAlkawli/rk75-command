@@ -718,12 +718,17 @@ if(view==='home')return(
         </a>
 
         <a href="/accounts">
-          {rtl
-            ?'سوق الحسابات'
-            :'Account market'}
-        </a>
+  {rtl
+    ?'سوق الحسابات'
+    :'Account market'}
+</a>
 
-        {langBtn}
+<a href="/media">
+  <Sparkles size={15}/>
+  {rtl ? 'RK ميديا' : 'RK Media'}
+</a>
+
+{langBtn}
 
         <button
           className="admin-trigger"
@@ -741,7 +746,7 @@ if(view==='home')return(
 
         <p className="kicker">
           <Sparkles size={15}/>
-          RK75 — FATE WAR TRACKER
+          RK75 — FATE WAR TEST
         </p>
 
         <h1 className="home-hero-title">
