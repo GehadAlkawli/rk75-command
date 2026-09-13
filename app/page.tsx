@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useMemo, useState } from 'react';
 import CreatorsSection from '@/components/creators-section';
+import DevelopersSection from '@/components/developers-section';
 import { Activity, Check, ChevronRight, Download, Edit3, Eye, EyeOff, Globe2, LockKeyhole, Plus, Shield, Sparkles, Swords, Target, Trash2, Users, X, Zap, MessageCircle } from 'lucide-react';
 
 type Lang = 'ar' | 'en';
@@ -743,17 +744,13 @@ if(view==='home')return(
           RK75 — FATE WAR TRACKER
         </p>
 
-        <h1>
+        <h1 className="home-hero-title">
           {rtl
             ?<>
-              قارن. قُد.
-              <br/>
-              <em>انتصر.</em>
+              مرحبًا بك في <span className="rk-highlight" dir="ltr">RK</span>
             </>
             :<>
-              Compare. Command.
-              <br/>
-              <em>Conquer.</em>
+              Welcome to <span className="rk-highlight">RK</span>
             </>
           }
         </h1>
@@ -800,6 +797,7 @@ if(view==='home')return(
     </section>
 
     <CreatorsSection lang={lang}/>
+    <DevelopersSection lang={lang}/>
 
     {Auth}
     {Entrance}
