@@ -36,7 +36,7 @@ type StatsDraft = {
   note: string;
 };
 
-const discordUrl = 'https://discord.gg/Jb3CCbUsd7';
+const discordUrl = 'https://discord.gg/zF4gR5mWr';
 
 const copy = {
   ar: {
