@@ -7,7 +7,7 @@ The GitHub repository is the source of truth. Cloudflare Workers runs the applic
 - Worker: `rk75-command`
 - D1 database: `rk75-command-db`
 - R2 bucket: `rk75-files`
-- Public Worker URL: `https://rk75-command.gehadalkawli.workers.dev`
+- Public Worker URL: `https://rk75-command.rk75command.workers.dev`
 
 ## Safe release sequence
 
@@ -17,6 +17,21 @@ The GitHub repository is the source of truth. Cloudflare Workers runs the applic
 4. Deploy the Worker with `npm run cloudflare:deploy` using the versioned configuration in `deploy/cloudflare/wrangler.jsonc`.
 5. Smoke-test the public home page, player authentication, admin authentication, statistics, file upload, media, and account listing features.
 6. Only after the new deployment passes, move the live audience to the Cloudflare URL or a custom domain.
+
+## GitHub-controlled releases
+
+The GitHub repository is the only source-code control point. A push to `main`
+always runs the build and type checks. When the two GitHub repository secrets
+below are present, the same push also applies pending D1 migrations and deploys
+to Cloudflare automatically. The **Run workflow** button is available for a
+manual release.
+
+- `CLOUDFLARE_API_TOKEN` — a Cloudflare API token limited to this account's
+  Workers, D1, and R2 deployment tasks.
+- `CLOUDFLARE_ACCOUNT_ID` — the Cloudflare account identifier (not a secret,
+  but kept as an Actions secret to keep workflow configuration simple).
+
+No OpenAI hosting or runtime configuration is used by this release flow.
 
 ## Secrets
 

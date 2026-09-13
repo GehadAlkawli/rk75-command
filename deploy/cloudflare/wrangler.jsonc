@@ -2,8 +2,9 @@
   "$schema": "../../node_modules/wrangler/config-schema.json",
   "name": "rk75-command",
   "main": "../../dist/server/index.js",
+  "workers_dev": true,
   "compatibility_date": "2026-09-13",
-  "compatibility_flags": ["nodejs_compat"],
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
   "no_bundle": true,
   "rules": [
     {
@@ -12,7 +13,10 @@
     }
   ],
   "assets": {
-    "directory": "../../dist/client"
+    "directory": "../../dist/client",
+    "not_found_handling": "none",
+    "binding": "ASSETS",
+    "run_worker_first": true
   },
   "d1_databases": [
     {

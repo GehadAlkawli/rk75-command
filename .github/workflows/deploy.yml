@@ -1,35 +1,57 @@
-name: Build and Deploy to JustRunMy
+name: RK75 Cloudflare release
 
 on:
   push:
     branches: [main]
   workflow_dispatch:
 
+concurrency:
+  group: rk75-production
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
 jobs:
-  build-and-push:
+  verify:
     runs-on: ubuntu-latest
-    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Login to JustRunMy Registry
-        uses: docker/login-action@v3
+      - name: Set up Node
+        uses: actions/setup-node@v4
         with:
-          registry: jdr-e69fz45by7.justrunmy.app
-          username: ${{ secrets.JUST_RUN_MY_USER }}
-          password: ${{ secrets.JUST_RUN_MY_PASS }}
+          node-version: 22
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Build
+        run: npm run build
+      - name: Type check
+        run: npx tsc --noEmit
 
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v5
+  deploy:
+    needs: verify
+    if: github.ref == 'refs/heads/main' && secrets.CLOUDFLARE_API_TOKEN != '' && secrets.CLOUDFLARE_ACCOUNT_ID != ''
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
         with:
-          context: .
-          push: true
-          tags: jdr-e69fz45by7.justrunmy.app/e69fz45by7:v2
-          provenance: false
-          sbom: false
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          node-version: 22
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Apply database migrations
+        run: npm run cloudflare:migrate
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      - name: Deploy to Cloudflare
+        run: npm run cloudflare:deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

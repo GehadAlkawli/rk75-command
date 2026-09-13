@@ -14,7 +14,7 @@ const localBindingConfig = {
   name: 'rk75-command',
   compatibility_date: '2026-09-13',
   main: 'vinext/server/fetch-handler',
-  compatibility_flags: ['nodejs_compat'],
+  compatibility_flags: ['nodejs_compat', 'global_fetch_strictly_public'],
   d1_databases: [
     {
       binding: 'DB',
