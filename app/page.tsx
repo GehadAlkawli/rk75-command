@@ -740,7 +740,7 @@ if(view==='home')return(
 
         <p className="kicker">
           <Sparkles size={15}/>
-          RK75 — FATE WAR TRACKER
+          RK75 — SMITH WAS HERE 2026
         </p>
 
         <h1 className="home-hero-title">
