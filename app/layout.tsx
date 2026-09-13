@@ -3,7 +3,7 @@ import './globals.css';
 import NavigationTransition from './navigation-transition';
 
 export const metadata: Metadata = {
-  title: 'RK75 TEST 777',
+  title: 'RK75 Command',
   description: 'RK75 alliance command and Fate War statistics',
 };
 
