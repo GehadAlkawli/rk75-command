@@ -1,16 +1,24 @@
 import http from 'node:http';
 import https from 'node:https';
 
-const upstreamHost = 'rk75.gehadalkawli.chatgpt.site';
+const upstreamOrigin = new URL(
+  process.env.UPSTREAM_ORIGIN || 'https://rk75-command.rk75command.workers.dev',
+);
 const port = Number(process.env.PORT || 8080);
+const requestTransport = upstreamOrigin.protocol === 'https:' ? https : http;
 
 const server = http.createServer((request, response) => {
-  const proxyRequest = https.request({
-    hostname: upstreamHost,
-    port: 443,
+  const proxyRequest = requestTransport.request({
+    hostname: upstreamOrigin.hostname,
+    port: upstreamOrigin.port || (upstreamOrigin.protocol === 'https:' ? 443 : 80),
     method: request.method,
-    path: request.url,
-    headers: { ...request.headers, host: upstreamHost },
+    path: request.url || '/',
+    headers: {
+      ...request.headers,
+      host: upstreamOrigin.host,
+      'x-forwarded-host': request.headers.host || '',
+      'x-forwarded-proto': 'https',
+    },
   }, (upstreamResponse) => {
     response.writeHead(upstreamResponse.statusCode || 502, upstreamResponse.headers);
     upstreamResponse.pipe(response);
@@ -27,5 +35,5 @@ const server = http.createServer((request, response) => {
 });
 
 server.listen(port, '0.0.0.0', () => {
-  console.log(`RK75 public host is listening on port ${port}`);
+  console.log(`RK75 JustRunMy gateway is listening on port ${port}`);
 });

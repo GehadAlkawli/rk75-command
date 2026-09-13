@@ -1,14 +1,15 @@
-FROM node:22
+FROM node:22-alpine
 
 WORKDIR /app
 
-COPY package*.json ./
+# JustRunMy.App uses this small gateway container. The full RK75 application
+# remains on Cloudflare, where its D1, R2, and Worker secrets are available.
+COPY deploy/justrunmy/server.mjs ./server.mjs
 
-RUN npm install
+ENV NODE_ENV=production
+ENV PORT=8080
+ENV UPSTREAM_ORIGIN=https://rk75-command.rk75command.workers.dev
 
-COPY . .
+EXPOSE 8080
 
-RUN npm run build
-
-EXPOSE 3000
-CMD ["npm", "start", "--", "--ip", "0.0.0.0", "--port", "3000"]
+CMD ["node", "server.mjs"]

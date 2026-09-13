@@ -31,9 +31,10 @@ manual release.
 - `CLOUDFLARE_ACCOUNT_ID` — the Cloudflare account identifier (not a secret,
   but kept as an Actions secret to keep workflow configuration simple).
 
-Cloudflare remains the production runtime. The optional OpenAI Sites deployment
-is a separate preview and recovery runtime, updated from the same Git source;
-it does not share the production Cloudflare D1 or R2 data.
+Cloudflare remains the production runtime. JustRunMy.App may run the root
+`Dockerfile` as a lightweight HTTPS gateway on container port `8080`. It
+forwards requests to this Worker and does not hold a second database, upload
+bucket, or any application secrets.
 
 ## Secrets
 

@@ -2,8 +2,8 @@
 
 RK75 Command is a bilingual Fate War tracker. GitHub is the source of truth;
 Cloudflare Workers is the primary production runtime, D1 stores structured
-data, and R2 stores screenshots, account media, and RK Media uploads. OpenAI
-Sites is maintained as a secondary preview and recovery deployment.
+data, and R2 stores screenshots, account media, and RK Media uploads.
+JustRunMy.App can provide an additional public HTTPS gateway on port 8080.
 
 ## Run it locally
 
@@ -34,4 +34,5 @@ publish manually.
 - Use Cloudflare Worker secrets for production values.
 - Apply database changes through `npm run cloudflare:migrate` before a release.
 - The production configuration is `deploy/cloudflare/wrangler.jsonc`.
-- Keep the OpenAI preview deployment separate from the primary Cloudflare data.
+- JustRunMy runs only the gateway defined in the root `Dockerfile`; it does not
+  store RK75 data or secrets.

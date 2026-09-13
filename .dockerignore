@@ -1,0 +1,13 @@
+.git
+.github
+node_modules
+dist
+.next
+.vinext
+.wrangler
+.env
+.env.*
+.dev.vars
+*.tar.gz
+*.tsbuildinfo
+npm-debug.log*

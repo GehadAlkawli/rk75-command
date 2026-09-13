@@ -1,0 +1,35 @@
+name: RK75 JustRunMy gateway
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: rk75-justrunmy
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      JUST_RUN_MY_GIT_REMOTE: ${{ secrets.JUST_RUN_MY_GIT_REMOTE }}
+      JUST_RUN_MY_GIT_REF: ${{ secrets.JUST_RUN_MY_GIT_REF }}
+    steps:
+      - name: Check out GitHub source
+        uses: actions/checkout@v4
+      - name: Check JustRunMy deployment settings
+        id: justrunmy
+        run: |
+          if [ -n "$JUST_RUN_MY_GIT_REMOTE" ] && [ -n "$JUST_RUN_MY_GIT_REF" ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "JustRunMy deployment settings are not configured yet; gateway deployment was skipped."
+          fi
+      - name: Push the exact GitHub revision to JustRunMy
+        if: steps.justrunmy.outputs.ready == 'true'
+        run: git push "$JUST_RUN_MY_GIT_REMOTE" "HEAD:$JUST_RUN_MY_GIT_REF"
