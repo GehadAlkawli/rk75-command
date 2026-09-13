@@ -10,7 +10,7 @@ const stats=(f:Fighter)=>{const has=f.beforePower!=null;const kills=f.beforeKill
 
 export default function StatsPage(){
  const [lang,setLang]=useState<'ar'|'en'>('ar');const [fighters,setFighters]=useState<Fighter[]>([]);const ar=lang==='ar';
- useEffect(()=>{fetch('/api/submissions?public=1').then(r=>r.ok?r.json():[]).then(setFighters)},[]);
+ useEffect(()=>{fetch('/api/submissions?public=1').then(r=>r.ok?r.json():[]).then((data:unknown)=>setFighters(Array.isArray(data)?data as Fighter[]:[]))},[]);
  const totals=useMemo(()=>fighters.reduce((a,f)=>{const s=stats(f);return{power:a.power+f.power,kills:a.kills+f.kills,losses:a.losses+s.losses}},{power:0,kills:0,losses:0}),[fighters]);
  const text=(arAr:string,en:string)=>ar?arAr:en;
  return <main className="comparison-page" dir={ar?'rtl':'ltr'}>
