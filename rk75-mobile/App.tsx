@@ -53,6 +53,7 @@ export default function App() {
         ref={webView}
         source={{ uri: SITE_URL }}
         originWhitelist={['https://*']}
+        cacheEnabled={false}
         javaScriptEnabled
         domStorageEnabled
         sharedCookiesEnabled

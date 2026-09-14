@@ -6,6 +6,7 @@ The independent Android and iPhone companion app for RK75 Command.
 
 - **Source:** GitHub is the source of truth.
 - **Application data:** the existing Cloudflare Worker, D1 database, and R2 bucket remain the backend. The mobile app does not keep copies of player data.
+- **One shared RK75 experience:** the app opens the current RK75 Cloudflare address. A website deployment therefore appears in the app on its next refresh or launch, without rebuilding the APK or IPA. Player accounts, scans, listings, uploads, and administrator edits use the same backend data in both places.
 - **Builds:** Expo Application Services (EAS) builds signed APK, AAB, and IPA artifacts in the cloud. No phone storage is used for builds.
 - **Secrets:** never add credentials to this repository. Store `EXPO_TOKEN` in GitHub Actions secrets and Cloudflare credentials only in Cloudflare.
 
@@ -45,3 +46,7 @@ The Android store build is an AAB because Google Play requires that format. The 
 After the first `eas init`, create an `EXPO_TOKEN` secret in this repository's GitHub Actions settings. Then use **Actions → RK75 Mobile cloud build → Run workflow** and choose Android or iPhone. The token stays in GitHub Secrets and is never written to source control.
 
 The repository contains a separate automatic validation workflow. GitHub checks every mobile change before you start a cloud build.
+
+## Sign-in and saved data
+
+The website and app share the same RK75 account records and saved data. For security, a browser session and an app session are separate: a player signs in once in the app using the same RK75 account, then sees the same saved scans and profile data as on the website. The app does not copy passwords or records into the device.
