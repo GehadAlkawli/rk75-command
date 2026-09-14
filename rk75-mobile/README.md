@@ -47,6 +47,10 @@ After the first `eas init`, create an `EXPO_TOKEN` secret in this repository's G
 
 The repository contains a separate automatic validation workflow. GitHub checks every mobile change before you start a cloud build.
 
+## Free Android APK
+
+The `RK75 Android APK` GitHub Actions workflow builds a free, installable Android debug APK whenever this mobile package changes. Download the `RK75-Android-APK` artifact from that workflow's completed run. This avoids Play Console, but Android users must explicitly allow installation from their browser or file manager. The artifact is for direct distribution and testing; it is not a Google Play release.
+
 ## Sign-in and saved data
 
 The website and app share the same RK75 account records and saved data. For security, a browser session and an app session are separate: a player signs in once in the app using the same RK75 account, then sees the same saved scans and profile data as on the website. The app does not copy passwords or records into the device.
