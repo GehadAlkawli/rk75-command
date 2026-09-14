@@ -37,11 +37,13 @@ jobs:
       - run: npm ci
       - name: Generate Android project
         run: npx expo prebuild --platform android --non-interactive --no-install
-      - name: Build a device-optimized APK
+      - name: Build a standalone device-optimized release APK
         run: |
           cd android
           chmod +x gradlew
-          ./gradlew :app:assembleDebug -PreactNativeArchitectures=${{ matrix.architecture }}
+          # Release builds embed the JavaScript bundle. Debug APKs expect a
+          # Metro development server and cannot run independently on a phone.
+          ./gradlew :app:assembleRelease -PreactNativeArchitectures=${{ matrix.architecture }}
       - name: Prepare architecture-specific APK
         id: release_files
         run: |
@@ -53,7 +55,7 @@ jobs:
           release_version="${release_tag#mobile-v}"
           mkdir -p release
           apk_name="RK75-Command-${release_version}-${{ matrix.asset_suffix }}.apk"
-          cp android/app/build/outputs/apk/debug/app-debug.apk "release/${apk_name}"
+          cp android/app/build/outputs/apk/release/app-release.apk "release/${apk_name}"
           sha256sum "release/${apk_name}" > "release/${apk_name}.sha256"
           echo "tag=${release_tag}" >> "$GITHUB_OUTPUT"
           echo "version=${release_version}" >> "$GITHUB_OUTPUT"

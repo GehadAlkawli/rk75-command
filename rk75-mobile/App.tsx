@@ -41,7 +41,16 @@ export default function App() {
   }, [canGoBack]);
 
   const handleNavigation = useCallback((request: WebViewNavigation) => {
-    if (request.url.startsWith(SITE_ORIGIN)) return true;
+    try {
+      const url = new URL(request.url);
+      const isRk75Page = url.origin === SITE_ORIGIN && url.pathname !== '/download';
+      if (isRk75Page || url.protocol === 'about:') return true;
+    } catch {
+      return false;
+    }
+
+    // APKs and external channels must use Android's browser/downloader. A WebView
+    // cannot reliably install or manage files, while Chrome can resume downloads.
     void Linking.openURL(request.url).catch(() => setHasError(true));
     return false;
   }, []);
@@ -52,24 +61,34 @@ export default function App() {
       <WebView
         ref={webView}
         source={{ uri: SITE_URL }}
-        originWhitelist={['https://*']}
-        cacheEnabled={false}
+        originWhitelist={['https://*', 'mailto:*', 'tel:*']}
+        cacheEnabled
+        cacheMode="LOAD_DEFAULT"
         javaScriptEnabled
         domStorageEnabled
         sharedCookiesEnabled
-        thirdPartyCookiesEnabled
+        thirdPartyCookiesEnabled={false}
         allowsBackForwardNavigationGestures
         allowsInlineMediaPlayback
         mediaPlaybackRequiresUserAction={false}
         setSupportMultipleWindows={false}
-        userAgent="RK75CommandMobile/1.0"
+        userAgent="RK75CommandMobile/1.0.2"
         onShouldStartLoadWithRequest={handleNavigation}
         onNavigationStateChange={(state) => setCanGoBack(state.canGoBack)}
-        onLoadEnd={() => {
+        onLoad={() => {
           setIsReady(true);
           setHasError(false);
         }}
+        onLoadEnd={() => setIsReady(true)}
         onError={() => {
+          setIsReady(true);
+          setHasError(true);
+        }}
+        onHttpError={() => {
+          setIsReady(true);
+          setHasError(true);
+        }}
+        onRenderProcessGone={() => {
           setIsReady(true);
           setHasError(true);
         }}

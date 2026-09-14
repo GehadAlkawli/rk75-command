@@ -47,9 +47,9 @@ After the first `eas init`, create an `EXPO_TOKEN` secret in this repository's G
 
 The repository contains a separate automatic validation workflow. GitHub checks every mobile change before you start a cloud build.
 
-## Free Android APK
+## Direct Android APK
 
-The `RK75 Android APK` GitHub Actions workflow builds a free, installable Android debug APK whenever this mobile package changes. Download the `RK75-Android-APK` artifact from that workflow's completed run. This avoids Play Console, but Android users must explicitly allow installation from their browser or file manager. The artifact is for direct distribution and testing; it is not a Google Play release.
+The `RK75 Android APK` GitHub Actions workflow builds a standalone, installable Android release APK whenever this mobile package changes. The release APK includes the JavaScript bundle, so it does not require Metro, a USB connection, or a computer. Download the `RK75-Android-APK` artifact from that workflow's completed run. This avoids Play Console, but Android users must explicitly allow installation from their browser or file manager. For a public Play Store release, use the signed AAB generated through the EAS production profile.
 
 ## Sign-in and saved data
 
