@@ -3,13 +3,11 @@ name: RK75 Android APK
 on:
   workflow_dispatch:
   push:
-    branches: [main]
-    paths:
-      - 'rk75-mobile/**'
-      - '.github/workflows/rk75-android-apk.yml'
+    tags:
+      - 'mobile-v*'
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build-apk:
@@ -36,10 +34,34 @@ jobs:
           cd android
           chmod +x gradlew
           ./gradlew assembleDebug
-      - name: Upload APK
+      - name: Prepare permanent release files
+        id: release_files
+        run: |
+          if [ "${{ github.event_name }}" = "push" ]; then
+            release_tag="${{ github.ref_name }}"
+          else
+            release_tag="mobile-v${{ github.run_number }}"
+          fi
+          release_version="${release_tag#mobile-v}"
+          mkdir -p release
+          cp android/app/build/outputs/apk/debug/app-debug.apk "release/RK75-Command-${release_version}.apk"
+          sha256sum "release/RK75-Command-${release_version}.apk" > "release/RK75-Command-${release_version}.apk.sha256"
+          echo "tag=${release_tag}" >> "$GITHUB_OUTPUT"
+          echo "version=${release_version}" >> "$GITHUB_OUTPUT"
+      - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: RK75-Android-APK
-          path: rk75-mobile/android/app/build/outputs/apk/debug/app-debug.apk
+          name: RK75-Android-APK-${{ steps.release_files.outputs.version }}
+          path: rk75-mobile/release/
           if-no-files-found: error
           retention-days: 30
+      - name: Publish permanent GitHub release
+        if: github.event_name == 'push'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.release_files.outputs.tag }}
+          name: RK75 Command ${{ steps.release_files.outputs.version }}
+          generate_release_notes: true
+          files: |
+            rk75-mobile/release/RK75-Command-${{ steps.release_files.outputs.version }}.apk
+            rk75-mobile/release/RK75-Command-${{ steps.release_files.outputs.version }}.apk.sha256
