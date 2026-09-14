@@ -2,7 +2,7 @@
   "expo": {
     "name": "RK75 Command",
     "slug": "rk75-command",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
@@ -13,6 +13,7 @@
       "bundleIdentifier": "com.gehadalkawli.rk75command"
     },
     "android": {
+      "versionCode": 2,
       "adaptiveIcon": {
         "backgroundColor": "#080b18",
         "foregroundImage": "./assets/android-icon-foreground.png",
