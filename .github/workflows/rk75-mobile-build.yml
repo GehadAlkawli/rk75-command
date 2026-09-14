@@ -23,8 +23,9 @@ on:
 
 jobs:
   build:
-    if: ${{ secrets.EXPO_TOKEN != '' }}
     runs-on: ubuntu-latest
+    env:
+      EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
     defaults:
       run:
         working-directory: rk75-mobile
@@ -36,7 +37,11 @@ jobs:
           cache: npm
           cache-dependency-path: rk75-mobile/package-lock.json
       - run: npm ci
+      - name: Verify build credential
+        run: |
+          if [ -z "$EXPO_TOKEN" ]; then
+            echo "Add EXPO_TOKEN to this repository's GitHub Actions secrets before running a cloud build."
+            exit 1
+          fi
       - name: Start EAS cloud build
         run: npx eas-cli@latest build --non-interactive --no-wait --platform "${{ inputs.platform }}" --profile "${{ inputs.profile }}"
-        env:
-          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
