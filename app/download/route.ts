@@ -1,5 +1,5 @@
 const ANDROID_APK_URL =
-  'https://github.com/GehadAlkawli/rk75-command/releases/download/mobile-v1.0.0/RK75-Command-1.0.0.apk';
+  'https://github.com/GehadAlkawli/rk75-command/releases/download/mobile-v1.0.1/RK75-Command-1.0.1-ARM64.apk';
 
 async function apkResponse(request: Request, method: 'GET' | 'HEAD') {
   const upstreamHeaders = new Headers({
@@ -24,7 +24,7 @@ async function apkResponse(request: Request, method: 'GET' | 'HEAD') {
   }
 
   const headers = new Headers(upstream.headers);
-  headers.set('Content-Disposition', 'attachment; filename="RK75-Command-1.0.0.apk"');
+  headers.set('Content-Disposition', 'attachment; filename="RK75-Command-1.0.1-ARM64.apk"');
   headers.set('Cache-Control', 'no-store');
   headers.set('X-Content-Type-Options', 'nosniff');
   headers.set('X-Robots-Tag', 'noindex');
