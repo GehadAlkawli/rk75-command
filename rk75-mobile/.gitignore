@@ -1,0 +1,11 @@
+node_modules/
+.expo/
+.expo-export-check/
+.expo-export-ios-check/
+npm-debug.log*
+*.apk
+*.aab
+*.ipa
+*.jks
+*.keystore
+*.mobileprovision

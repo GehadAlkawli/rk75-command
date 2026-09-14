@@ -1,0 +1,31 @@
+{
+  "expo": {
+    "name": "RK75 Command",
+    "slug": "rk75-command",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "scheme": "rk75",
+    "description": "RK75 Fate War command center for player scans, creators, media, and account listings.",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.gehadalkawli.rk75command"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#080b18",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": true,
+      "package": "com.gehadalkawli.rk75command"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "websiteUrl": "https://rk75-command.rk75command.workers.dev/"
+    }
+  }
+}

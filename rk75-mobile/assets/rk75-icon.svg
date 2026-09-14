@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024" role="img" aria-label="RK75">
+  <defs>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fff0a8"/>
+      <stop offset=".55" stop-color="#ffd45c"/>
+      <stop offset="1" stop-color="#ffae45"/>
+    </linearGradient>
+    <radialGradient id="night" cx=".24" cy=".14" r="1">
+      <stop offset="0" stop-color="#263b69"/>
+      <stop offset=".48" stop-color="#0e1933"/>
+      <stop offset="1" stop-color="#070b18"/>
+    </radialGradient>
+    <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="22" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <rect width="1024" height="1024" rx="232" fill="url(#night)"/>
+  <circle cx="512" cy="512" r="350" fill="none" stroke="#ffd45c" stroke-opacity=".2" stroke-width="3"/>
+  <circle cx="512" cy="512" r="274" fill="none" stroke="#73d6ff" stroke-opacity=".14" stroke-width="3"/>
+  <path d="M188 704A360 360 0 0 1 836 362" fill="none" stroke="url(#gold)" stroke-width="20" stroke-linecap="round" filter="url(#glow)"/>
+  <path d="M194 738A398 398 0 0 1 858 306" fill="none" stroke="#76d8ff" stroke-opacity=".38" stroke-width="4" stroke-linecap="round"/>
+  <text x="512" y="564" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="238" font-weight="900" letter-spacing="-22"><tspan fill="#f8fbff">RK</tspan><tspan fill="url(#gold)">75</tspan></text>
+  <text x="512" y="656" text-anchor="middle" fill="#c5d0e8" font-family="Arial, Helvetica, sans-serif" font-size="38" font-weight="800" letter-spacing="11">COMMAND</text>
+</svg>

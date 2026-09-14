@@ -1,0 +1,42 @@
+name: RK75 Mobile cloud build
+
+on:
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: Platform to build
+        required: true
+        default: android
+        type: choice
+        options:
+          - android
+          - ios
+          - all
+      profile:
+        description: Build profile
+        required: true
+        default: preview
+        type: choice
+        options:
+          - preview
+          - production
+
+jobs:
+  build:
+    if: ${{ secrets.EXPO_TOKEN != '' }}
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: rk75-mobile
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: rk75-mobile/package-lock.json
+      - run: npm ci
+      - name: Start EAS cloud build
+        run: npx eas-cli@latest build --non-interactive --no-wait --platform "${{ inputs.platform }}" --profile "${{ inputs.profile }}"
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
