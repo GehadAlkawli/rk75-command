@@ -1,38 +1,82 @@
-const ANDROID_APK_URL =
-  'https://github.com/GehadAlkawli/rk75-command/releases/download/mobile-v1.0.1/RK75-Command-1.0.1-ARM64.apk';
+import { env } from 'cloudflare:workers';
+
+const APK_OBJECT_KEY = 'downloads/RK75-Command-1.0.1-ARM64.apk';
+const APK_FILENAME = 'RK75-Command-1.0.1-ARM64.apk';
+
+type ByteRange = { offset: number; length: number; end: number };
+
+function parseRange(value: string | null, size: number): ByteRange | null | 'invalid' {
+  if (!value) return null;
+  const match = /^bytes=(\d*)-(\d*)$/i.exec(value.trim());
+  if (!match) return 'invalid';
+
+  const [, rawStart, rawEnd] = match;
+  if (!rawStart && !rawEnd) return 'invalid';
+
+  if (!rawStart) {
+    const suffixLength = Number(rawEnd);
+    if (!Number.isSafeInteger(suffixLength) || suffixLength <= 0) return 'invalid';
+    const length = Math.min(suffixLength, size);
+    return { offset: size - length, length, end: size - 1 };
+  }
+
+  const offset = Number(rawStart);
+  const requestedEnd = rawEnd ? Number(rawEnd) : size - 1;
+  if (!Number.isSafeInteger(offset) || !Number.isSafeInteger(requestedEnd) || offset < 0 || offset >= size || requestedEnd < offset) {
+    return 'invalid';
+  }
+
+  const end = Math.min(requestedEnd, size - 1);
+  return { offset, length: end - offset + 1, end };
+}
+
+function downloadHeaders(size: number, range: ByteRange | null, etag: string) {
+  const headers = new Headers({
+    'Content-Type': 'application/vnd.android.package-archive',
+    'Content-Disposition': `attachment; filename="${APK_FILENAME}"`,
+    'Accept-Ranges': 'bytes',
+    'Cache-Control': 'public, max-age=3600',
+    ETag: etag,
+    'X-Content-Type-Options': 'nosniff',
+    'X-Robots-Tag': 'noindex',
+  });
+
+  if (range) {
+    headers.set('Content-Length', String(range.length));
+    headers.set('Content-Range', `bytes ${range.offset}-${range.end}/${size}`);
+  } else {
+    headers.set('Content-Length', String(size));
+  }
+  return headers;
+}
 
 async function apkResponse(request: Request, method: 'GET' | 'HEAD') {
-  const upstreamHeaders = new Headers({
-    'User-Agent': 'RK75-Command-Download-Service',
-  });
-  const range = request.headers.get('range');
-  if (range) upstreamHeaders.set('range', range);
-
-  // Cloudflare streams the response. Keeping Range intact lets Android resume
-  // an interrupted APK download without exposing GitHub's long asset URL.
-  const upstream = await fetch(ANDROID_APK_URL, {
-    method,
-    headers: upstreamHeaders,
-    redirect: 'follow',
-  });
-
-  if (!upstream.ok) {
+  const metadata = await env.FILES.head(APK_OBJECT_KEY);
+  if (!metadata) {
     return new Response('RK75 Android download is temporarily unavailable.', {
-      status: 502,
+      status: 503,
       headers: { 'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex' },
     });
   }
 
-  const headers = new Headers(upstream.headers);
-  headers.set('Content-Disposition', 'attachment; filename="RK75-Command-1.0.1-ARM64.apk"');
-  headers.set('Cache-Control', 'no-store');
-  headers.set('X-Content-Type-Options', 'nosniff');
-  headers.set('X-Robots-Tag', 'noindex');
+  const range = parseRange(request.headers.get('range'), metadata.size);
+  if (range === 'invalid') {
+    return new Response(null, {
+      status: 416,
+      headers: { 'Content-Range': `bytes */${metadata.size}`, 'Accept-Ranges': 'bytes' },
+    });
+  }
 
-  return new Response(method === 'HEAD' ? null : upstream.body, {
-    status: upstream.status,
-    headers,
-  });
+  const headers = downloadHeaders(metadata.size, range, metadata.httpEtag);
+  if (method === 'HEAD') return new Response(null, { status: range ? 206 : 200, headers });
+
+  const object = await env.FILES.get(
+    APK_OBJECT_KEY,
+    range ? { range: { offset: range.offset, length: range.length } } : undefined,
+  );
+  if (!object) return new Response('RK75 Android download is temporarily unavailable.', { status: 503 });
+
+  return new Response(object.body, { status: range ? 206 : 200, headers });
 }
 
 /** A short, branded, resumable Android download address for RK75. */
