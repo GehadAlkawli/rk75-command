@@ -1,7 +1,7 @@
 import { env } from 'cloudflare:workers';
 
-const APK_OBJECT_KEY = 'downloads/RK75-Command-1.0.1-ARM64.apk';
-const APK_FILENAME = 'RK75-Command-1.0.1-ARM64.apk';
+const APK_OBJECT_KEY = 'downloads/RK75-Command-1.0.2-ARM64.apk';
+const APK_FILENAME = 'RK75-Command-1.0.2-ARM64.apk';
 
 type ByteRange = { offset: number; length: number; end: number };
 
