@@ -46,10 +46,11 @@ function downloadHeaders(size: number, range: ByteRange | null, etag: string, bu
   const headers = new Headers({
     'Content-Type': 'application/vnd.android.package-archive',
     'Content-Disposition': `attachment; filename="${build.filename}"`,
+    'Content-Transfer-Encoding': 'binary',
     'Accept-Ranges': 'bytes',
     // `/download` is the stable "latest version" address, so it must never
     // be cached as an older APK after a release is published.
-    'Cache-Control': 'no-store',
+    'Cache-Control': 'private, no-store, max-age=0, must-revalidate',
     ETag: etag,
     'X-Content-Type-Options': 'nosniff',
     'X-Robots-Tag': 'noindex',
@@ -93,7 +94,12 @@ async function apkResponse(request: Request, method: 'GET' | 'HEAD') {
   );
   if (!object) return new Response('RK75 Android download is temporarily unavailable.', { status: 503 });
 
-  return new Response(object.body, { status: range ? 206 : 200, headers });
+  // Serving the R2 stream directly occasionally leaves Chrome Custom Tabs at
+  // “100% downloaded” without finishing the download task.  A complete binary
+  // response gives Android a definite Content-Length and a clean end-of-file.
+  // The largest current RK75 APK is well below the Worker memory limit.
+  const body = await object.arrayBuffer();
+  return new Response(body, { status: range ? 206 : 200, headers });
 }
 
 /** A short, branded, resumable Android download address for RK75.
