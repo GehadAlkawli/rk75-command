@@ -47,7 +47,9 @@ function downloadHeaders(size: number, range: ByteRange | null, etag: string, bu
     'Content-Type': 'application/vnd.android.package-archive',
     'Content-Disposition': `attachment; filename="${build.filename}"`,
     'Accept-Ranges': 'bytes',
-    'Cache-Control': 'public, max-age=3600',
+    // `/download` is the stable "latest version" address, so it must never
+    // be cached as an older APK after a release is published.
+    'Cache-Control': 'no-store',
     ETag: etag,
     'X-Content-Type-Options': 'nosniff',
     'X-Robots-Tag': 'noindex',
