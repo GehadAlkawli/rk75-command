@@ -1,114 +1,38 @@
-import { env } from 'cloudflare:workers';
+const PUBLIC_DOWNLOAD_ORIGIN = 'https://pub-801821ddd0eb4683800a621ea2b66b8d.r2.dev';
 
 const APK_BUILDS = {
-  arm64: {
-    objectKey: 'downloads/RK75-Command-1.0.3-ARM64.apk',
-    filename: 'RK75-Command-1.0.3-ARM64.apk',
-    architecture: 'arm64',
-  },
-  arm32: {
-    objectKey: 'downloads/RK75-Command-1.0.3-ARM32.apk',
-    filename: 'RK75-Command-1.0.3-ARM32.apk',
-    architecture: 'arm32',
-  },
+  arm64: 'RK75-Command-1.0.3-ARM64.apk',
+  arm32: 'RK75-Command-1.0.3-ARM32.apk',
 } as const;
 
-type ApkBuild = (typeof APK_BUILDS)[keyof typeof APK_BUILDS];
-
-type ByteRange = { offset: number; length: number; end: number };
-
-function parseRange(value: string | null, size: number): ByteRange | null | 'invalid' {
-  if (!value) return null;
-  const match = /^bytes=(\d*)-(\d*)$/i.exec(value.trim());
-  if (!match) return 'invalid';
-
-  const [, rawStart, rawEnd] = match;
-  if (!rawStart && !rawEnd) return 'invalid';
-
-  if (!rawStart) {
-    const suffixLength = Number(rawEnd);
-    if (!Number.isSafeInteger(suffixLength) || suffixLength <= 0) return 'invalid';
-    const length = Math.min(suffixLength, size);
-    return { offset: size - length, length, end: size - 1 };
-  }
-
-  const offset = Number(rawStart);
-  const requestedEnd = rawEnd ? Number(rawEnd) : size - 1;
-  if (!Number.isSafeInteger(offset) || !Number.isSafeInteger(requestedEnd) || offset < 0 || offset >= size || requestedEnd < offset) {
-    return 'invalid';
-  }
-
-  const end = Math.min(requestedEnd, size - 1);
-  return { offset, length: end - offset + 1, end };
-}
-
-function downloadHeaders(size: number, range: ByteRange | null, etag: string, build: ApkBuild) {
-  const headers = new Headers({
-    'Content-Type': 'application/vnd.android.package-archive',
-    'Content-Disposition': `attachment; filename="${build.filename}"`,
-    'Content-Transfer-Encoding': 'binary',
-    'Accept-Ranges': 'bytes',
-    // `/download` is the stable "latest version" address, so it must never
-    // be cached as an older APK after a release is published.
-    'Cache-Control': 'private, no-store, max-age=0, must-revalidate',
-    ETag: etag,
-    'X-Content-Type-Options': 'nosniff',
-    'X-Robots-Tag': 'noindex',
-    'X-RK75-APK-Architecture': build.architecture,
-  });
-
-  if (range) {
-    headers.set('Content-Length', String(range.length));
-    headers.set('Content-Range', `bytes ${range.offset}-${range.end}/${size}`);
-  } else {
-    headers.set('Content-Length', String(size));
-  }
-  return headers;
-}
-
-async function apkResponse(request: Request, method: 'GET' | 'HEAD') {
+function resolveApkUrl(request: Request) {
   const requestedArchitecture = new URL(request.url).searchParams.get('arch')?.toLowerCase();
-  const build = requestedArchitecture === 'arm32' ? APK_BUILDS.arm32 : APK_BUILDS.arm64;
-  const metadata = await env.FILES.head(build.objectKey);
-  if (!metadata) {
-    return new Response('RK75 Android download is temporarily unavailable.', {
-      status: 503,
-      headers: { 'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex' },
-    });
-  }
-
-  const range = parseRange(request.headers.get('range'), metadata.size);
-  if (range === 'invalid') {
-    return new Response(null, {
-      status: 416,
-      headers: { 'Content-Range': `bytes */${metadata.size}`, 'Accept-Ranges': 'bytes' },
-    });
-  }
-
-  const headers = downloadHeaders(metadata.size, range, metadata.httpEtag, build);
-  if (method === 'HEAD') return new Response(null, { status: range ? 206 : 200, headers });
-
-  const object = await env.FILES.get(
-    build.objectKey,
-    range ? { range: { offset: range.offset, length: range.length } } : undefined,
-  );
-  if (!object) return new Response('RK75 Android download is temporarily unavailable.', { status: 503 });
-
-  // Serving the R2 stream directly occasionally leaves Chrome Custom Tabs at
-  // “100% downloaded” without finishing the download task.  A complete binary
-  // response gives Android a definite Content-Length and a clean end-of-file.
-  // The largest current RK75 APK is well below the Worker memory limit.
-  const body = await object.arrayBuffer();
-  return new Response(body, { status: range ? 206 : 200, headers });
+  const filename = requestedArchitecture === 'arm32' ? APK_BUILDS.arm32 : APK_BUILDS.arm64;
+  return `${PUBLIC_DOWNLOAD_ORIGIN}/${filename}`;
 }
 
-/** A short, branded, resumable Android download address for RK75.
- * Defaults to modern ARM64; `?arch=arm32` supports older Android devices.
+/**
+ * Stable branded links for RK75 Android downloads.
+ *
+ * The app files live in their own public R2 bucket, separate from private
+ * user uploads. Redirecting to R2 gives Android/Chrome exact length and
+ * range headers, so the installer can reliably finish after 100% download.
  */
-export async function GET(request: Request) {
-  return apkResponse(request, 'GET');
+function redirectToApk(request: Request) {
+  return new Response(null, {
+    status: 302,
+    headers: {
+      Location: resolveApkUrl(request),
+      'Cache-Control': 'no-store',
+      'X-Robots-Tag': 'noindex',
+    },
+  });
 }
 
-export async function HEAD(request: Request) {
-  return apkResponse(request, 'HEAD');
+export function GET(request: Request) {
+  return redirectToApk(request);
+}
+
+export function HEAD(request: Request) {
+  return redirectToApk(request);
 }
