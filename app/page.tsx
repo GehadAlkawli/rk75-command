@@ -746,11 +746,6 @@ if(view==='home')return(
 
       <div className="stage-copy">
 
-        <p className="kicker">
-          <Sparkles size={15}/>
-          RK75 — SMITH WAS HERE 2026
-        </p>
-
         <h1 className="home-hero-title">
           {rtl
             ?<>
