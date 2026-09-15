@@ -1,4 +1,3 @@
-import { StatusBar } from 'expo-status-bar';
 import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Linking from 'expo-linking';
@@ -8,6 +7,7 @@ import {
   BackHandler,
   Pressable,
   SafeAreaView,
+  StatusBar,
   StyleSheet,
   Text,
   View,
@@ -57,7 +57,7 @@ export default function App() {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar style="light" />
+      <StatusBar barStyle="light-content" backgroundColor="#070b18" translucent={false} />
       <WebView
         ref={webView}
         source={{ uri: SITE_URL }}
@@ -72,7 +72,7 @@ export default function App() {
         allowsInlineMediaPlayback
         mediaPlaybackRequiresUserAction={false}
         setSupportMultipleWindows={false}
-        userAgent="RK75CommandMobile/1.0.2"
+        userAgent="RK75CommandMobile/1.0.3"
         onShouldStartLoadWithRequest={handleNavigation}
         onNavigationStateChange={(state) => setCanGoBack(state.canGoBack)}
         onLoad={() => {

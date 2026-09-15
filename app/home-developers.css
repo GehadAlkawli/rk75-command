@@ -189,3 +189,131 @@
 @media(prefers-reduced-motion:reduce){
   .developer-card{transition:none}
 }
+
+/* Mobile app fit: prevent home actions and panels from inheriting tall flex sizes. */
+@media (max-width:700px){
+  html,
+  body,
+  #__next{
+    width:100%;
+    min-width:0!important;
+    overflow-x:hidden;
+  }
+
+  .command-stage.command-stage-solo{
+    width:min(100% - 20px,1050px)!important;
+    padding:12px 0 24px!important;
+  }
+
+  .command-stage-solo .stage-copy{
+    min-height:0!important;
+    padding:42px 18px 27px!important;
+    border-radius:18px!important;
+  }
+
+  .home-hero-title,
+  .stage-copy h1{
+    margin:15px 0 13px!important;
+    font-size:clamp(2.4rem,11.5vw,3.75rem)!important;
+    line-height:1.04!important;
+    letter-spacing:-.055em!important;
+  }
+
+  .command-stage-solo .stage-copy>p:not(.kicker),
+  .stage-copy>p:not(.kicker){
+    margin-bottom:16px!important;
+    font-size:.92rem!important;
+    line-height:1.72!important;
+  }
+
+  .command-stage-solo .stage-actions,
+  .stage-actions{
+    display:grid!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    align-items:stretch!important;
+    width:100%!important;
+    gap:8px!important;
+    margin-top:18px!important;
+  }
+
+  .command-stage-solo .stage-actions > *,
+  .stage-actions > *{
+    grid-column:auto!important;
+    width:100%!important;
+    min-height:44px!important;
+    height:auto!important;
+    margin:0!important;
+    padding:9px 8px!important;
+    justify-content:center!important;
+    align-items:center!important;
+    flex:0 1 auto!important;
+    font-size:10px!important;
+    line-height:1.3!important;
+    white-space:normal!important;
+    text-align:center!important;
+  }
+
+  .command-stage-solo .stage-actions .discord-button,
+  .stage-actions .discord-button{
+    grid-column:1 / -1!important;
+  }
+
+  .signal-console{
+    min-height:0!important;
+    padding:44px 16px 18px!important;
+    border-radius:18px!important;
+  }
+
+  .signal-console .radar{
+    width:min(164px,54vw)!important;
+    height:min(164px,54vw)!important;
+    margin-bottom:16px!important;
+  }
+
+  .fighter-hero,
+  .admin-banner,
+  .comparison-intro,
+  .market-hero{
+    padding:28px 16px 18px!important;
+  }
+
+  .fighter-grid,
+  .market-grid,
+  .home-live-now,
+  .home-creators,
+  .creators-section{
+    padding-inline:12px!important;
+  }
+
+  .scan-form,
+  .my-scans,
+  .admin-table-card,
+  .comparison-card,
+  .listing-card{
+    min-width:0!important;
+    border-radius:14px!important;
+  }
+
+  .scan-form input,
+  .scan-form textarea,
+  .market-field input,
+  .market-field textarea{
+    min-height:44px!important;
+  }
+
+  .pwa-install{
+    bottom:10px!important;
+  }
+}
+
+@media (max-width:360px){
+  .command-stage-solo .stage-actions,
+  .stage-actions{
+    grid-template-columns:1fr!important;
+  }
+
+  .command-stage-solo .stage-actions .discord-button,
+  .stage-actions .discord-button{
+    grid-column:auto!important;
+  }
+}
