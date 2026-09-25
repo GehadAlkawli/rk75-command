@@ -8,7 +8,7 @@ export default function NavigationTransition() {
   useEffect(() => {
     const markCurrentRoute = () => {
       const current = window.location.pathname;
-      document.querySelectorAll<HTMLAnchorElement>('.neo-top a[href], .market-nav a[href], .comparison-nav a[href], .media-nav a[href], .hamburger-panel a[href]').forEach((link) => {
+      document.querySelectorAll<HTMLAnchorElement>('.neo-top a[href], .market-nav a[href], .comparison-nav a[href], .media-nav a[href], .hamburger-panel a[href], .rk-side-drawer a[href]').forEach((link) => {
         const target = new URL(link.href).pathname;
         link.classList.toggle('rk-nav-active', target === current);
       });

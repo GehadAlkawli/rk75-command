@@ -25,7 +25,7 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: '#080b18',
-  colorScheme: 'dark',
+  colorScheme: 'light dark',
   viewportFit: 'cover',
 };
 
@@ -35,7 +35,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ar" dir="rtl">
+    <html lang="ar" dir="rtl" suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: "try { document.documentElement.dataset.theme = localStorage.getItem('rk75-theme') === 'dark' ? 'dark' : 'light'; } catch (_) { document.documentElement.dataset.theme = 'light'; }",
+          }}
+        />
+      </head>
       <body>
         <PwaRegister />
         <NavigationTransition />

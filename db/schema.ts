@@ -6,6 +6,8 @@ export const players = sqliteTable('players', {
   displayName: text('display_name').notNull(),
   passwordHash: text('password_hash').notNull(),
   passwordSalt: text('password_salt').notNull(),
+  avatarKey: text('avatar_key'),
+  avatarContentType: text('avatar_content_type'),
   createdAt: text('created_at').notNull(),
 });
 

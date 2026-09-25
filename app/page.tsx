@@ -278,7 +278,9 @@ export default function Home() {
 
   useEffect(()=>{if(view!=='home')void load()},[view]);
 
-  const open=(role:Role)=>{setGate(role);setAuthMode('register');setShowPassword(false);setRememberPlayer(true);setAuth({playerId:'',name:'',password:'',confirm:''});setNotice('')};
+  const open=(role:Role, mode:'register'|'login'='register')=>{setGate(role);setAuthMode(role==='player'?mode:'login');setShowPassword(false);setRememberPlayer(true);setAuth({playerId:'',name:'',password:'',confirm:''});setNotice('')};
+
+  useEffect(()=>{const intent=new URLSearchParams(window.location.search).get('auth');if(intent==='login'||intent==='register'){open('player',intent);window.history.replaceState({},'',window.location.pathname)}},[]);
 
   const authSubmit=async(e:FormEvent)=>{e.preventDefault();if(!gate)return;if(gate==='player'&&authMode==='register'&&auth.password!==auth.confirm){setNotice(rtl?'كلمتا المرور غير متطابقتان.':'Passwords do not match.');return}setBusy(true);const body=gate==='admin'?{role:'admin',password:auth.password}:{role:'player',action:authMode,playerId:auth.playerId,name:auth.name,password:auth.password};const r=await fetch('/api/session',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)});const data=(await r.json()) as {error?: string};setBusy(false);if(!r.ok){setNotice(data.error||t.error);return}if(gate==='player'){if(rememberPlayer)localStorage.setItem('rk75-last-player-id',auth.playerId);else localStorage.removeItem('rk75-last-player-id')}const next=gate;setGate(null);setEntrance(next);setTimeout(()=>setEntrance(null),5500);setView(next);setNotice(next==='player'&&authMode==='register'?t.createOk:'')};
 
@@ -715,7 +717,7 @@ if(view==='home')return(
     <header className="neo-top">
       <Brand/>
 
-      <HamburgerMenu label={rtl ? 'القائمة' : 'Menu'}>
+      <HamburgerMenu label={rtl ? 'القائمة' : 'Menu'} locale={rtl ? 'ar' : 'en'} direction={rtl ? 'rtl' : 'ltr'}>
         <a href="/stats">
           {t.members}
         </a>
@@ -817,7 +819,7 @@ if(view==='player')return(
     <header className="workspace-top">
       <Brand/>
 
-      <HamburgerMenu label={rtl ? 'القائمة' : 'Menu'}>
+      <HamburgerMenu label={rtl ? 'القائمة' : 'Menu'} locale={rtl ? 'ar' : 'en'} direction={rtl ? 'rtl' : 'ltr'}>
         {langBtn}
 
         <button
@@ -999,7 +1001,7 @@ return(
 
       <Brand/>
 
-      <HamburgerMenu label={rtl ? 'القائمة' : 'Menu'}>
+      <HamburgerMenu label={rtl ? 'القائمة' : 'Menu'} locale={rtl ? 'ar' : 'en'} direction={rtl ? 'rtl' : 'ltr'}>
         {langBtn}
 
         <button

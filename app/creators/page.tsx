@@ -77,7 +77,7 @@ export default function CreatorsPage() {
           <i>CREATORS</i>
         </a>
 
-        <HamburgerMenu label={rtl ? 'القائمة' : 'Menu'}>
+        <HamburgerMenu label={rtl ? 'القائمة' : 'Menu'} locale={rtl ? 'ar' : 'en'} direction={rtl ? 'rtl' : 'ltr'}>
           <a href="/live">{t.live}</a>
 
           <a href="/media">{t.media}</a>
