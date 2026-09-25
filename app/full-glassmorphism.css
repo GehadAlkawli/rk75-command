@@ -1,0 +1,528 @@
+/*
+ * RK75 full Glassmorphism layer
+ * Visual-only overrides: data, routes, sign-in, and application behaviour stay unchanged.
+ */
+
+:root {
+  --glass-base: rgba(8, 14, 35, 0.72);
+  --glass-strong: rgba(10, 18, 43, 0.88);
+  --glass-soft: rgba(42, 70, 132, 0.18);
+  --glass-line: rgba(178, 219, 255, 0.22);
+  --glass-line-strong: rgba(117, 226, 255, 0.54);
+  --glass-text: #f6f8ff;
+  --glass-muted: #b2c1e3;
+  --glass-cyan: #78e7ff;
+  --glass-violet: #a99aff;
+  --glass-gold: #ffd56f;
+  --glass-pink: #ff94c6;
+  --glass-shadow: 0 26px 80px rgba(0, 0, 0, 0.34), inset 0 1px 0 rgba(255, 255, 255, 0.11);
+}
+
+html {
+  background: #050817;
+}
+
+body {
+  min-width: 320px;
+  overflow-x: hidden;
+  color: var(--glass-text) !important;
+  background:
+    radial-gradient(circle at 7% 8%, rgba(102, 183, 255, 0.25), transparent 30rem),
+    radial-gradient(circle at 93% 10%, rgba(169, 130, 255, 0.2), transparent 28rem),
+    radial-gradient(circle at 54% 105%, rgba(255, 196, 93, 0.11), transparent 38rem),
+    #050817 !important;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  z-index: -1;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.34;
+  background-image:
+    linear-gradient(rgba(142, 198, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(142, 198, 255, 0.05) 1px, transparent 1px);
+  background-size: 46px 46px;
+  mask-image: linear-gradient(to bottom, #000, transparent 88%);
+}
+
+::selection {
+  color: #fff;
+  background: rgba(120, 231, 255, 0.3);
+}
+
+:where(a, button, input, textarea, select):focus-visible {
+  outline: 2px solid var(--glass-cyan) !important;
+  outline-offset: 3px;
+}
+
+/* Shared frosted navigation. */
+.neo-top,
+.workspace-top,
+.comparison-nav,
+.market-nav,
+.media-nav {
+  position: relative !important;
+  z-index: 20 !important;
+  width: min(calc(100% - 32px), 1420px) !important;
+  min-height: 70px !important;
+  height: auto !important;
+  margin: 16px auto 0 !important;
+  padding: 10px clamp(14px, 3vw, 34px) !important;
+  border: 1px solid var(--glass-line) !important;
+  border-radius: 21px !important;
+  background: linear-gradient(118deg, rgba(30, 48, 102, 0.7), rgba(7, 13, 34, 0.83)) !important;
+  box-shadow: var(--glass-shadow), 0 0 45px rgba(105, 208, 255, 0.06) !important;
+  backdrop-filter: blur(24px) saturate(150%) !important;
+}
+
+.neo-top::after,
+.workspace-top::after,
+.comparison-nav::after,
+.market-nav::after,
+.media-nav::after {
+  content: '' !important;
+  position: absolute !important;
+  inset: auto 14% -1px !important;
+  height: 1px !important;
+  background: linear-gradient(90deg, transparent, var(--glass-cyan) 25%, var(--glass-violet) 52%, var(--glass-pink) 78%, transparent) !important;
+  box-shadow: 0 0 16px rgba(112, 229, 255, 0.72) !important;
+}
+
+.neo-brand {
+  color: #fff !important;
+  text-shadow: 0 0 20px rgba(255, 255, 255, 0.18) !important;
+}
+
+.neo-brand b {
+  color: var(--glass-gold) !important;
+  text-shadow: 0 0 19px rgba(255, 213, 111, 0.56) !important;
+}
+
+.neo-top nav > a,
+.workspace-top > div > a,
+.media-nav a:not(.neo-brand),
+.market-nav a:not(.neo-brand),
+.comparison-nav a:not(.neo-brand),
+.plain-link,
+.outline-button,
+.lang-switch,
+.admin-trigger,
+.stats-back,
+.market-home-link {
+  border-color: rgba(183, 219, 255, 0.21) !important;
+  color: #dce9ff !important;
+  background: rgba(9, 18, 44, 0.54) !important;
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.08) !important;
+  transition: transform 180ms ease, border-color 180ms ease, background 180ms ease, box-shadow 180ms ease !important;
+}
+
+.neo-top nav > a:hover,
+.workspace-top > div > a:hover,
+.media-nav a:not(.neo-brand):hover,
+.market-nav a:not(.neo-brand):hover,
+.comparison-nav a:not(.neo-brand):hover,
+.plain-link:hover,
+.outline-button:hover,
+.lang-switch:hover,
+.admin-trigger:hover,
+.stats-back:hover,
+.market-home-link:hover {
+  transform: translateY(-2px) !important;
+  border-color: var(--glass-line-strong) !important;
+  background: rgba(44, 78, 140, 0.46) !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.18), 0 0 22px rgba(113, 226, 255, 0.11), inset 0 1px rgba(255, 255, 255, 0.13) !important;
+}
+
+/* Neon glass actions. */
+.ember-button,
+.emboss-primary,
+.creator-hub-watch,
+.channel-primary-action,
+.watch-live-button,
+.creator-showcase-view-all {
+  position: relative !important;
+  isolation: isolate !important;
+  overflow: hidden !important;
+  border: 1px solid rgba(255, 241, 187, 0.5) !important;
+  color: #171321 !important;
+  background: linear-gradient(122deg, #fff0ab, #ffd568 47%, #ffab8d) !important;
+  box-shadow: 0 14px 31px rgba(255, 186, 86, 0.2), inset 0 1px rgba(255, 255, 255, 0.75) !important;
+  font-weight: 850 !important;
+}
+
+.ember-button::before,
+.emboss-primary::before,
+.creator-hub-watch::before,
+.watch-live-button::before {
+  content: '' !important;
+  position: absolute !important;
+  z-index: -1 !important;
+  inset: 0 !important;
+  background: linear-gradient(105deg, transparent 23%, rgba(255, 255, 255, 0.8) 49%, transparent 75%) !important;
+  transform: translateX(-130%) !important;
+  transition: transform 650ms ease !important;
+}
+
+.ember-button:hover:not(:disabled),
+.emboss-primary:hover:not(:disabled),
+.creator-hub-watch:hover,
+.channel-primary-action:hover,
+.watch-live-button:hover,
+.creator-showcase-view-all:hover {
+  transform: translateY(-3px) !important;
+  box-shadow: 0 20px 42px rgba(255, 181, 86, 0.3), 0 0 27px rgba(255, 211, 110, 0.16), inset 0 1px rgba(255, 255, 255, 0.8) !important;
+}
+
+.ember-button:hover::before,
+.emboss-primary:hover::before,
+.creator-hub-watch:hover::before,
+.watch-live-button:hover::before {
+  transform: translateX(130%) !important;
+}
+
+.discord-button {
+  border: 1px solid rgba(161, 153, 255, 0.46) !important;
+  background: linear-gradient(135deg, rgba(118, 104, 255, 0.82), rgba(63, 97, 221, 0.8)) !important;
+  box-shadow: 0 14px 32px rgba(103, 90, 255, 0.22), inset 0 1px rgba(255, 255, 255, 0.18) !important;
+}
+
+/* The principal Hero becomes one large premium glass surface. */
+.command-home,
+.fighter-workspace,
+.admin-workspace,
+.comparison-page,
+.market-page,
+.media-page,
+.creator-page,
+.stream-admin-page {
+  min-height: 100vh !important;
+  background: transparent !important;
+}
+
+.command-stage,
+.command-stage-solo {
+  width: min(calc(100% - 32px), 1180px) !important;
+  min-height: 0 !important;
+  padding: 45px 0 42px !important;
+}
+
+.stage-copy {
+  overflow: hidden !important;
+  border: 1px solid var(--glass-line) !important;
+  border-radius: 32px !important;
+  background: linear-gradient(128deg, rgba(40, 63, 130, 0.67), rgba(10, 17, 43, 0.8) 55%, rgba(36, 18, 79, 0.66)) !important;
+  box-shadow: 0 34px 95px rgba(0, 0, 0, 0.35), inset 0 1px rgba(255, 255, 255, 0.13), 0 0 62px rgba(105, 196, 255, 0.07) !important;
+  backdrop-filter: blur(25px) saturate(145%) !important;
+}
+
+.stage-copy::after {
+  filter: saturate(135%) !important;
+}
+
+.home-live-now,
+.home-creators,
+.developers-section {
+  width: min(calc(100% - 32px), 1180px) !important;
+}
+
+.home-live-head,
+.home-creators-head {
+  padding: 17px 20px !important;
+  border: 1px solid rgba(174, 215, 255, 0.17) !important;
+  border-radius: 18px !important;
+  background: rgba(11, 20, 49, 0.52) !important;
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.06) !important;
+  backdrop-filter: blur(16px) !important;
+}
+
+/* Any content card, dashboard panel, editor, and media card receives the same glass language. */
+.signal-console,
+.scan-form,
+.my-scans,
+.admin-table-card,
+.comparison-card,
+.kpi,
+.comparison-totals > div,
+.listing-card,
+.market-empty,
+.media-post,
+.media-empty,
+.creator-card,
+.creator-hub-card,
+.homepage-creator-card,
+.live-stream-card,
+.developer-card,
+.creator-empty,
+.creator-add-form,
+.stream-admin-list,
+.watch-details,
+.stream-player,
+.stream-fallback,
+.media-composer,
+.listing-form,
+.pwa-install,
+.pwa-ios-card {
+  border: 1px solid var(--glass-line) !important;
+  background: linear-gradient(145deg, rgba(31, 49, 102, 0.62), rgba(7, 13, 35, 0.81)) !important;
+  box-shadow: var(--glass-shadow) !important;
+  backdrop-filter: blur(20px) saturate(140%) !important;
+}
+
+.homepage-creator-card,
+.live-stream-card,
+.creator-card,
+.creator-hub-card,
+.developer-card,
+.listing-card,
+.media-post,
+.kpi {
+  transition: transform 240ms ease, border-color 240ms ease, box-shadow 240ms ease !important;
+}
+
+.homepage-creator-card:hover,
+.live-stream-card:hover,
+.creator-card:hover,
+.creator-hub-card:hover,
+.developer-card:hover,
+.listing-card:hover,
+.media-post:hover,
+.kpi:hover {
+  transform: translateY(-6px) !important;
+  border-color: rgba(122, 229, 255, 0.55) !important;
+  box-shadow: 0 30px 75px rgba(0, 0, 0, 0.38), 0 0 35px rgba(104, 220, 255, 0.1), inset 0 1px rgba(255, 255, 255, 0.14) !important;
+}
+
+.homepage-creator-media,
+.live-stream-cover,
+.creator-cover,
+.creator-hub-banner,
+.listing-image,
+.media-post-assets {
+  background: linear-gradient(135deg, rgba(78, 132, 240, 0.35), rgba(31, 37, 95, 0.6)) !important;
+}
+
+.live-stream-badge,
+.homepage-creator-live,
+.live-pill,
+.creator-hub-live,
+.status-live {
+  border-color: rgba(255, 131, 184, 0.64) !important;
+  color: #ffd0e7 !important;
+  background: rgba(93, 21, 65, 0.74) !important;
+  box-shadow: 0 0 20px rgba(255, 95, 154, 0.18) !important;
+}
+
+.live-platform-badge,
+.platform-pill,
+.creator-hub-platform,
+.developer-badge,
+.listing-methods b {
+  border-color: rgba(255, 216, 120, 0.36) !important;
+  color: #ffe7a4 !important;
+  background: rgba(84, 58, 9, 0.27) !important;
+}
+
+/* Forms and tables. */
+.scan-form,
+.my-scans,
+.admin-table-card,
+.comparison-card,
+.stream-admin-list,
+.media-composer,
+.listing-form {
+  border-radius: 23px !important;
+}
+
+.scan-form::before,
+.my-scans::before,
+.admin-table-card::before,
+.comparison-card::before {
+  background: linear-gradient(90deg, var(--glass-cyan), var(--glass-violet), var(--glass-pink), var(--glass-gold)) !important;
+  box-shadow: 0 0 19px rgba(116, 223, 255, 0.52) !important;
+}
+
+.scan-form input,
+.scan-form textarea,
+.creator-add-form input,
+.market-field input,
+.market-field textarea,
+.media-composer input,
+.media-composer textarea,
+.vault-add input,
+.vault-unlock input,
+.creator-order input,
+.gate-card input,
+.gate-card textarea {
+  border: 1px solid rgba(174, 215, 255, 0.2) !important;
+  color: #f6f9ff !important;
+  background: rgba(3, 9, 28, 0.64) !important;
+  box-shadow: inset 0 1px 7px rgba(0, 0, 0, 0.16) !important;
+}
+
+.scan-form input:focus,
+.scan-form textarea:focus,
+.creator-add-form input:focus,
+.market-field input:focus,
+.market-field textarea:focus,
+.media-composer input:focus,
+.media-composer textarea:focus,
+.vault-add input:focus,
+.vault-unlock input:focus,
+.creator-order input:focus,
+.gate-card input:focus,
+.gate-card textarea:focus {
+  border-color: var(--glass-cyan) !important;
+  background: rgba(7, 18, 47, 0.82) !important;
+  box-shadow: 0 0 0 3px rgba(120, 231, 255, 0.11), 0 0 25px rgba(103, 220, 255, 0.11) !important;
+}
+
+.comparison-scroll,
+.admin-scroll {
+  border: 1px solid rgba(174, 215, 255, 0.15) !important;
+  border-radius: 16px !important;
+  background: rgba(3, 9, 26, 0.55) !important;
+}
+
+.comparison-table th,
+.admin-table th {
+  background: rgba(44, 71, 133, 0.65) !important;
+}
+
+.comparison-table td,
+.admin-table td {
+  background: rgba(6, 13, 33, 0.62) !important;
+}
+
+.comparison-table tbody tr:nth-child(even) td,
+.admin-table tbody tr:nth-child(even) td {
+  background: rgba(19, 31, 66, 0.7) !important;
+}
+
+.comparison-table tbody tr:hover td,
+.admin-table tbody tr:hover td {
+  background: rgba(71, 146, 213, 0.22) !important;
+}
+
+/* Login and all modal surfaces use frosted glass, without touching their logic. */
+.gate-backdrop,
+.market-overlay,
+.media-overlay,
+.media-lightbox {
+  background: rgba(2, 5, 18, 0.72) !important;
+  backdrop-filter: blur(22px) saturate(145%) !important;
+}
+
+.gate-card,
+.media-lightbox-panel {
+  border-color: rgba(143, 225, 255, 0.4) !important;
+  background: linear-gradient(145deg, rgba(31, 52, 107, 0.9), rgba(6, 12, 32, 0.94)) !important;
+  box-shadow: 0 38px 120px rgba(0, 0, 0, 0.7), 0 0 65px rgba(109, 216, 255, 0.13), inset 0 1px rgba(255, 255, 255, 0.14) !important;
+  backdrop-filter: blur(24px) saturate(145%) !important;
+}
+
+.auth-page {
+  background: transparent !important;
+}
+
+.emboss-lock,
+.gate-emblem,
+.developer-code-icon {
+  border: 1px solid rgba(126, 227, 255, 0.45) !important;
+  background: linear-gradient(145deg, rgba(111, 224, 255, 0.31), rgba(105, 118, 255, 0.27)) !important;
+  box-shadow: 0 0 31px rgba(108, 222, 255, 0.18), inset 0 1px rgba(255, 255, 255, 0.18) !important;
+}
+
+.emboss-field > input,
+.emboss-field > div,
+.password-field > div {
+  border-color: rgba(174, 215, 255, 0.2) !important;
+  background: rgba(4, 11, 30, 0.66) !important;
+}
+
+.emboss-field > input:focus,
+.emboss-field > div:focus-within {
+  border-color: var(--glass-cyan) !important;
+  box-shadow: 0 0 0 3px rgba(117, 229, 255, 0.1), 0 0 24px rgba(105, 220, 255, 0.12) !important;
+}
+
+/* Small visual finish for empty states and notices. */
+.creator-empty,
+.market-empty,
+.media-empty,
+.public-empty,
+.market-notice,
+.media-notice,
+.stream-admin-notice,
+.form-notice {
+  border-color: rgba(174, 215, 255, 0.18) !important;
+  background: rgba(18, 36, 80, 0.38) !important;
+  backdrop-filter: blur(16px) !important;
+}
+
+@media (max-width: 760px) {
+  .neo-top,
+  .workspace-top,
+  .comparison-nav,
+  .market-nav,
+  .media-nav {
+    width: calc(100% - 22px) !important;
+    min-height: 62px !important;
+    margin-top: 11px !important;
+    border-radius: 17px !important;
+    padding-inline: 11px !important;
+  }
+
+  .command-stage,
+  .command-stage-solo {
+    width: calc(100% - 22px) !important;
+    padding: 20px 0 32px !important;
+  }
+
+  .stage-copy {
+    border-radius: 23px !important;
+  }
+
+  .home-live-now,
+  .home-creators,
+  .developers-section,
+  .fighter-hero,
+  .admin-banner,
+  .comparison-intro,
+  .market-hero,
+  .media-hero,
+  .creator-hero,
+  .stream-admin-shell,
+  .fighter-grid,
+  .market-grid,
+  .creator-grid,
+  .media-feed,
+  .watch-shell,
+  .admin-kpis,
+  .comparison-totals {
+    width: calc(100% - 22px) !important;
+  }
+
+  .homepage-creator-card:hover,
+  .live-stream-card:hover,
+  .creator-card:hover,
+  .creator-hub-card:hover,
+  .developer-card:hover,
+  .listing-card:hover,
+  .media-post:hover,
+  .kpi:hover {
+    transform: translateY(-3px) !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

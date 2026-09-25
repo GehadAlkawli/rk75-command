@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
+import './full-glassmorphism.css';
 import NavigationTransition from './navigation-transition';
 import PwaInstallPrompt from './pwa-install-prompt';
 import PwaRegister from './pwa-register';
