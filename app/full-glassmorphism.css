@@ -1214,3 +1214,273 @@ body::after {
     width: calc(100% - 22px) !important;
   }
 }
+
+/*
+ * Compact site navigation
+ *
+ * Every route now uses the same small three-line menu.  These rules are kept
+ * last on purpose: an earlier dashboard experiment turned wide-screen headers
+ * into a permanent sidebar, while the product navigation should stay compact
+ * on every screen size.
+ */
+.neo-top,
+.workspace-top,
+.comparison-nav,
+.market-nav,
+.media-nav {
+  overflow: visible !important;
+}
+
+.hamburger-menu {
+  position: relative !important;
+  z-index: 180 !important;
+  display: inline-flex !important;
+  flex: 0 0 auto !important;
+  align-items: center !important;
+}
+
+.hamburger-trigger {
+  min-height: 42px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  padding: 9px 12px !important;
+  border: 1px solid rgba(255, 255, 255, 0.86) !important;
+  border-radius: 13px !important;
+  color: #554a83 !important;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.72), rgba(224, 215, 253, 0.46)) !important;
+  box-shadow: 0 8px 20px rgba(87, 79, 139, 0.14), inset 1px 1px rgba(255, 255, 255, 0.92) !important;
+  transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease, background 180ms ease !important;
+}
+
+.hamburger-trigger svg {
+  width: 20px !important;
+  height: 20px !important;
+  stroke-width: 2.35 !important;
+}
+
+.hamburger-trigger-label {
+  font-size: 12px !important;
+  font-weight: 800 !important;
+  line-height: 1 !important;
+}
+
+.hamburger-trigger:hover,
+.hamburger-menu.is-open .hamburger-trigger {
+  transform: translateY(-1px) !important;
+  border-color: rgba(144, 111, 235, 0.52) !important;
+  color: #694ac8 !important;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.88), rgba(211, 197, 255, 0.63)) !important;
+  box-shadow: 0 13px 27px rgba(103, 77, 197, 0.18), inset 1px 1px rgba(255, 255, 255, 0.96) !important;
+}
+
+.hamburger-panel[hidden] {
+  display: none !important;
+}
+
+.neo-top .hamburger-panel,
+.workspace-top .hamburger-panel,
+.comparison-nav .hamburger-panel,
+.market-nav .hamburger-panel,
+.media-nav .hamburger-panel {
+  position: absolute !important;
+  top: calc(100% + 10px) !important;
+  inset-inline-end: 0 !important;
+  width: min(320px, calc(100vw - 28px)) !important;
+  min-width: 0 !important;
+  max-height: min(70dvh, 520px) !important;
+  display: flex !important;
+  flex: 0 1 auto !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  justify-content: flex-start !important;
+  gap: 6px !important;
+  overflow: auto !important;
+  margin: 0 !important;
+  padding: 9px !important;
+  border: 1px solid rgba(255, 255, 255, 0.88) !important;
+  border-radius: 18px !important;
+  color: #3e4258 !important;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.82), rgba(228, 222, 250, 0.66)) !important;
+  box-shadow: 0 22px 48px rgba(67, 59, 104, 0.23), inset 1px 1px rgba(255, 255, 255, 0.94) !important;
+  backdrop-filter: blur(28px) saturate(135%) !important;
+  animation: rk-menu-in 180ms ease both !important;
+}
+
+.neo-top .hamburger-panel[hidden],
+.workspace-top .hamburger-panel[hidden],
+.comparison-nav .hamburger-panel[hidden],
+.market-nav .hamburger-panel[hidden],
+.media-nav .hamburger-panel[hidden] {
+  display: none !important;
+}
+
+.neo-top .hamburger-panel > a,
+.neo-top .hamburger-panel > button,
+.workspace-top .hamburger-panel > a,
+.workspace-top .hamburger-panel > button,
+.comparison-nav .hamburger-panel > a,
+.comparison-nav .hamburger-panel > button,
+.market-nav .hamburger-panel > a,
+.market-nav .hamburger-panel > button,
+.media-nav .hamburger-panel > a,
+.media-nav .hamburger-panel > button {
+  width: 100% !important;
+  min-height: 44px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 9px !important;
+  margin: 0 !important;
+  padding: 10px 12px !important;
+  border: 1px solid transparent !important;
+  border-radius: 12px !important;
+  color: #50556d !important;
+  background: rgba(255, 255, 255, 0.34) !important;
+  box-shadow: none !important;
+  font-size: 13px !important;
+  font-weight: 750 !important;
+  line-height: 1.25 !important;
+  text-align: start !important;
+  text-decoration: none !important;
+  white-space: normal !important;
+}
+
+.neo-top .hamburger-panel > a:hover,
+.neo-top .hamburger-panel > button:hover,
+.workspace-top .hamburger-panel > a:hover,
+.workspace-top .hamburger-panel > button:hover,
+.comparison-nav .hamburger-panel > a:hover,
+.comparison-nav .hamburger-panel > button:hover,
+.market-nav .hamburger-panel > a:hover,
+.market-nav .hamburger-panel > button:hover,
+.media-nav .hamburger-panel > a:hover,
+.media-nav .hamburger-panel > button:hover,
+.hamburger-panel > .rk-nav-active {
+  transform: none !important;
+  border-color: rgba(151, 118, 240, 0.29) !important;
+  color: #694ac8 !important;
+  background: linear-gradient(135deg, rgba(183, 155, 255, 0.45), rgba(225, 211, 255, 0.35)) !important;
+  box-shadow: inset 1px 1px rgba(255, 255, 255, 0.56) !important;
+}
+
+.hamburger-panel .admin-trigger {
+  color: #784f16 !important;
+  background: linear-gradient(135deg, rgba(255, 226, 157, 0.68), rgba(255, 191, 105, 0.5)) !important;
+}
+
+.hamburger-panel .lang-switch {
+  color: #6b4dc7 !important;
+}
+
+@keyframes rk-menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-7px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (min-width: 961px) {
+  .neo-top,
+  .workspace-top,
+  .comparison-nav,
+  .market-nav,
+  .media-nav {
+    position: relative !important;
+    top: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    left: auto !important;
+    width: min(calc(100% - 32px), 1420px) !important;
+    min-height: 70px !important;
+    height: auto !important;
+    margin: 16px auto 0 !important;
+    padding: 10px clamp(14px, 3vw, 34px) !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 14px !important;
+    border-radius: 21px !important;
+  }
+
+  .neo-top::after,
+  .workspace-top::after,
+  .comparison-nav::after,
+  .market-nav::after,
+  .media-nav::after {
+    display: block !important;
+  }
+
+  .neo-brand {
+    min-height: 0 !important;
+    padding: 0 !important;
+    font-size: 25px !important;
+  }
+
+  .command-home,
+  .fighter-workspace,
+  .admin-workspace,
+  .comparison-page,
+  .market-page,
+  .media-page,
+  .creator-page,
+  .stream-admin-page {
+    width: 100% !important;
+    min-height: 100vh !important;
+    margin-left: 0 !important;
+  }
+
+  .command-stage,
+  .command-stage-solo {
+    width: min(calc(100% - 48px), 1180px) !important;
+    padding: 45px 0 42px !important;
+  }
+
+  .fighter-hero,
+  .admin-banner,
+  .comparison-intro,
+  .market-hero,
+  .media-hero,
+  .creator-hero,
+  .stream-admin-shell,
+  .fighter-grid,
+  .market-grid,
+  .creator-grid,
+  .media-feed,
+  .watch-shell,
+  .admin-kpis,
+  .comparison-totals {
+    width: min(calc(100% - 48px), 1180px) !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .hamburger-trigger {
+    min-width: 42px !important;
+    padding: 10px !important;
+  }
+
+  .hamburger-trigger-label {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    overflow: hidden !important;
+    clip: rect(0 0 0 0) !important;
+    white-space: nowrap !important;
+  }
+
+  .neo-top .hamburger-panel,
+  .workspace-top .hamburger-panel,
+  .comparison-nav .hamburger-panel,
+  .market-nav .hamburger-panel,
+  .media-nav .hamburger-panel {
+    width: min(300px, calc(100vw - 22px)) !important;
+    border-radius: 16px !important;
+  }
+}

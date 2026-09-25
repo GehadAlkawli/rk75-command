@@ -3,6 +3,7 @@
 import { FormEvent, useEffect, useMemo, useState } from 'react';
 import CreatorsSection from '@/components/creators-section';
 import DevelopersSection from '@/components/developers-section';
+import HamburgerMenu from '@/components/hamburger-menu';
 import { Activity, Check, ChevronRight, Download, Edit3, Eye, EyeOff, Globe2, LockKeyhole, Plus, Shield, Sparkles, Swords, Target, Trash2, Users, X, Zap, MessageCircle } from 'lucide-react';
 
 type Lang = 'ar' | 'en';
@@ -714,7 +715,7 @@ if(view==='home')return(
     <header className="neo-top">
       <Brand/>
 
-      <nav>
+      <HamburgerMenu label={rtl ? 'القائمة' : 'Menu'}>
         <a href="/stats">
           {t.members}
         </a>
@@ -739,7 +740,7 @@ if(view==='home')return(
           <Shield size={16}/>
           {t.admin}
         </button>
-      </nav>
+      </HamburgerMenu>
     </header>
 
     <section className="command-stage command-stage-solo">
@@ -816,7 +817,7 @@ if(view==='player')return(
     <header className="workspace-top">
       <Brand/>
 
-      <div>
+      <HamburgerMenu label={rtl ? 'القائمة' : 'Menu'}>
         {langBtn}
 
         <button
@@ -825,7 +826,7 @@ if(view==='player')return(
         >
           {t.out}
         </button>
-      </div>
+      </HamburgerMenu>
     </header>
 
     <section className="fighter-hero">
@@ -998,7 +999,7 @@ return(
 
       <Brand/>
 
-      <div>
+      <HamburgerMenu label={rtl ? 'القائمة' : 'Menu'}>
         {langBtn}
 
         <button
@@ -1007,7 +1008,7 @@ return(
         >
           {t.out}
         </button>
-      </div>
+      </HamburgerMenu>
 
     </header>
 

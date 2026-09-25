@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { ArrowLeft, LoaderCircle, Users } from 'lucide-react';
 import { Creator, CreatorCard, Lang } from '@/components/creator-card';
+import HamburgerMenu from '@/components/hamburger-menu';
 
 const text = {
   ar: {
@@ -76,7 +77,7 @@ export default function CreatorsPage() {
           <i>CREATORS</i>
         </a>
 
-        <nav>
+        <HamburgerMenu label={rtl ? 'القائمة' : 'Menu'}>
           <a href="/live">{t.live}</a>
 
           <a href="/media">{t.media}</a>
@@ -93,7 +94,7 @@ export default function CreatorsPage() {
             <ArrowLeft size={16} />
             {t.home}
           </a>
-        </nav>
+        </HamburgerMenu>
       </header>
 
       <section className="creator-hero">
