@@ -526,3 +526,663 @@ body::after {
     transition-duration: 0.01ms !important;
   }
 }
+
+/*
+ * Light lavender dashboard skin
+ * This final layer intentionally replaces the earlier dark treatment with the
+ * soft, translucent dashboard direction selected in the visual reference.
+ */
+:root {
+  --void: #e8e9f1;
+  --ink: #f6f7fb;
+  --panel: rgba(255, 255, 255, 0.5);
+  --line: rgba(255, 255, 255, 0.72);
+  --text: #202332;
+  --muted: #737991;
+  --cyan: #8364e8;
+  --gold: #9b78f4;
+  --green: #48a88f;
+  --red: #d16689;
+  --glass-base: rgba(255, 255, 255, 0.43);
+  --glass-strong: rgba(255, 255, 255, 0.68);
+  --glass-soft: rgba(151, 118, 245, 0.13);
+  --glass-line: rgba(255, 255, 255, 0.78);
+  --glass-line-strong: rgba(146, 112, 242, 0.48);
+  --glass-text: #202332;
+  --glass-muted: #747a90;
+  --glass-cyan: #8c6be9;
+  --glass-violet: #a084fa;
+  --glass-gold: #9a78ed;
+  --glass-pink: #d499ed;
+}
+
+html { background: #e7e8ef !important; }
+
+body {
+  color: #202332 !important;
+  background:
+    radial-gradient(circle at 8% 12%, rgba(255, 255, 255, 0.96), transparent 28rem),
+    radial-gradient(circle at 90% 17%, rgba(189, 173, 244, 0.46), transparent 31rem),
+    radial-gradient(circle at 52% 99%, rgba(255, 255, 255, 0.84), transparent 34rem),
+    linear-gradient(135deg, #e6e8f1 0%, #dfe3ed 48%, #e8e9f1 100%) !important;
+}
+
+body::before {
+  z-index: -2 !important;
+  opacity: 0.65 !important;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.82), transparent 24rem),
+    radial-gradient(circle at 78% 70%, rgba(196, 177, 255, 0.32), transparent 30rem) !important;
+  mask-image: none !important;
+}
+
+body::after {
+  z-index: -1 !important;
+  opacity: 0.19 !important;
+  background-image:
+    linear-gradient(rgba(115, 120, 155, 0.12) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(115, 120, 155, 0.12) 1px, transparent 1px) !important;
+  background-size: 34px 34px !important;
+  mask-image: linear-gradient(to bottom, #000, transparent 94%) !important;
+}
+
+::selection { color: #fff; background: rgba(130, 96, 231, 0.48); }
+
+/* Sidebar navigation on wide screens, mirroring the dashboard navigation in the reference. */
+@media (min-width: 961px) {
+  .neo-top,
+  .workspace-top,
+  .comparison-nav,
+  .market-nav,
+  .media-nav {
+    position: fixed !important;
+    z-index: 90 !important;
+    top: 18px !important;
+    left: 18px !important;
+    width: 202px !important;
+    min-height: calc(100dvh - 36px) !important;
+    height: calc(100dvh - 36px) !important;
+    margin: 0 !important;
+    padding: 20px 13px !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+    gap: 22px !important;
+    border: 1px solid rgba(255, 255, 255, 0.82) !important;
+    border-radius: 26px !important;
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.56), rgba(237, 239, 249, 0.3)) !important;
+    box-shadow: 12px 18px 44px rgba(80, 88, 122, 0.2), inset 1px 1px rgba(255, 255, 255, 0.92) !important;
+    backdrop-filter: blur(28px) saturate(135%) !important;
+  }
+
+  .neo-top::after,
+  .workspace-top::after,
+  .comparison-nav::after,
+  .market-nav::after,
+  .media-nav::after { display: none !important; }
+
+  .neo-brand {
+    min-height: 48px !important;
+    padding: 0 9px !important;
+    align-items: center !important;
+    color: #24263a !important;
+    font-size: 26px !important;
+    letter-spacing: -0.08em !important;
+    text-shadow: none !important;
+  }
+
+  .neo-brand b { color: #8663e8 !important; text-shadow: none !important; }
+  .neo-brand i { color: #767c93 !important; }
+
+  .neo-top nav,
+  .market-nav nav,
+  .media-nav nav,
+  .comparison-nav > div,
+  .workspace-top > div {
+    width: 100% !important;
+    display: flex !important;
+    flex: 1 1 auto !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+    gap: 6px !important;
+    overflow: visible !important;
+  }
+
+  .neo-top nav > a,
+  .neo-top nav > button,
+  .workspace-top > div > a,
+  .workspace-top > div > button,
+  .media-nav a:not(.neo-brand),
+  .media-nav button,
+  .market-nav a:not(.neo-brand),
+  .market-nav button,
+  .comparison-nav a:not(.neo-brand),
+  .comparison-nav button {
+    width: 100% !important;
+    min-height: 43px !important;
+    justify-content: flex-start !important;
+    padding: 10px 12px !important;
+    border: 1px solid transparent !important;
+    border-radius: 12px !important;
+    color: #5c6379 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    font-size: 12px !important;
+    font-weight: 750 !important;
+  }
+
+  .neo-top nav > a:hover,
+  .neo-top nav > button:hover,
+  .workspace-top > div > a:hover,
+  .workspace-top > div > button:hover,
+  .media-nav a:not(.neo-brand):hover,
+  .media-nav button:hover,
+  .market-nav a:not(.neo-brand):hover,
+  .market-nav button:hover,
+  .comparison-nav a:not(.neo-brand):hover,
+  .comparison-nav button:hover {
+    transform: none !important;
+    border-color: rgba(151, 116, 240, 0.18) !important;
+    color: #6747c7 !important;
+    background: linear-gradient(135deg, rgba(177, 146, 255, 0.48), rgba(206, 182, 255, 0.22)) !important;
+    box-shadow: 0 8px 18px rgba(126, 94, 213, 0.12), inset 0 1px rgba(255, 255, 255, 0.55) !important;
+  }
+
+  .command-home,
+  .fighter-workspace,
+  .admin-workspace,
+  .comparison-page,
+  .market-page,
+  .media-page,
+  .creator-page,
+  .stream-admin-page {
+    width: calc(100% - 238px) !important;
+    min-height: 100dvh !important;
+    margin-left: 238px !important;
+  }
+
+  .command-stage,
+  .command-stage-solo {
+    width: min(calc(100% - 48px), 1080px) !important;
+    padding: 58px 0 48px !important;
+  }
+
+  .fighter-hero,
+  .admin-banner,
+  .comparison-intro,
+  .market-hero,
+  .media-hero,
+  .creator-hero,
+  .stream-admin-shell,
+  .fighter-grid,
+  .market-grid,
+  .creator-grid,
+  .media-feed,
+  .watch-shell,
+  .admin-kpis,
+  .comparison-totals {
+    width: min(calc(100% - 48px), 1080px) !important;
+  }
+}
+
+/* Mobile keeps the same frosted material without forcing a narrow sidebar. */
+.neo-top,
+.workspace-top,
+.comparison-nav,
+.market-nav,
+.media-nav {
+  border-color: rgba(255, 255, 255, 0.75) !important;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.56), rgba(233, 235, 247, 0.36)) !important;
+  box-shadow: 0 16px 38px rgba(80, 88, 122, 0.15), inset 1px 1px rgba(255, 255, 255, 0.9) !important;
+  backdrop-filter: blur(25px) saturate(135%) !important;
+}
+
+.neo-brand,
+.neo-brand span { color: #25283a !important; text-shadow: none !important; }
+.neo-brand b { color: #8663e8 !important; text-shadow: none !important; }
+.neo-brand i { color: #777d94 !important; }
+
+.neo-top nav > a,
+.workspace-top > div > a,
+.media-nav a:not(.neo-brand),
+.market-nav a:not(.neo-brand),
+.comparison-nav a:not(.neo-brand),
+.plain-link,
+.outline-button,
+.lang-switch,
+.admin-trigger,
+.stats-back,
+.market-home-link {
+  border-color: rgba(255, 255, 255, 0.76) !important;
+  color: #5f647a !important;
+  background: rgba(255, 255, 255, 0.38) !important;
+  box-shadow: inset 1px 1px rgba(255, 255, 255, 0.76), 0 5px 14px rgba(83, 88, 120, 0.08) !important;
+}
+
+.neo-top nav > a:hover,
+.workspace-top > div > a:hover,
+.media-nav a:not(.neo-brand):hover,
+.market-nav a:not(.neo-brand):hover,
+.comparison-nav a:not(.neo-brand):hover,
+.plain-link:hover,
+.outline-button:hover,
+.lang-switch:hover,
+.admin-trigger:hover,
+.stats-back:hover,
+.market-home-link:hover {
+  color: #6847cc !important;
+  border-color: rgba(158, 126, 244, 0.35) !important;
+  background: rgba(201, 182, 255, 0.38) !important;
+  box-shadow: 0 10px 23px rgba(122, 94, 213, 0.15), inset 1px 1px rgba(255, 255, 255, 0.72) !important;
+}
+
+/* Main welcome panel. */
+.stage-copy {
+  border-color: rgba(255, 255, 255, 0.8) !important;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.58), rgba(232, 236, 250, 0.3)) !important;
+  box-shadow: 18px 24px 56px rgba(82, 89, 122, 0.2), inset 1px 1px rgba(255, 255, 255, 0.92) !important;
+  backdrop-filter: blur(27px) saturate(130%) !important;
+}
+
+.stage-copy::before {
+  color: #7755d2 !important;
+  border-color: rgba(158, 121, 246, 0.25) !important;
+  background: rgba(190, 165, 255, 0.31) !important;
+  box-shadow: inset 1px 1px rgba(255, 255, 255, 0.66) !important;
+}
+
+.stage-copy::after {
+  opacity: 0.65 !important;
+  background: radial-gradient(circle, rgba(176, 151, 255, 0.31), transparent 65%) !important;
+  box-shadow: 0 0 0 32px rgba(163, 136, 245, 0.08), 0 0 0 65px rgba(255, 255, 255, 0.14) !important;
+}
+
+.home-hero-title,
+.stage-copy h1,
+.fighter-hero h1,
+.admin-banner h1,
+.comparison-intro h1,
+.market-hero h1,
+.media-hero h1,
+.creator-hero h1,
+.stream-admin-intro h1 {
+  color: #282b3c !important;
+  text-shadow: none !important;
+}
+
+.rk-highlight,
+.stage-copy h1 em {
+  color: #8a66e6 !important;
+  text-shadow: 0 6px 22px rgba(133, 96, 229, 0.22) !important;
+}
+
+.stage-copy > p:not(.kicker),
+.fighter-hero span,
+.admin-banner span,
+.comparison-intro span,
+.market-hero span,
+.media-hero span,
+.creator-hero span,
+.stream-admin-intro span {
+  color: #71778d !important;
+}
+
+.kicker,
+.fighter-hero p,
+.admin-banner p,
+.comparison-intro p,
+.market-hero p,
+.media-hero p,
+.creator-hero p,
+.stream-admin-intro p,
+.table-title p,
+.comparison-title p {
+  color: #8661df !important;
+}
+
+/* The primary action follows the lilac button in the selected reference. */
+.ember-button,
+.emboss-primary,
+.creator-hub-watch,
+.channel-primary-action,
+.watch-live-button,
+.creator-showcase-view-all {
+  border-color: rgba(137, 101, 234, 0.35) !important;
+  color: #fff !important;
+  background: linear-gradient(135deg, #b194ff, #8b68e8 58%, #7859d7) !important;
+  box-shadow: 0 14px 27px rgba(120, 84, 211, 0.28), inset 0 1px rgba(255, 255, 255, 0.38) !important;
+}
+
+.ember-button:hover:not(:disabled),
+.emboss-primary:hover:not(:disabled),
+.creator-hub-watch:hover,
+.channel-primary-action:hover,
+.watch-live-button:hover,
+.creator-showcase-view-all:hover {
+  color: #fff !important;
+  box-shadow: 0 20px 34px rgba(114, 78, 207, 0.33), 0 0 24px rgba(145, 108, 240, 0.22), inset 0 1px rgba(255, 255, 255, 0.46) !important;
+}
+
+.discord-button {
+  border-color: rgba(133, 102, 233, 0.35) !important;
+  color: #fff !important;
+  background: linear-gradient(135deg, #ad8fff, #8462e7) !important;
+  box-shadow: 0 14px 27px rgba(120, 84, 211, 0.25), inset 0 1px rgba(255, 255, 255, 0.35) !important;
+}
+
+/* Soft translucent cards, modules, sheets, and empty states. */
+.signal-console,
+.scan-form,
+.my-scans,
+.admin-table-card,
+.comparison-card,
+.kpi,
+.comparison-totals > div,
+.listing-card,
+.market-empty,
+.media-post,
+.media-empty,
+.creator-card,
+.creator-hub-card,
+.homepage-creator-card,
+.live-stream-card,
+.developer-card,
+.creator-empty,
+.creator-add-form,
+.stream-admin-list,
+.watch-details,
+.stream-player,
+.stream-fallback,
+.media-composer,
+.listing-form,
+.pwa-install,
+.pwa-ios-card,
+.home-live-head,
+.home-creators-head,
+.developers-section {
+  border-color: rgba(255, 255, 255, 0.78) !important;
+  color: #252839 !important;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.52), rgba(238, 240, 249, 0.28)) !important;
+  box-shadow: 12px 17px 38px rgba(81, 87, 118, 0.16), inset 1px 1px rgba(255, 255, 255, 0.88) !important;
+  backdrop-filter: blur(22px) saturate(125%) !important;
+}
+
+.homepage-creator-card:hover,
+.live-stream-card:hover,
+.creator-card:hover,
+.creator-hub-card:hover,
+.developer-card:hover,
+.listing-card:hover,
+.media-post:hover,
+.kpi:hover {
+  border-color: rgba(152, 117, 241, 0.42) !important;
+  box-shadow: 16px 25px 48px rgba(84, 86, 120, 0.23), 0 0 25px rgba(149, 115, 241, 0.13), inset 1px 1px rgba(255, 255, 255, 0.9) !important;
+}
+
+.home-live-head h2,
+.home-creators-head h2,
+.developers-heading h2,
+.form-head h2,
+.my-scans h2,
+.table-title h2,
+.comparison-title h2,
+.listing-heading h2,
+.media-post h3,
+.creator-hub-name-row h3,
+.creator-name h3,
+.creator-channel-copy strong,
+.developer-info h3,
+.watch-details h1,
+.stream-admin-list h2,
+.media-feed-head h2 {
+  color: #292c3d !important;
+}
+
+.homepage-creator-content,
+.live-stream-body,
+.creator-card-body,
+.creator-hub-main,
+.listing-body,
+.media-post-top,
+.creator-hub-stats,
+.listing-methods,
+.listing-contacts,
+.listing-stats div {
+  background: transparent !important;
+}
+
+.homepage-creator-media,
+.live-stream-cover,
+.creator-cover,
+.creator-hub-banner,
+.listing-image,
+.media-post-assets,
+.creator-cover-empty,
+.homepage-creator-banner-empty,
+.live-stream-placeholder {
+  background: linear-gradient(135deg, rgba(177, 151, 255, 0.56), rgba(255, 255, 255, 0.3)) !important;
+}
+
+.homepage-creator-platform,
+.live-stream-meta,
+.creator-meta,
+.creator-hub-stats,
+.listing-methods,
+.listing-contacts,
+.listing-stats,
+.payment-picker,
+.photo-picker,
+.media-upload,
+.media-kind-picker,
+.creator-admin-actions,
+.creator-order {
+  border-color: rgba(130, 134, 163, 0.16) !important;
+  background: rgba(255, 255, 255, 0.29) !important;
+}
+
+.homepage-creator-platform,
+.live-stream-meta,
+.creator-meta,
+.creator-hub-status,
+.creator-hub-stats,
+.listing-methods span,
+.listing-contacts span,
+.listing-stats dt,
+.media-post-top,
+.creator-admin-info span,
+.creator-admin-info small,
+.developer-badge,
+.market-safety,
+.stats-note,
+.muted-empty {
+  color: #737990 !important;
+}
+
+.live-stream-badge,
+.homepage-creator-live,
+.live-pill,
+.creator-hub-live,
+.status-live {
+  border-color: rgba(206, 104, 160, 0.25) !important;
+  color: #b8477f !important;
+  background: rgba(255, 224, 240, 0.6) !important;
+  box-shadow: 0 7px 17px rgba(188, 82, 139, 0.12), inset 1px 1px rgba(255, 255, 255, 0.74) !important;
+}
+
+.live-platform-badge,
+.platform-pill,
+.creator-hub-platform,
+.developer-badge,
+.listing-methods b {
+  border-color: rgba(151, 121, 240, 0.22) !important;
+  color: #7353ce !important;
+  background: rgba(198, 181, 255, 0.3) !important;
+}
+
+/* Inputs become clear white glass instead of dark fields. */
+.scan-form input,
+.scan-form textarea,
+.creator-add-form input,
+.market-field input,
+.market-field textarea,
+.media-composer input,
+.media-composer textarea,
+.vault-add input,
+.vault-unlock input,
+.creator-order input,
+.gate-card input,
+.gate-card textarea,
+.emboss-field > input,
+.emboss-field > div,
+.password-field > div {
+  border-color: rgba(255, 255, 255, 0.82) !important;
+  color: #303448 !important;
+  background: rgba(255, 255, 255, 0.46) !important;
+  box-shadow: inset 1px 1px rgba(255, 255, 255, 0.82), 0 6px 14px rgba(96, 100, 134, 0.06) !important;
+}
+
+.scan-form input::placeholder,
+.scan-form textarea::placeholder,
+.creator-add-form input::placeholder,
+.market-field input::placeholder,
+.market-field textarea::placeholder,
+.media-composer input::placeholder,
+.media-composer textarea::placeholder,
+.gate-card input::placeholder,
+.gate-card textarea::placeholder {
+  color: #9398aa !important;
+}
+
+.scan-form input:focus,
+.scan-form textarea:focus,
+.creator-add-form input:focus,
+.market-field input:focus,
+.market-field textarea:focus,
+.media-composer input:focus,
+.media-composer textarea:focus,
+.vault-add input:focus,
+.vault-unlock input:focus,
+.creator-order input:focus,
+.gate-card input:focus,
+.gate-card textarea:focus,
+.emboss-field > input:focus,
+.emboss-field > div:focus-within {
+  border-color: rgba(142, 105, 232, 0.62) !important;
+  background: rgba(255, 255, 255, 0.72) !important;
+  box-shadow: 0 0 0 3px rgba(145, 106, 234, 0.14), 0 12px 22px rgba(126, 93, 211, 0.1) !important;
+}
+
+.comparison-scroll,
+.admin-scroll {
+  border-color: rgba(255, 255, 255, 0.72) !important;
+  background: rgba(255, 255, 255, 0.36) !important;
+  box-shadow: inset 1px 1px rgba(255, 255, 255, 0.64) !important;
+}
+
+.comparison-table th,
+.admin-table th {
+  color: #5d6178 !important;
+  background: rgba(228, 231, 244, 0.7) !important;
+  border-color: rgba(255, 255, 255, 0.72) !important;
+}
+
+.comparison-table td,
+.admin-table td {
+  color: #3d4154 !important;
+  background: rgba(255, 255, 255, 0.36) !important;
+  border-color: rgba(255, 255, 255, 0.66) !important;
+}
+
+.comparison-table tbody tr:nth-child(even) td,
+.admin-table tbody tr:nth-child(even) td {
+  background: rgba(243, 244, 250, 0.46) !important;
+}
+
+.comparison-table tbody tr:hover td,
+.admin-table tbody tr:hover td {
+  background: rgba(205, 187, 255, 0.34) !important;
+}
+
+.comparison-table th.before-head { color: #fff !important; background: linear-gradient(125deg, #8e75e8, #a893f4) !important; }
+.comparison-table th.after-head { color: #fff !important; background: linear-gradient(125deg, #6f9bc5, #8db8df) !important; }
+.comparison-table th.change-head { color: #fff !important; background: linear-gradient(125deg, #be8fcb, #d1a9dc) !important; }
+
+/* Modals and authentication become light glass panels, retaining all existing behavior. */
+.gate-backdrop,
+.market-overlay,
+.media-overlay,
+.media-lightbox {
+  background: rgba(103, 107, 129, 0.35) !important;
+  backdrop-filter: blur(22px) saturate(110%) !important;
+}
+
+.gate-card,
+.media-lightbox-panel {
+  color: #292c3d !important;
+  border-color: rgba(255, 255, 255, 0.82) !important;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.72), rgba(231, 234, 247, 0.54)) !important;
+  box-shadow: 18px 24px 65px rgba(64, 69, 94, 0.3), inset 1px 1px rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(28px) saturate(120%) !important;
+}
+
+.gate-card h2,
+.gate-card label,
+.gate-card > span,
+.welcome-title,
+.emboss-subtitle,
+.emboss-field,
+.emboss-remember,
+.emboss-switch {
+  color: #43485c !important;
+}
+
+.emboss-lock,
+.gate-emblem,
+.developer-code-icon {
+  border-color: rgba(255, 255, 255, 0.82) !important;
+  color: #8060de !important;
+  background: linear-gradient(135deg, rgba(204, 187, 255, 0.8), rgba(242, 237, 255, 0.66)) !important;
+  box-shadow: 0 10px 24px rgba(122, 88, 213, 0.18), inset 1px 1px rgba(255, 255, 255, 0.86) !important;
+}
+
+.gate-card .close,
+.media-lightbox-close {
+  color: #6d7286 !important;
+  border-color: rgba(255, 255, 255, 0.74) !important;
+  background: rgba(255, 255, 255, 0.46) !important;
+}
+
+@media (max-width: 960px) {
+  .neo-top,
+  .workspace-top,
+  .comparison-nav,
+  .market-nav,
+  .media-nav {
+    width: calc(100% - 22px) !important;
+    margin-top: 11px !important;
+    border-radius: 18px !important;
+  }
+
+  .command-stage,
+  .command-stage-solo,
+  .home-live-now,
+  .home-creators,
+  .developers-section,
+  .fighter-hero,
+  .admin-banner,
+  .comparison-intro,
+  .market-hero,
+  .media-hero,
+  .creator-hero,
+  .stream-admin-shell,
+  .fighter-grid,
+  .market-grid,
+  .creator-grid,
+  .media-feed,
+  .watch-shell,
+  .admin-kpis,
+  .comparison-totals {
+    width: calc(100% - 22px) !important;
+  }
+}
