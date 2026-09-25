@@ -647,6 +647,11 @@ body::after {
     justify-content: flex-start !important;
     gap: 6px !important;
     overflow: visible !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    padding: 0 !important;
   }
 
   .neo-top nav > a,
@@ -723,6 +728,29 @@ body::after {
   .admin-kpis,
   .comparison-totals {
     width: min(calc(100% - 48px), 1080px) !important;
+  }
+}
+
+/* A few older page styles colour the nav's inner wrapper separately. */
+.neo-top nav,
+.market-nav nav,
+.media-nav nav,
+.comparison-nav > div,
+.workspace-top > div {
+  border-color: rgba(255, 255, 255, 0.58) !important;
+  background: rgba(255, 255, 255, 0.14) !important;
+  box-shadow: inset 1px 1px rgba(255, 255, 255, 0.36) !important;
+}
+
+@media (min-width: 961px) {
+  .neo-top nav,
+  .market-nav nav,
+  .media-nav nav,
+  .comparison-nav > div,
+  .workspace-top > div {
+    border: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
   }
 }
 
