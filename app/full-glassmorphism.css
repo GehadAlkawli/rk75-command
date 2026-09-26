@@ -2291,3 +2291,144 @@ html[data-theme='dark'] .rk-side-drawer .rk-drawer-nav > .rk-nav-active {
   border-color: rgba(139, 175, 255, 0.42) !important;
   background: linear-gradient(135deg, rgba(83, 104, 199, 0.6), rgba(105, 73, 184, 0.46)) !important;
 }
+
+/* Final interface repairs: consistent contrast, a direction-safe theme switch,
+   and a compact hero label that never collides with the Arabic heading. */
+.rk-drawer-theme-switch {
+  direction: ltr !important;
+}
+
+[dir='rtl'] .rk-drawer-theme-switch[aria-checked='true'] > span {
+  transform: translateX(20px) !important;
+}
+
+.rk-drawer-guest-actions > button {
+  display: inline-flex !important;
+  min-height: 42px !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  width: 100% !important;
+  padding: 10px 14px !important;
+  border: 1px solid rgba(96, 102, 158, 0.26) !important;
+  border-radius: 14px !important;
+  color: #252a46 !important;
+  background: rgba(255, 255, 255, 0.7) !important;
+  box-shadow: inset 1px 1px rgba(255, 255, 255, 0.84), 0 7px 20px rgba(62, 73, 128, 0.1) !important;
+  cursor: pointer !important;
+  font: inherit !important;
+  font-weight: 800 !important;
+  text-decoration: none !important;
+  transition: transform 180ms ease, border-color 180ms ease, background 180ms ease !important;
+}
+
+.rk-drawer-guest-actions > button:hover,
+.rk-drawer-guest-actions > button:focus-visible {
+  transform: translateY(-1px) !important;
+  border-color: rgba(89, 101, 198, 0.5) !important;
+  outline: none !important;
+}
+
+.rk-drawer-guest-actions > button + button {
+  color: #fff !important;
+  border-color: rgba(92, 73, 196, 0.44) !important;
+  background: linear-gradient(135deg, #6756dc, #8c63dd) !important;
+  box-shadow: 0 10px 24px rgba(103, 78, 207, 0.22) !important;
+}
+
+html[data-theme='dark'] .rk-drawer-guest-actions > button {
+  color: #e9efff !important;
+  border-color: rgba(144, 180, 252, 0.2) !important;
+  background: rgba(10, 19, 49, 0.72) !important;
+  box-shadow: inset 1px 1px rgba(255, 255, 255, 0.05) !important;
+}
+
+html[data-theme='dark'] .rk-drawer-guest-actions > button + button {
+  color: #fff !important;
+  border-color: rgba(160, 135, 255, 0.48) !important;
+  background: linear-gradient(135deg, rgba(91, 96, 223, 0.9), rgba(126, 76, 202, 0.92)) !important;
+  box-shadow: 0 12px 28px rgba(93, 86, 227, 0.24) !important;
+}
+
+html[data-theme='light'] .home-live-head p,
+html[data-theme='light'] .home-creators-head p,
+html[data-theme='light'] .developers-kicker,
+html[data-theme='light'] .rk-drawer-profile-copy > span,
+html[data-theme='light'] .rk-drawer-profile-form > label,
+html[data-theme='light'] .rk-drawer-theme-copy > span {
+  color: #56627d !important;
+  opacity: 1 !important;
+}
+
+html[data-theme='light'] .homepage-creator-platform,
+html[data-theme='light'] .live-stream-meta,
+html[data-theme='light'] .creator-meta,
+html[data-theme='light'] .listing-meta,
+html[data-theme='light'] .developer-badge,
+html[data-theme='light'] .muted-empty {
+  color: #555f79 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme='light'] :is(.rk-side-drawer, .home-live, .home-creators, .developers-section) :is(input, textarea, select) {
+  color: #252b45 !important;
+  border-color: rgba(76, 88, 141, 0.28) !important;
+  background: rgba(255, 255, 255, 0.86) !important;
+}
+
+html[data-theme='light'] :is(.rk-side-drawer, .home-live, .home-creators, .developers-section) :is(input, textarea, select)::placeholder {
+  color: #69738d !important;
+  opacity: 1 !important;
+}
+
+.command-stage-solo .stage-copy::before {
+  content: 'RK75 · COMMAND' !important;
+  position: absolute !important;
+  inset-block-start: 14px !important;
+  inset-inline-start: 16px !important;
+  inset-inline-end: auto !important;
+  z-index: 4 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  width: auto !important;
+  max-inline-size: calc(100% - 32px) !important;
+  min-height: 24px !important;
+  margin: 0 !important;
+  padding: 5px 8px !important;
+  overflow: hidden !important;
+  color: #5a6488 !important;
+  border-color: rgba(84, 96, 157, 0.3) !important;
+  background: rgba(248, 250, 255, 0.56) !important;
+  font-size: clamp(0.5rem, 0.8vw, 0.57rem) !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.08em !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+  text-overflow: ellipsis !important;
+}
+
+.command-stage-solo .stage-copy {
+  padding-block-start: clamp(76px, 8vw, 92px) !important;
+}
+
+html[data-theme='dark'] .command-stage-solo .stage-copy::before {
+  color: #a9dcff !important;
+  border-color: rgba(119, 207, 255, 0.35) !important;
+  background: rgba(9, 31, 61, 0.48) !important;
+}
+
+@media (max-width: 540px) {
+  .command-stage-solo .stage-copy::before {
+    inset-block-start: 12px !important;
+    inset-inline-start: 12px !important;
+    max-inline-size: calc(100% - 24px) !important;
+    min-height: 21px !important;
+    padding: 4px 7px !important;
+    font-size: 0.49rem !important;
+    letter-spacing: 0.065em !important;
+  }
+
+  .command-stage-solo .stage-copy {
+    padding-block-start: 64px !important;
+  }
+}

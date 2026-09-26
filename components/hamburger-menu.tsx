@@ -231,6 +231,13 @@ export function HamburgerMenu({
     window.localStorage.setItem('rk75-theme', nextTheme);
   }
 
+  function openPlayerAuth(mode: 'login' | 'register') {
+    // The home page reads this intent on its initial load.  A document
+    // navigation avoids Next.js treating a same-page query change as a no-op.
+    closeDrawer();
+    window.location.assign(`/?auth=${mode}`);
+  }
+
   function beginProfileEdit() {
     if (!profile || profile.role !== 'player') return;
     setProfileName(profile.displayName);
@@ -342,8 +349,8 @@ export function HamburgerMenu({
 
           {!profile && profileLoaded && !profileLoading && (
             <div className="rk-drawer-guest-actions">
-              <Link href="/?auth=login" onClick={closeDrawer}><LogIn size={16} />{t.signIn}</Link>
-              <Link href="/?auth=register" onClick={closeDrawer}><Plus size={16} />{t.register}</Link>
+              <button type="button" onClick={() => openPlayerAuth('login')}><LogIn size={16} />{t.signIn}</button>
+              <button type="button" onClick={() => openPlayerAuth('register')}><Plus size={16} />{t.register}</button>
             </div>
           )}
         </section>
