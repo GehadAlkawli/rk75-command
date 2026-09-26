@@ -1499,11 +1499,12 @@ body.rk-drawer-open {
   position: fixed !important;
   z-index: 2100 !important;
   inset: 0 !important;
-  pointer-events: none !important;
+  pointer-events: auto !important;
 }
 
 .rk-drawer-backdrop {
   position: absolute !important;
+  z-index: 0 !important;
   inset: 0 !important;
   display: block !important;
   width: 100% !important;
@@ -1521,6 +1522,8 @@ body.rk-drawer-open {
 .rk-side-drawer {
   position: absolute !important;
   z-index: 1 !important;
+  /* Keep every link and button above the full-screen backdrop hit area. */
+  pointer-events: auto !important;
   inset-block: 0 !important;
   inset-inline-start: 0 !important;
   inset-inline-end: auto !important;

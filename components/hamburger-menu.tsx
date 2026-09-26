@@ -190,26 +190,6 @@ export function HamburgerMenu({
   useEffect(() => {
     if (!isOpen) return;
 
-    const pageRoots = Array.from(document.body.children).filter(
-      (element) => !element.classList.contains('rk-drawer-layer'),
-    );
-
-    for (const root of pageRoots) {
-      root.setAttribute('inert', '');
-      root.setAttribute('aria-hidden', 'true');
-    }
-
-    return () => {
-      for (const root of pageRoots) {
-        root.removeAttribute('inert');
-        root.removeAttribute('aria-hidden');
-      }
-    };
-  }, [isOpen]);
-
-  useEffect(() => {
-    if (!isOpen) return;
-
     function closeAfterDrawerNavigation(event: MouseEvent) {
       const target = event.target as Element | null;
       if (target?.closest('.rk-side-drawer a, .rk-side-drawer .lang-switch, .rk-side-drawer .admin-trigger, .rk-side-drawer [data-menu-close]')) {
