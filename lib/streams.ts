@@ -71,6 +71,7 @@ let lastLiveRefresh = 0;
 let refreshingLive: Promise<void> | null = null;
 let refreshingProfiles: Promise<void> | null = null;
 let seedInProgress: Promise<void> | null = null;
+let initialCreatorsReady = false;
 let twitchToken: { token: string; expiresAt: number } | null = null;
 let kickToken: { token: string; expiresAt: number } | null = null;
 
@@ -141,17 +142,24 @@ async function readCreators(options: { includeInactive?: boolean; homepageOnly?:
   return result.results ?? [];
 }
 
-export async function listCreators(liveOnly = false, homepageOnly = false) {
+export async function listCreators(liveOnly = false, homepageOnly = false, refresh = true) {
   await ensureInitialCreators();
   const before = await readCreators({ homepageOnly });
+
+  if (!refresh) {
+    const creators = before.map(toCreator);
+    return liveOnly ? creators.filter((creator) => creator.isLive) : creators;
+  }
+
   await maybeRefresh(before);
   const creators = (await readCreators({ homepageOnly })).map(toCreator);
   return liveOnly ? creators.filter((creator) => creator.isLive) : creators;
 }
 
-export async function listAllCreators() {
+export async function listAllCreators(refresh = true) {
   await ensureInitialCreators();
   const before = await readCreators({ includeInactive: true });
+  if (!refresh) return before.map(toCreator);
   await maybeRefresh(before.filter((creator) => creator.active));
   return (await readCreators({ includeInactive: true })).map(toCreator);
 }
@@ -548,7 +556,26 @@ export async function createCreatorFromUrl(rawUrl: string) {
   return id;
 }
 export async function ensureInitialCreators() {
+  if (initialCreatorsReady) return;
   if (seedInProgress) return seedInProgress;
-  seedInProgress = (async () => { const seeded = await env.DB.prepare('SELECT seed_key FROM creator_seed_state WHERE seed_key = ?').bind(initialSeedKey).first(); if (seeded) return; for (const url of initialCreatorUrls) { try { await createCreatorFromUrl(url); } catch (error) { if (!(error instanceof CreatorDuplicateError)) throw error; } } await env.DB.prepare('INSERT OR IGNORE INTO creator_seed_state (seed_key, completed_at) VALUES (?, ?)').bind(initialSeedKey, new Date().toISOString()).run(); })().finally(() => { seedInProgress = null; });
+  seedInProgress = (async () => {
+    const seeded = await env.DB.prepare('SELECT seed_key FROM creator_seed_state WHERE seed_key = ?').bind(initialSeedKey).first();
+
+    if (!seeded) {
+      for (const url of initialCreatorUrls) {
+        try {
+          await createCreatorFromUrl(url);
+        } catch (error) {
+          if (!(error instanceof CreatorDuplicateError)) throw error;
+        }
+      }
+
+      await env.DB.prepare('INSERT OR IGNORE INTO creator_seed_state (seed_key, completed_at) VALUES (?, ?)').bind(initialSeedKey, new Date().toISOString()).run();
+    }
+
+    // This is isolate-local seed state, not visitor data. It saves one D1
+    // read on every later channel request while the worker stays warm.
+    initialCreatorsReady = true;
+  })().finally(() => { seedInProgress = null; });
   return seedInProgress;
 }

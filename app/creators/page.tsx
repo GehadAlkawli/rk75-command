@@ -1,9 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import Link from 'next/link';
 import { ArrowLeft, LoaderCircle, Users } from 'lucide-react';
-import { Creator, CreatorCard, Lang } from '@/components/creator-card';
+import { CreatorCard, Lang } from '@/components/creator-card';
 import HamburgerMenu from '@/components/hamburger-menu';
+import { useCreatorFeed } from '@/hooks/use-creator-feed';
 
 const text = {
   ar: {
@@ -32,55 +34,28 @@ const text = {
 
 export default function CreatorsPage() {
   const [lang, setLang] = useState<Lang>('ar');
-  const [creators, setCreators] = useState<Creator[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { creators, loading } = useCreatorFeed('/api/creators');
 
   const t = text[lang];
   const rtl = lang === 'ar';
 
-  const loadCreators = async () => {
-    try {
-      const response = await fetch('/api/creators');
-
-      if (!response.ok) {
-        setCreators([]);
-        return;
-      }
-
-      const data = (await response.json()) as Creator[];
-      setCreators(data);
-    } catch {
-      setCreators([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    void loadCreators();
-
-    const timer = window.setInterval(() => {
-      void loadCreators();
-    }, 60_000);
-
-    return () => {
-      window.clearInterval(timer);
-    };
-  }, []);
-
   return (
     <main className="creator-page" dir={rtl ? 'rtl' : 'ltr'}>
       <header className="media-nav">
-        <a className="neo-brand" href="/">
+        <Link className="neo-brand" href="/">
           <span>RK</span>
           <b>75</b>
           <i>CREATORS</i>
-        </a>
+        </Link>
 
-        <HamburgerMenu label={rtl ? 'القائمة' : 'Menu'} locale={rtl ? 'ar' : 'en'} direction={rtl ? 'rtl' : 'ltr'}>
-          <a href="/live">{t.live}</a>
+        <HamburgerMenu
+          label={rtl ? 'القائمة' : 'Menu'}
+          locale={rtl ? 'ar' : 'en'}
+          direction={rtl ? 'rtl' : 'ltr'}
+        >
+          <Link href="/live">{t.live}</Link>
 
-          <a href="/media">{t.media}</a>
+          <Link href="/media">{t.media}</Link>
 
           <button
             type="button"
@@ -90,10 +65,10 @@ export default function CreatorsPage() {
             {t.lang}
           </button>
 
-          <a className="stats-back" href="/">
+          <Link className="stats-back" href="/">
             <ArrowLeft size={16} />
             {t.home}
-          </a>
+          </Link>
         </HamburgerMenu>
       </header>
 

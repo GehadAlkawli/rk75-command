@@ -2432,3 +2432,47 @@ html[data-theme='dark'] .command-stage-solo .stage-copy::before {
     padding-block-start: 64px !important;
   }
 }
+
+/* Keep the same glass identity on phones without compositing dozens of large
+   backdrop layers at full strength while the user scrolls. */
+@media (hover: none) and (pointer: coarse) {
+  .neo-top,
+  .workspace-top,
+  .comparison-nav,
+  .market-nav,
+  .media-nav,
+  .stage-copy,
+  .signal-console,
+  .scan-form,
+  .my-scans,
+  .admin-table-card,
+  .comparison-card,
+  .listing-card,
+  .media-post,
+  .creator-card,
+  .creator-hub-card,
+  .homepage-creator-card,
+  .live-stream-card,
+  .developer-card,
+  .pwa-install {
+    backdrop-filter: blur(12px) saturate(125%) !important;
+  }
+
+  .rk-side-drawer {
+    backdrop-filter: blur(16px) saturate(125%) !important;
+  }
+
+  body::after {
+    opacity: 0.12 !important;
+  }
+}
+
+@supports (content-visibility: auto) {
+  .home-creators,
+  .developers-section,
+  .media-feed,
+  .creator-grid {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 680px;
+  }
+}

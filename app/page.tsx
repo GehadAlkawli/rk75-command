@@ -4,6 +4,7 @@ import { FormEvent, useEffect, useMemo, useState } from 'react';
 import CreatorsSection from '@/components/creators-section';
 import DevelopersSection from '@/components/developers-section';
 import HamburgerMenu from '@/components/hamburger-menu';
+import { usePresence } from '@/hooks/use-presence';
 import { Activity, Check, ChevronRight, Download, Edit3, Eye, EyeOff, Globe2, LockKeyhole, Plus, Shield, Sparkles, Swords, Target, Trash2, Users, X, Zap, MessageCircle } from 'lucide-react';
 
 type Lang = 'ar' | 'en';
@@ -217,13 +218,7 @@ export default function Home() {
     setScans,
   ] = useState<Scan[]>([]);
 
-  const [
-    presence,
-    setPresence,
-  ] = useState({
-    members: 0,
-    online: 0,
-  });
+  const presence = usePresence();
 
   const [
     editing,
@@ -273,8 +268,6 @@ export default function Home() {
     const r=await fetch(endpoint);
     if(r.ok)setScans(await r.json());
   };
-
-  useEffect(()=>{let key=localStorage.getItem('rk75-presence');if(!key){key=crypto.randomUUID();localStorage.setItem('rk75-presence',key)}const ping=async()=>{const r=await fetch('/api/presence',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({visitorKey:key})});if(r.ok)setPresence(await r.json())};void ping();const id=setInterval(ping,30000);return()=>clearInterval(id)},[]);
 
   useEffect(()=>{if(view!=='home')void load()},[view]);
 

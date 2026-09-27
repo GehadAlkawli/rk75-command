@@ -6,8 +6,8 @@
 .neo-top nav>a.rk-nav-active,.market-nav nav>a.rk-nav-active,.comparison-nav>div>a.rk-nav-active{color:#fff3c5!important;text-shadow:0 0 18px rgba(255,210,111,.35)}
 .neo-top nav>a:hover,.market-nav nav>a:hover,.comparison-nav>div>a:hover{transform:translateY(-1px)}
 html.rk-route-leave body{overflow:hidden}
-html.rk-route-leave body::after{content:"";position:fixed;z-index:999;inset:-18% -30%;pointer-events:none;background:linear-gradient(102deg,transparent 0 31%,#090a0f 35% 65%,transparent 69%);transform:translateX(-95%) skewX(-13deg);animation:rkRouteBlade .47s cubic-bezier(.7,0,.2,1) both}
-html.rk-route-leave body::before{content:"";position:fixed;z-index:1000;inset:-18% -30%;pointer-events:none;border-inline:3px solid transparent;border-image:linear-gradient(#ff9aae,#7ca8ff 53%,#ffda64) 1;transform:translateX(-95%) skewX(-13deg);filter:drop-shadow(0 0 12px #7ca8ff);animation:rkRouteSeams .47s cubic-bezier(.7,0,.2,1) both}
+html.rk-route-leave body::after{content:"";position:fixed;z-index:999;inset:-18% -30%;pointer-events:none;background:linear-gradient(102deg,transparent 0 31%,#090a0f 35% 65%,transparent 69%);transform:translateX(-95%) skewX(-13deg);animation:rkRouteBlade .18s cubic-bezier(.7,0,.2,1) both}
+html.rk-route-leave body::before{content:"";position:fixed;z-index:1000;inset:-18% -30%;pointer-events:none;border-inline:3px solid transparent;border-image:linear-gradient(#ff9aae,#7ca8ff 53%,#ffda64) 1;transform:translateX(-95%) skewX(-13deg);filter:drop-shadow(0 0 12px #7ca8ff);animation:rkRouteSeams .18s cubic-bezier(.7,0,.2,1) both}
 @keyframes rkRouteBlade{0%{transform:translateX(-95%) skewX(-13deg)}52%{transform:translateX(0) skewX(-13deg)}100%{transform:translateX(95%) skewX(-13deg)}}
 @keyframes rkRouteSeams{0%{opacity:0;transform:translateX(-95%) skewX(-13deg)}25%,72%{opacity:1}100%{opacity:0;transform:translateX(95%) skewX(-13deg)}}
 @media(max-width:680px){.neo-top nav,.market-nav nav,.comparison-nav>div{padding:2px;gap:2px}.neo-top nav>a,.market-nav nav>a,.comparison-nav>div>a{min-height:34px;padding-inline:8px!important;font-size:11px!important}}
