@@ -1,0 +1,464 @@
+/*
+ * RK75 readability pass
+ *
+ * This file deliberately loads after the historical visual layers.  It keeps
+ * the glass/neon character, while using more opaque surfaces and verified
+ * foreground colours so text does not disappear over the background.
+ */
+
+:root {
+  --rk-readable-ink: #202942;
+  --rk-readable-muted: #4f5d7c;
+  --rk-readable-line: #bdcbe0;
+  --rk-readable-surface: #f9fbff;
+  --rk-readable-surface-alt: #edf2fa;
+  --rk-readable-focus: #5f6ce0;
+}
+
+:where(a, button, input, textarea, select):focus-visible {
+  outline: 3px solid var(--rk-readable-focus) !important;
+  outline-offset: 3px !important;
+}
+
+/* Light mode: keep the frosted material, but give it a sufficiently solid
+   canvas and a deep foreground colour. */
+html[data-theme='light'] {
+  color-scheme: light !important;
+  background: #e9eff8 !important;
+}
+
+html[data-theme='light'] body {
+  color: var(--rk-readable-ink) !important;
+  background:
+    radial-gradient(circle at 8% 4%, rgba(112, 139, 236, 0.22), transparent 26rem),
+    radial-gradient(circle at 92% 11%, rgba(161, 116, 232, 0.17), transparent 28rem),
+    linear-gradient(145deg, #f7f9ff 0%, #e8eef8 50%, #eef2fa 100%) !important;
+}
+
+html[data-theme='light'] body::after {
+  opacity: 0.18 !important;
+}
+
+html[data-theme='light'] :is(
+  .neo-top,
+  .workspace-top,
+  .comparison-nav,
+  .market-nav,
+  .media-nav,
+  .stage-copy,
+  .signal-console,
+  .scan-form,
+  .my-scans,
+  .admin-table-card,
+  .comparison-card,
+  .kpi,
+  .comparison-totals > div,
+  .listing-card,
+  .market-empty,
+  .media-post,
+  .media-empty,
+  .creator-card,
+  .creator-hub-card,
+  .homepage-creator-card,
+  .live-stream-card,
+  .developer-card,
+  .creator-empty,
+  .creator-add-form,
+  .stream-admin-list,
+  .watch-details,
+  .stream-player,
+  .stream-fallback,
+  .media-composer,
+  .listing-form,
+  .pwa-install,
+  .pwa-ios-card,
+  .home-live-head,
+  .home-creators-head,
+  .developers-section
+) {
+  color: var(--rk-readable-ink) !important;
+  border-color: rgba(84, 104, 149, 0.34) !important;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.94), rgba(233, 239, 250, 0.88)) !important;
+  box-shadow: 0 16px 38px rgba(58, 73, 115, 0.16), inset 1px 1px rgba(255, 255, 255, 0.96) !important;
+}
+
+html[data-theme='light'] :is(
+  .home-hero-title,
+  .stage-copy h1,
+  .fighter-hero h1,
+  .admin-banner h1,
+  .comparison-intro h1,
+  .market-hero h1,
+  .media-hero h1,
+  .creator-hero h1,
+  .stream-admin-intro h1,
+  .home-live-head h2,
+  .home-creators-head h2,
+  .developers-heading h2,
+  .form-head h2,
+  .my-scans h2,
+  .table-title h2,
+  .comparison-title h2,
+  .listing-heading h2,
+  .media-post h3,
+  .creator-hub-name-row h3,
+  .creator-name h3,
+  .creator-channel-copy strong,
+  .developer-info h3,
+  .watch-details h1,
+  .stream-admin-list h2
+) {
+  color: #18223d !important;
+  text-shadow: none !important;
+}
+
+html[data-theme='light'] :is(
+  .stage-copy > p:not(.kicker),
+  .fighter-hero span,
+  .admin-banner span,
+  .comparison-intro span,
+  .market-hero span,
+  .media-hero span,
+  .creator-hero span,
+  .stream-admin-intro span,
+  .homepage-creator-platform,
+  .live-stream-meta,
+  .creator-meta,
+  .creator-hub-status,
+  .creator-hub-stats,
+  .listing-methods span,
+  .listing-contacts span,
+  .listing-stats dt,
+  .media-post-top,
+  .creator-admin-info span,
+  .creator-admin-info small,
+  .developer-badge,
+  .market-safety,
+  .stats-note,
+  .muted-empty,
+  .scan-row small,
+  .admin-table small
+) {
+  color: var(--rk-readable-muted) !important;
+  opacity: 1 !important;
+}
+
+html[data-theme='light'] :is(
+  .kicker,
+  .fighter-hero p,
+  .admin-banner p,
+  .comparison-intro p,
+  .market-hero p,
+  .media-hero p,
+  .creator-hero p,
+  .stream-admin-intro p,
+  .table-title p,
+  .comparison-title p
+) {
+  color: #455d93 !important;
+  font-weight: 800 !important;
+}
+
+/* Navigation and secondary calls-to-action use a deliberate, readable state
+   instead of translucent grey text. The hero action is intentionally darker
+   so it remains visible even when the hero background is dark. */
+html[data-theme='light'] :is(
+  .neo-top nav > a,
+  .workspace-top > div > a,
+  .media-nav a:not(.neo-brand),
+  .market-nav a:not(.neo-brand),
+  .comparison-nav a:not(.neo-brand),
+  .plain-link,
+  .outline-button,
+  .lang-switch,
+  .admin-trigger,
+  .stats-back,
+  .market-home-link,
+  .roster-login
+) {
+  color: #263755 !important;
+  border-color: #aebeda !important;
+  background: rgba(255, 255, 255, 0.9) !important;
+  box-shadow: 0 6px 14px rgba(66, 82, 130, 0.11), inset 1px 1px rgba(255, 255, 255, 0.95) !important;
+  font-weight: 800 !important;
+  text-shadow: none !important;
+}
+
+html[data-theme='light'] .stage-actions .outline-button {
+  color: #f8fbff !important;
+  border-color: #475f9f !important;
+  background: linear-gradient(135deg, #253d75, #385a9f) !important;
+  box-shadow: 0 11px 24px rgba(40, 60, 116, 0.24), inset 1px 1px rgba(255, 255, 255, 0.13) !important;
+}
+
+html[data-theme='light'] :is(
+  .neo-top nav > a:hover,
+  .workspace-top > div > a:hover,
+  .media-nav a:not(.neo-brand):hover,
+  .market-nav a:not(.neo-brand):hover,
+  .comparison-nav a:not(.neo-brand):hover,
+  .plain-link:hover,
+  .outline-button:hover,
+  .lang-switch:hover,
+  .admin-trigger:hover,
+  .stats-back:hover,
+  .market-home-link:hover,
+  .roster-login:hover
+) {
+  color: #fff !important;
+  border-color: #5366bb !important;
+  background: linear-gradient(135deg, #5b57c9, #765bc7) !important;
+}
+
+html[data-theme='light'] :is(
+  .scan-form input,
+  .scan-form textarea,
+  .creator-add-form input,
+  .market-field input,
+  .market-field textarea,
+  .media-composer input,
+  .media-composer textarea,
+  .vault-add input,
+  .vault-unlock input,
+  .creator-order input,
+  .gate-card input,
+  .gate-card textarea,
+  .emboss-field > input,
+  .emboss-field > div,
+  .password-field > div,
+  .rk-drawer-profile-form input:not([type='file'])
+) {
+  color: #202b47 !important;
+  border-color: #aebfdb !important;
+  background: rgba(255, 255, 255, 0.96) !important;
+  box-shadow: inset 0 1px 2px rgba(47, 61, 100, 0.08) !important;
+}
+
+html[data-theme='light'] :is(input, textarea)::placeholder {
+  color: #65718c !important;
+  opacity: 1 !important;
+}
+
+/* Tables: opaque rows, high-contrast headings, and semantic data that can be
+   scanned quickly without relying on a faint pastel background. */
+html[data-theme='light'] :is(.comparison-scroll, .admin-scroll) {
+  border-color: #b8c5db !important;
+  background: #e8eef7 !important;
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.95) !important;
+}
+
+html[data-theme='light'] :is(.comparison-table th, .admin-table th) {
+  color: #28334d !important;
+  border-color: #c4cfdf !important;
+  background: #dce4f1 !important;
+  font-weight: 850 !important;
+}
+
+html[data-theme='light'] :is(.comparison-table td, .admin-table td) {
+  color: #202a42 !important;
+  border-color: #d2dbe8 !important;
+  background: #fbfcff !important;
+  font-weight: 650 !important;
+}
+
+html[data-theme='light'] :is(.comparison-table, .admin-table) tbody tr:nth-child(even) td {
+  background: #f1f4f9 !important;
+}
+
+html[data-theme='light'] :is(.comparison-table, .admin-table) tbody tr:hover td {
+  background: #e3ebff !important;
+  box-shadow: inset 3px 0 #6676d8 !important;
+}
+
+html[data-theme='light'] .comparison-table th.before-head {
+  color: #fff !important;
+  background: linear-gradient(125deg, #5644c6, #7d68dc) !important;
+}
+
+html[data-theme='light'] .comparison-table th.after-head {
+  color: #fff !important;
+  background: linear-gradient(125deg, #236d9f, #4b96c5) !important;
+}
+
+html[data-theme='light'] .comparison-table th.change-head {
+  color: #fff !important;
+  background: linear-gradient(125deg, #75467e, #a86cae) !important;
+}
+
+html[data-theme='light'] .comparison-table .rank {
+  color: #334c90 !important;
+  font-weight: 900 !important;
+}
+
+html[data-theme='light'] .comparison-table .tracked {
+  color: #123e72 !important;
+  border: 1px solid #92b9e4 !important;
+  background: #dceeff !important;
+  font-weight: 900 !important;
+}
+
+html[data-theme='light'] .comparison-table .yes {
+  color: #704400 !important;
+  background: #fff0b7 !important;
+  font-weight: 900 !important;
+}
+
+html[data-theme='light'] .comparison-table .kill-stat {
+  color: #0b3e79 !important;
+  font-weight: 800 !important;
+}
+
+html[data-theme='light'] .comparison-table .loss-stat {
+  color: #791d5c !important;
+  font-weight: 800 !important;
+}
+
+html[data-theme='light'] .comparison-table .troop-stat {
+  color: #08683d !important;
+  font-weight: 900 !important;
+}
+
+html[data-theme='light'] .comparison-table .positive {
+  color: #075f37 !important;
+  background: #d3f1df !important;
+  font-weight: 900 !important;
+}
+
+html[data-theme='light'] .comparison-table .negative {
+  color: #9c183c !important;
+  background: #ffe0e8 !important;
+  font-weight: 900 !important;
+}
+
+html[data-theme='light'] .comparison-table .change-kills {
+  color: #092f5b !important;
+  background: linear-gradient(90deg, #83caed 0 65%, #fbfcff 65%) !important;
+  font-weight: 900 !important;
+}
+
+html[data-theme='light'] .comparison-table tbody tr:nth-child(even) .change-kills {
+  background: linear-gradient(90deg, #75c1e7 0 65%, #f1f4f9 65%) !important;
+}
+
+html[data-theme='light'] .comparison-table .change-losses {
+  color: #611142 !important;
+  background: linear-gradient(90deg, #e69ad8 0 52%, #fbfcff 52%) !important;
+  font-weight: 900 !important;
+}
+
+html[data-theme='light'] .comparison-table tbody tr:nth-child(even) .change-losses {
+  background: linear-gradient(90deg, #d989ca 0 52%, #f1f4f9 52%) !important;
+}
+
+html[data-theme='light'] .comparison-table .change-troops {
+  color: #075d36 !important;
+  background: linear-gradient(90deg, #8bdfae 0 72%, #fbfcff 72%) !important;
+  font-weight: 900 !important;
+}
+
+html[data-theme='light'] .comparison-table tbody tr:nth-child(even) .change-troops {
+  background: linear-gradient(90deg, #7cd4a0 0 72%, #f1f4f9 72%) !important;
+}
+
+/* Night mode uses the same contrast targets with a deep opaque glass base. */
+html[data-theme='dark'] {
+  --rk-readable-focus: #8dd9ff;
+}
+
+html[data-theme='dark'] :is(
+  .neo-top nav > a,
+  .workspace-top > div > a,
+  .media-nav a:not(.neo-brand),
+  .market-nav a:not(.neo-brand),
+  .comparison-nav a:not(.neo-brand),
+  .plain-link,
+  .outline-button,
+  .lang-switch,
+  .admin-trigger,
+  .stats-back,
+  .market-home-link,
+  .roster-login
+) {
+  color: #f2f6ff !important;
+  border-color: rgba(147, 185, 255, 0.52) !important;
+  background: rgba(14, 29, 66, 0.93) !important;
+  box-shadow: 0 7px 17px rgba(0, 0, 0, 0.26), inset 1px 1px rgba(255, 255, 255, 0.08) !important;
+  font-weight: 800 !important;
+}
+
+html[data-theme='dark'] :is(
+  .neo-top nav > a:hover,
+  .workspace-top > div > a:hover,
+  .media-nav a:not(.neo-brand):hover,
+  .market-nav a:not(.neo-brand):hover,
+  .comparison-nav a:not(.neo-brand):hover,
+  .plain-link:hover,
+  .outline-button:hover,
+  .lang-switch:hover,
+  .admin-trigger:hover,
+  .stats-back:hover,
+  .market-home-link:hover,
+  .roster-login:hover
+) {
+  color: #fff !important;
+  border-color: #91dfff !important;
+  background: linear-gradient(135deg, #2a4e9d, #564bb3) !important;
+}
+
+html[data-theme='dark'] :is(.comparison-scroll, .admin-scroll) {
+  border-color: rgba(136, 175, 244, 0.35) !important;
+  background: #071027 !important;
+}
+
+html[data-theme='dark'] :is(.comparison-table th, .admin-table th) {
+  color: #f0f5ff !important;
+  border-color: rgba(142, 180, 246, 0.28) !important;
+  background: #253f7a !important;
+  font-weight: 850 !important;
+}
+
+html[data-theme='dark'] :is(.comparison-table td, .admin-table td) {
+  color: #edf3ff !important;
+  border-color: rgba(142, 180, 246, 0.2) !important;
+  background: #0d1936 !important;
+  font-weight: 650 !important;
+}
+
+html[data-theme='dark'] :is(.comparison-table, .admin-table) tbody tr:nth-child(even) td {
+  background: #111f40 !important;
+}
+
+html[data-theme='dark'] :is(.comparison-table, .admin-table) tbody tr:hover td {
+  background: #1a315d !important;
+  box-shadow: inset 3px 0 #8edbff !important;
+}
+
+html[data-theme='dark'] .comparison-table th.before-head {
+  color: #fff !important;
+  background: linear-gradient(125deg, #465ed1, #7568df) !important;
+}
+
+html[data-theme='dark'] .comparison-table th.after-head {
+  color: #fff !important;
+  background: linear-gradient(125deg, #147581, #2ab7a0) !important;
+}
+
+html[data-theme='dark'] .comparison-table th.change-head {
+  color: #fff !important;
+  background: linear-gradient(125deg, #8d557f, #ba7aa9) !important;
+}
+
+html[data-theme='dark'] .comparison-table .rank { color: #ffe18d !important; font-weight: 900 !important; }
+html[data-theme='dark'] .comparison-table .tracked { color: #aeeaff !important; border-color: #477eaf !important; background: #102d51 !important; font-weight: 900 !important; }
+html[data-theme='dark'] .comparison-table .yes { color: #ffe298 !important; background: #4b3a08 !important; font-weight: 900 !important; }
+html[data-theme='dark'] .comparison-table .kill-stat { color: #bdeeff !important; font-weight: 800 !important; }
+html[data-theme='dark'] .comparison-table .loss-stat { color: #ffc1ea !important; font-weight: 800 !important; }
+html[data-theme='dark'] .comparison-table .troop-stat { color: #aeffcf !important; font-weight: 900 !important; }
+html[data-theme='dark'] .comparison-table .positive { color: #a8f6c8 !important; background: #163f32 !important; font-weight: 900 !important; }
+html[data-theme='dark'] .comparison-table .negative { color: #ffc0ce !important; background: #4a1c32 !important; font-weight: 900 !important; }
+html[data-theme='dark'] .comparison-table .change-kills { color: #eaf9ff !important; background: linear-gradient(90deg, #196f9d 0 65%, #0d1936 65%) !important; font-weight: 900 !important; }
+html[data-theme='dark'] .comparison-table tbody tr:nth-child(even) .change-kills { background: linear-gradient(90deg, #17658f 0 65%, #111f40 65%) !important; }
+html[data-theme='dark'] .comparison-table .change-losses { color: #ffe5fa !important; background: linear-gradient(90deg, #8d317e 0 52%, #0d1936 52%) !important; font-weight: 900 !important; }
+html[data-theme='dark'] .comparison-table tbody tr:nth-child(even) .change-losses { background: linear-gradient(90deg, #7e2a71 0 52%, #111f40 52%) !important; }
+html[data-theme='dark'] .comparison-table .change-troops { color: #e2ffed !important; background: linear-gradient(90deg, #17774f 0 72%, #0d1936 72%) !important; font-weight: 900 !important; }
+html[data-theme='dark'] .comparison-table tbody tr:nth-child(even) .change-troops { background: linear-gradient(90deg, #146c47 0 72%, #111f40 72%) !important; }
